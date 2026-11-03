@@ -6,6 +6,9 @@ per package made from its README.md, the getting-started guide, the example summ
 demos. Markdown goes through GitHub's own renderer (via the gh command-line tool), so pages say
 exactly what the repo says. Run tools/publish.sh after changing a write-up or demo: it calls this,
 then deploys site/ to Netlify. site/ is a build output and isn't kept in git.
+
+Pages are built under /claude-tooling/ (site/claude-tooling/): aidan-alexander.com/claude-tooling proxies to this
+Netlify site, and site/_redirects sends the old top-level paths there.
 """
 import html
 import posixpath
@@ -19,10 +22,18 @@ SITE = ROOT / "site"
 REPO = "Aidan-Alexander/claude-toolkit"
 GITHUB = f"https://github.com/{REPO}"
 NETLIFY = "https://aidan-claude-toolkit.netlify.app"
+BASE = "/claude-tooling"
+CANONICAL = "https://aidan-alexander.com" + BASE
+OUT = SITE / BASE.strip("/")
 PACKAGES = ["summarise-granola", "call-actions", "automations-page", "work-hours"]
 THUMBS = {"summarise-granola": "summarise-granola/example.png", "call-actions": "call-actions/screenshot.png",
-          "automations-page": "automations-page/screenshot.png"}
+          "automations-page": "automations-page/screenshot.png", "mailsmush": "images/mailsmush/thumb.png"}
 IMAGES = (".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp")
+# Old links (from before the move under /claude-tooling/) follow the pages to their new place.
+REDIRECTS = "\n".join(
+    [f"/  {BASE}/  301!"]
+    + [f"/{p}/*  {BASE}/{p}/:splat  301!" for p in PACKAGES + ["getting-started", "ask-claude", "images"]]
+    + [f"/{n}  {BASE}/{n}  301!" for n in ("site.css", "site.js")]) + "\n"
 
 # The work-hours package has no screenshot, so its card shows the warning window in HTML.
 STOP_WORK_MOCK = """<div class="mock" role="img" aria-label="The stop-work warning: work stops at 18:01, with Skip today and OK buttons">
@@ -49,8 +60,9 @@ def slug(text: str) -> str:
 
 def fix_url(url: str, src_dir: str) -> str:
     """Point a link from a write-up at the right place on the site, or at GitHub."""
-    if url.startswith(NETLIFY):
-        return url[len(NETLIFY):] or "/"
+    for prefix in (CANONICAL, NETLIFY + BASE, NETLIFY):
+        if url.startswith(prefix):
+            return BASE + (url[len(prefix):] or "/")
     if re.match(r"^[a-z][a-z0-9+.-]*:", url) or url.startswith(("#", "//")):
         return url
     path, _, frag = url.partition("#")
@@ -58,18 +70,18 @@ def fix_url(url: str, src_dir: str) -> str:
     resolved = "" if resolved == "." else resolved
     top = resolved.split("/")[0]
     if resolved in PACKAGES or (resolved.endswith("/README.md") and top in PACKAGES):
-        target = f"/{top}/"
+        target = f"{BASE}/{top}/"
     elif resolved in ("", "README.md"):
-        target = "/"
+        target = f"{BASE}/"
     elif resolved == "GETTING-STARTED.md":
-        target = "/getting-started/"
+        target = f"{BASE}/getting-started/"
     elif resolved == "ASK-CLAUDE.md":
-        target = "/ask-claude/"
+        target = f"{BASE}/ask-claude/"
     elif resolved == "summarise-granola/example-summary.md":
-        target = "/summarise-granola/example/"
+        target = f"{BASE}/summarise-granola/example/"
     elif resolved.lower().endswith(IMAGES):
         copy_asset(resolved)
-        target = "/" + resolved
+        target = f"{BASE}/{resolved}"
     else:
         kind = "tree" if (ROOT / resolved).is_dir() else "blob"
         target = f"{GITHUB}/{kind}/main/{resolved}"
@@ -77,7 +89,7 @@ def fix_url(url: str, src_dir: str) -> str:
 
 
 def copy_asset(rel: str) -> None:
-    dest = SITE / rel
+    dest = OUT / rel
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / rel, dest)
 
@@ -106,12 +118,12 @@ def page(title: str, body: str, description: str, home: bool = False) -> str:
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="{BASE}/site.css">
 </head>
 <body>
 <header class="bar"><div class="wrap bar-inner">
-  <a class="brand" href="/">Aidan's Claude toolkit</a>
-  <nav><a href="/getting-started/">Getting started</a><a href="{GITHUB}" target="_blank" rel="noopener">GitHub</a></nav>
+  <a class="brand" href="{BASE}/">Aidan's Claude toolkit</a>
+  <nav><a href="{BASE}/getting-started/">Getting started</a><a href="{GITHUB}" target="_blank" rel="noopener">GitHub</a></nav>
 </div></header>
 <main class="wrap">
 {body}
@@ -120,7 +132,7 @@ def page(title: str, body: str, description: str, home: bool = False) -> str:
   <p>Everything here lives on <a href="{GITHUB}" target="_blank" rel="noopener">GitHub</a>, including the files Claude reads when it sets things up. This site is built from those files.</p>
   {FOOTER}
 </footer>
-<script src="/site.js"></script>
+<script src="{BASE}/site.js"></script>
 </body>
 </html>
 """
@@ -178,19 +190,22 @@ def build_home(readme: str) -> None:
     cards = []
     for row in package_rows(table):
         f = row["folder"]
-        thumb = THUMBS.get(f)
+        external = f.startswith("http")  # a tool that lives in its own repo, like MailSmüsh
+        href = f if external else f"{BASE}/{f}/"
+        ext = ' target="_blank" rel="noopener"' if external else ""
+        thumb = THUMBS.get(f.rstrip("/").rsplit("/", 1)[-1] if external else f)
         if thumb:
             copy_asset(thumb)
-            shot = f'<a class="pkg-shot" href="/{f}/" tabindex="-1" aria-hidden="true"><img src="/{thumb}" alt="" loading="lazy"></a>'
+            shot = f'<a class="pkg-shot" href="{href}"{ext} tabindex="-1" aria-hidden="true"><img src="{BASE}/{thumb}" alt="" loading="lazy"></a>'
         else:
-            shot = f'<a class="pkg-shot mock-shot" href="/{f}/" tabindex="-1" aria-hidden="true">{STOP_WORK_MOCK}</a>'
-        links = [f'<a href="/{f}/">How it works</a>']
+            shot = f'<a class="pkg-shot mock-shot" href="{href}"{ext} tabindex="-1" aria-hidden="true">{STOP_WORK_MOCK}</a>'
+        links = [f'<a href="{href}"{ext}>How it works</a>']
         if row["demo"]:
             links.append(f'<a href="{row["demo"]}">Try the demo</a>')
         cards.append(f"""<article class="pkg">
   {shot}
   <div class="pkg-main">
-    <h3><a href="/{f}/">{html.escape(row["name"])}</a></h3>
+    <h3><a href="{href}"{ext}>{html.escape(row["name"])}</a></h3>
     <p class="what">{inline(row["what"])}</p>
     <div class="facts">
       <p><span class="label">Why it's useful</span>{inline(row["why"])}</p>
@@ -204,7 +219,7 @@ def build_home(readme: str) -> None:
     others = "\n\n".join(f"## {name}\n\n{text}" for name, text in sections.items()
                          if name not in ("", "Packaged for you to install", "Credits", "Licence") and not name.startswith("PSA"))
     body = f"""<section class="hero">
-  <p class="eyebrow">How I use Claude at AIM</p>
+  <p class="eyebrow">My open-source systems for working with Claude</p>
   <h1>{html.escape(title)}</h1>
   {ask_html}
   <div class="intro">{tidy(render(intro_md), "")}</div>
@@ -239,7 +254,7 @@ def build_package(folder: str, setup_line: str, demo: str | None) -> None:
                                       '<h2 id="what-it-looks-like">What it looks like</h2>\n' + STOP_WORK_MOCK, 1)
     links = [f'<a href="{demo}">Try the demo</a>'] if demo else []
     links.append(f'<a href="{GITHUB}/tree/main/{folder}" target="_blank" rel="noopener">See the files on GitHub</a>')
-    body = f"""<nav class="crumb"><a href="/">← All tools</a></nav>
+    body = f"""<nav class="crumb"><a href="{BASE}/">← All tools</a></nav>
 <header class="page-head">
   <h1>{html.escape(title)}</h1>
   <ul class="meta">{"".join(facts)}</ul>
@@ -272,7 +287,7 @@ def build_ask() -> None:
     before, _, rest = md.partition("```\n")
     prompt, _, after = rest.partition("\n```")
     before = "\n".join(l for l in before.splitlines() if not l.startswith("# "))
-    body = f"""<nav class="crumb"><a href="/">← All tools</a></nav>
+    body = f"""<nav class="crumb"><a href="{BASE}/">← All tools</a></nav>
 <header class="page-head">
   <h1>{html.escape(title)}</h1>
   <div class="intro">{tidy(render(before), "")}</div>
@@ -285,7 +300,7 @@ def build_ask() -> None:
 
 
 def write(rel: str, text: str) -> None:
-    dest = SITE / rel
+    dest = OUT / rel
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(text, encoding="utf-8")
 
@@ -297,9 +312,10 @@ def main() -> None:
     global FOOTER
     if SITE.exists():
         shutil.rmtree(SITE)
-    SITE.mkdir()
+    OUT.mkdir(parents=True)
+    (SITE / "_redirects").write_text(REDIRECTS, encoding="utf-8")
     for name in ("site.css", "site.js"):
-        shutil.copyfile(ROOT / "tools" / name, SITE / name)
+        shutil.copyfile(ROOT / "tools" / name, OUT / name)
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     sections = split_sections(readme)
     FOOTER = tidy(render(f"**Credits.** {sections['Credits']}\n\n**Licence.** {sections['Licence']}"), "")
@@ -307,9 +323,9 @@ def main() -> None:
     rows = {r["folder"]: r for r in package_rows(sections["Packaged for you to install"])}
     for folder in PACKAGES:
         build_package(folder, rows[folder]["setup"], rows[folder]["demo"])
-    build_doc("GETTING-STARTED.md", "getting-started/index.html", "/", "All tools")
+    build_doc("GETTING-STARTED.md", "getting-started/index.html", f"{BASE}/", "All tools")
     build_ask()
-    build_doc("summarise-granola/example-summary.md", "summarise-granola/example/index.html", "/summarise-granola/", "Call summaries")
+    build_doc("summarise-granola/example-summary.md", "summarise-granola/example/index.html", f"{BASE}/summarise-granola/", "Fancy call summaries")
     for folder in ("call-actions", "automations-page"):
         for name in ("index.html", "demo.js"):
             copy_asset(f"{folder}/demo/{name}")

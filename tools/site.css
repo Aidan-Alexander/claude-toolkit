@@ -63,6 +63,7 @@ h1 { margin: 0 0 22px; font: 790 clamp(2.5rem, 1.7rem + 3.2vw, 3.9rem)/1 var(--f
 .pkg:nth-child(2) { --tone: var(--coral); }
 .pkg:nth-child(3) { --tone: var(--sky); }
 .pkg:nth-child(4) { --tone: var(--sun); }
+.pkg:nth-child(5) { --tone: #a07cf0; }
 .pkg-shot { display: block; text-decoration: none; color: inherit; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--raised); aspect-ratio: 4 / 3.4; align-self: start; box-shadow: 0 6px 18px rgba(60, 45, 20, 0.08); }
 .pkg-shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; transition: transform 300ms ease; }
 .pkg-shot:hover img { transform: scale(1.03); }

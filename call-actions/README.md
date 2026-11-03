@@ -1,4 +1,4 @@
-# Call actions tracker
+# Automatic actions from calls
 
 **Runs in:** Claude Code (the Code tab of the Claude desktop app), on a schedule · **Needs:** Gmail, plus Granola and Google Drive for calls · **Optional:** Slack, Google Calendar, Google Docs, Asana · **Setup:** about 15 minutes
 
@@ -8,14 +8,14 @@ I keep it open all day. I have a lot of calls, and most end with a handful of sm
 
 ## What it looks like
 
-![The Call actions tracker, with made-up items](screenshot.png)
+![The tracker page, with made-up items](screenshot.png)
 
 **[Try the live demo](https://aidan-claude-toolkit.netlify.app/call-actions/demo/)**: it runs on made-up calls and emails, so click around. Nothing is saved or sent.
 
 ## What it does
 
 **After each call** (it checks every hour, or as often as you like):
-1. Summarises the call with the [call summaries](../summarise-granola/) skill, which it installs if you don't have it.
+1. Summarises the call with the [Fancy call summaries](../summarise-granola/) skill, which it installs if you don't have it.
 2. Picks out your actions: only the clear ones, where you said you'd do something or agreed to. Not what other people took on, and not "we should…". It leans towards leaving things out, because a false to-do costs you more than a miss.
 3. Decides, for each one, whether Claude's help would save you time:
    - **Drafted:** Claude did its part (say, drafted the email you promised) and you check it and send it.
@@ -61,7 +61,7 @@ You can change any of these later, or anything else about how it works, by askin
 Set up "call-actions" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/call-actions/SETUP.md exactly as written (e.g. with curl) and follow it.
 ```
 
-Claude asks you the questions above, makes your private tracker page, sets up the call summaries skill if you need it, and schedules the checks. It then offers a first run, so your page starts with something on it.
+Claude asks you the questions above, makes your private tracker page, sets up the Fancy call summaries skill if you need it, and schedules the checks. It then offers a first run, so your page starts with something on it.
 
 ## Using it
 

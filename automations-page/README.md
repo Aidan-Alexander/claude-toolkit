@@ -62,7 +62,7 @@ Open the page any time from your sidebar or its link. A check takes a minute or 
 - **Privacy:** the page is private until you share it. Anyone you share it with sees the whole list, so never ask Claude to put passwords or keys on it.
 - **No special setup:** no Python, no command-line tools, no API keys, no connectors. It works on Mac and Windows, wherever the Claude desktop app does.
 - **My version** also has a Refresh button on the page that checks jobs on my Mac and GitHub Actions directly. It needs Python and some hand-editing of the Claude app's settings, so this version leaves it out and Claude does the checking instead.
-- **With the rest of the toolkit:** the [call actions tracker](../call-actions/) runs as a scheduled task in the Claude app, so it shows up on your page.
+- **With the rest of the toolkit:** [Automatic actions from calls](../call-actions/) runs as a scheduled task in the Claude app, so it shows up on your page.
 - **Updating:** paste the setup line again. Your page keeps its link and its list, and any changes you've asked for are kept: Claude records those in your settings file.
 - **Removing:** ask Claude Code to "remove the automations-page skill and its rule in my CLAUDE.md". The page stays on claude.ai until you delete it there, or ask Claude to.
 

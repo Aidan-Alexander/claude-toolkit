@@ -1,4 +1,4 @@
-# Setting up the Call actions tracker (instructions for Claude)
+# Setting up Automatic actions from calls (instructions for Claude)
 
 You're setting up the `call-actions` skill and its tracker page for the person you're working with, from Aidan Alexander's Claude toolkit (github.com/Aidan-Alexander/claude-toolkit). Assume they aren't technical: do the technical parts yourself, explain each step in a sentence of plain English, and don't show them commands unless they ask.
 

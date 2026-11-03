@@ -1,10 +1,10 @@
-# Call summaries from Granola
+# Fancy call summaries
 
 **Runs in:** Claude Code (the Code tab of the Claude desktop app) · **Needs:** Granola and Google Drive connectors · **Setup:** about 5 minutes
 
 Say "summarise my last call" and Claude turns the call's Granola transcript into a detailed summary in a new Google Doc: what was discussed in the order it happened, who thought what and why, what was decided, and who's doing what next.
 
-I use it after nearly every call, and now run it automatically with the [call actions tracker](../call-actions/).
+I use it after nearly every call, and now run it automatically with [Automatic actions from calls](../call-actions/).
 
 ## Why not just use Granola's notes?
 
@@ -34,7 +34,7 @@ That's a made-up call. [Read the whole example summary](example-summary.md).
 | Spelling | British or American English | British |
 | Where docs go | A "Call summaries" folder, or the top of My Drive | The folder |
 | 1:1 docs | Add a dated link to each summary at the top of your running doc with that person | Yes, for my direct reports |
-| Automatic | Check for new calls every hour on weekdays and summarise them by itself, or only when you ask | Every call, automatically (through my call actions tracker) |
+| Automatic | Check for new calls every hour on weekdays and summarise them by itself, or only when you ask | Every call, automatically (through Automatic actions from calls) |
 
 You can change any of these later, or anything else about how it works, by asking Claude ("make my call summaries shorter").
 

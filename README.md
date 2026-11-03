@@ -16,12 +16,13 @@ I also list other skills I have installed that I haven't packaged up, in case it
 
 | Tool | What it does | Why it's useful | Connectors you'll need | Set it up: paste this into Claude Code |
 |---|---|---|---|---|
-| [**Call summaries**](summarise-granola/) | Checks regularly for new calls you've recorded in Granola (or does one when you ask), turns each into a detailed, chronological summary in a Google Doc, and files it in a folder on your Drive. It can also add a link to each summary in your 1:1 doc with that person. | Granola's own notes are a quick list of bullets. These tell the story of the call: the reasoning behind decisions, who thought what, the exact words for commitments, and the open questions, so I can pick up a thread weeks later. | Granola, Google Drive | `Set up "summarise-granola" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/summarise-granola/SETUP.md exactly as written (e.g. with curl) and follow it.` |
-| [**Call actions tracker**](call-actions/) | After each call, it adds what you said you'd do to a to-do list, and does them for you when it can (as drafts for you to check). Once a week it adds emails and Slack messages that never got a reply, and it can bring in your Asana tasks too. As you use it, it collects your feedback on when and how it should act on things, and what should or shouldn't be on the list, so it keeps getting better. [Try the demo](https://aidan-claude-toolkit.netlify.app/call-actions/demo/). | I have lots of calls, each with several small actions I need to keep track of and act on, and busy inboxes where it's easy to drop a ball. This catches them all in one place, and Claude does the easy ones. | Gmail; Granola and Google Drive for calls | `Set up "call-actions" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/call-actions/SETUP.md exactly as written (e.g. with curl) and follow it.` |
-| [**Automations page**](automations-page/) | One page listing everything that runs on a schedule for you, and whether each one is working. Claude keeps it up to date. [Try the demo](https://aidan-claude-toolkit.netlify.app/automations-page/demo/). | Automations are easy to set up and easy to forget, and a broken one fails quietly. This is one place to see what's running, whether it's working, and how to pause it. | None | `Set up "automations-page" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/automations-page/SETUP.md exactly as written (e.g. with curl) and follow it.` |
+| [**Automatic actions from calls**](call-actions/) | After each call, it adds what you said you'd do to a to-do list, and does them for you when it can (as drafts for you to check). Once a week it adds emails and Slack messages that never got a reply, and it can bring in your Asana tasks too. As you use it, it collects your feedback on when and how it should act on things, and what should or shouldn't be on the list, so it keeps getting better. [Try the demo](https://aidan-claude-toolkit.netlify.app/call-actions/demo/). | I have lots of calls, each with several small actions I need to keep track of and act on, and busy inboxes where it's easy to drop a ball. This catches them all in one place, and Claude does the easy ones. | Gmail; Granola and Google Drive for calls | `Set up "call-actions" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/call-actions/SETUP.md exactly as written (e.g. with curl) and follow it.` |
+| [**Fancy call summaries**](summarise-granola/) | Checks regularly for new calls you've recorded in Granola (or does one when you ask), turns each into a detailed, chronological summary in a Google Doc, and files it in a folder on your Drive. It can also add a link to each summary in your 1:1 doc with that person. | Granola's own notes are a quick list of bullets. These tell the story of the call: the reasoning behind decisions, who thought what, the exact words for commitments, and the open questions, so I can pick up a thread weeks later. | Granola, Google Drive | `Set up "summarise-granola" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/summarise-granola/SETUP.md exactly as written (e.g. with curl) and follow it.` |
+| [**MailSmüsh**](https://github.com/Aidan-Alexander/mailsmush) | A Mac app that keeps all your Gmail inboxes and Google Calendars in one window, outside your browser. Each account gets its own icon (any picture or gif you like) with its unread count. Mac only. | I have three inboxes and calendars: personal, AIM and FarmKind. This keeps them all in one place, as a desktop app outside Chrome, so email isn't one tab among dozens. | None | `Set up MailSmüsh for me. Fetch https://raw.githubusercontent.com/Aidan-Alexander/mailsmush/main/SETUP.md exactly as written (e.g. with curl) and follow it.` |
 | [**Work hours enforcer**](work-hours/) | Ends your workday at a set time, and puts your laptop to sleep at bedtime, unless you click to skip. Mac only. | It's there to help me with my work-life balance. I use one laptop for work and everything else, so it's easy to drift back into work in the evening or stay up too late. This makes stopping the default, and carrying on a deliberate choice. | None | `Set up "work-hours" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/work-hours/SETUP.md exactly as written (e.g. with curl) and follow it.` |
+| [**Automations page**](automations-page/) | One page listing everything that runs on a schedule for you, and whether each one is working. Claude keeps it up to date. [Try the demo](https://aidan-claude-toolkit.netlify.app/automations-page/demo/). | Automations are easy to set up and easy to forget, and a broken one fails quietly. This is one place to see what's running, whether it's working, and how to pause it. | None | `Set up "automations-page" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/automations-page/SETUP.md exactly as written (e.g. with curl) and follow it.` |
 
-All four run in **Claude Code**: the Code tab of the Claude desktop app, not the usual chat. If you haven't used it before, [Getting started](GETTING-STARTED.md) covers the one-off setup, which takes about 10 minutes.
+You set all five up in **Claude Code**: the Code tab of the Claude desktop app, not the usual chat. If you haven't used it before, [Getting started](GETTING-STARTED.md) covers the one-off setup, which takes about 10 minutes.
 
 Why Claude Code? It does everything Chat and Cowork do, and other things besides. Apart from Projects, there's basically no reason to use Chat and Cowork, at least for me. When you first use it, switch it to Auto mode, so it isn't constantly asking your permission for tiny things.
 
@@ -31,19 +32,13 @@ None of them ever send anything for you. They write drafts and documents, and yo
 
 ## PSA – you can change your Claude thinking words!
 
-While Claude Code works, it shows a word like "Pondering…" or "Combobulating…". You can swap these for your own. Paste this into Claude Code:
+While Claude Code works, it shows a word like "Pondering…" or "Combobulating…". You can swap these for your own. For example, I've added about 30, including Cuddling… Faffing… Nematoding… Fibremaxxing… and Going through puberty…
+
+Paste this into Claude Code:
 
 ```
 I want to change the words Claude Code shows while it's working ("Thinking…", "Pondering…" and so on). They're the "spinnerVerbs" setting in ~/.claude/settings.json. Show me the current list as a numbered list: if I haven't changed it yet, find Claude Code's built-in list in its installed files or its documentation. Then ask me which to remove and what to add. Save the result as "spinnerVerbs" with "mode": "replace" and my full list in "verbs", keep every other setting as it is, and show me the final list.
 ```
-
-Some I've added:
-
-- Cuddling…
-- Faffing…
-- Nematoding…
-- Going through puberty…
-- Fibremaxxing…
 
 ## Other skills and automations I use
 
@@ -86,15 +81,11 @@ I keep track of everything that runs on its own on my automations page (above).
 
 - **Team meeting timer:** the timer we use for AIM's team meetings, with animated farm animals, a spin-the-wheel and a few joke modes. [Use it](https://aimteammeeting.netlify.app) or [see the code](https://github.com/Aidan-Alexander/aim-meeting-timer).
 - **AIM blog archive:** the old Charity Entrepreneurship blog posts, rebuilt from web archives after our website moved, so old links still work. [Read it](https://aim-blog-archive.netlify.app).
-- **MailSmüsh:** keeps my three Gmail inboxes and Google Calendars in one place, as a desktop app of its own, outside Chrome. Each account gets its own animated icon. [See it and get it](https://github.com/Aidan-Alexander/mailsmush): Claude Code can install it for you.
-
-  ![MailSmüsh's sidebar and Dock icon, with labels: one icon per Google account, its unread count, Gmail and Calendar buttons, and the hedgehog app icon in the Dock](images/mailsmush/screenshot.png)
-
 - **MEL intake scripts:** the code behind "Slack to database" and "Charity newsletters" above: small scripts GitHub runs every day. [See the code](https://github.com/Aidan-Alexander/mel-intake).
 
 ## Credits
 
-Call summaries grew out of [HartreeWorks' summarise-call skill](https://github.com/HartreeWorks/skill--summarise-call).
+Fancy call summaries grew out of [HartreeWorks' summarise-call skill](https://github.com/HartreeWorks/skill--summarise-call).
 
 ## Licence
 

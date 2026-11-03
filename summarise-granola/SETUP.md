@@ -1,4 +1,4 @@
-# Setting up call summaries (instructions for Claude)
+# Setting up Fancy call summaries (instructions for Claude)
 
 You're installing the `summarise-granola` skill for the person you're working with, from Aidan Alexander's Claude toolkit (github.com/Aidan-Alexander/claude-toolkit). Assume they aren't technical: do the technical parts yourself, explain each step in a sentence of plain English, and don't show them commands unless they ask.
 
@@ -39,7 +39,7 @@ Ask these together (with AskUserQuestion if you have it), each with its one-line
 4. **Spelling**: British or American English.
 5. **Where to save**: a "Call summaries" folder in their Google Drive (recommended, and Aidan's choice; you'll create it if needed), the top level of My Drive, or a folder they name.
 6. **1:1 docs** (optional, and fairly niche): "Do you keep a running Google Doc with anyone you meet regularly, such as a 1:1 agenda doc with a manager or report? If you like, each call's summary gets a dated link at the top of that person's doc." Aidan uses this for his direct reports. If yes, ask for each person's name and the doc's link, and whether the link should go at the top of the doc or at the top of a particular tab (they give the tab's name). This needs the Google Docs connector: check for its `read_doc` and `update_doc` tools, and if it's missing, tell them to connect Google Docs in Settings → Connectors and start a new session before it'll work. Record the docs either way.
-7. **Automatic:** "Should Claude check for new calls every hour on weekdays, 9–6, and summarise them by itself? It runs while the Claude app is open. Or only when you ask?" If they're also installing the call actions tracker, suggest *only when I ask*: the tracker summarises every call itself. Aidan's calls are summarised automatically, by his call actions tracker.
+7. **Automatic:** "Should Claude check for new calls every hour on weekdays, 9–6, and summarise them by itself? It runs while the Claude app is open. Or only when you ask?" If they're also installing Automatic actions from calls, suggest *only when I ask*: the tracker summarises every call itself. Aidan's calls are summarised automatically, by Automatic actions from calls.
 
 ## 4. Do what their answers need
 

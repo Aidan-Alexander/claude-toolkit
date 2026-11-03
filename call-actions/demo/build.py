@@ -15,7 +15,7 @@ BASE = ("<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;pad
         "img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>\n")
 BANNER = """
   <p class="notice" style="margin:0">This is a demo with made-up calls and emails. Click around: nothing is saved or sent,
-  and Claude's side is faked. <a href="https://aidan-claude-toolkit.netlify.app/call-actions/">How it works and how to set it up</a></p>
+  and Claude's side is faked. <a href="../">How it works and how to set it up</a></p>
 """
 
 

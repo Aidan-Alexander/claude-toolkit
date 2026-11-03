@@ -30,7 +30,13 @@ None of them ever send anything for you. They write drafts and documents, and yo
 - **ask-mel:** answers questions about AIM's charities from our monitoring database, with a source and a date for every claim. Once a month, Claude sorts any feedback on its answers into "the skill got it wrong" and "the data is wrong", and emails me a digest. Built for AIM staff: ask me for it.
 - **mel-guru:** a guided way to log a plan, a hypothesis or an experiment in our monitoring database, which also challenges whether it's worth doing. AIM staff only.
 - **grant-sweep:** checks public grant databases and charity newsletters for new grants to AIM charities, and adds the missing ones to our funding table. It runs on the 1st of each month, adds only clear-cut grants, and lists anything doubtful for me to check.
-- **Charity call notes:** every week, copies the charity calls colleagues have approved in a shared Granola folder into our monitoring database, and posts a digest in Slack.
+- **Slack to database:** every morning, it checks the mel-intake Slack channel for threads people have forwarded to our MEL Airtable. This way we can capture news people share in our database so our repository of knowledge about our charities' journeys is more complete.
+- **Charity newsletters:** saves the newsletter updates we receive from our charities into our database so our repository of knowledge about our charities' journeys is more complete, posts a weekly roundup in Slack so AIM staff get all the updates in one place, and every quarter lists charities we haven't heard from last quarter so we can make sure we're subscribed to their newsletter.
+- **Charity call notes:** when we have a Q&A session with one of our charities in the team meeting, it copies the summary and transcript into our MEL database so our repository of knowledge about our charities' journeys is more complete.
+
+### My Claude setup
+
+- **open-source:** whenever Claude builds or changes a skill or automation for me, it checks whether colleagues could use it too, packages it with a plain-English write-up and a one-line setup, and keeps the write-ups here current (it's the skill that keeps this resource up to date!).
 
 ### Writing, docs and slides
 
@@ -59,7 +65,7 @@ I keep track of everything that runs on its own on my automations page (above).
 - **Team meeting timer:** the timer we use for AIM's team meetings, with animated farm animals, a spin-the-wheel and a few joke modes. [Use it](https://aimteammeeting.netlify.app) or [see the code](https://github.com/Aidan-Alexander/aim-meeting-timer).
 - **AIM blog archive:** the old Charity Entrepreneurship blog posts, rebuilt from web archives after our website moved, so old links still work. [Read it](https://aim-blog-archive.netlify.app).
 - **MailSmush:** a Mac app that puts my three Gmail and Google Calendar accounts in one window. It isn't public yet: ask me if you'd like it.
-- **MEL intake scripts:** small scripts GitHub runs every day. They turn the Slack threads people flag into summarised rows in our monitoring database, save the charity newsletters people forward, post a weekly newsletter roundup in Slack, and every quarter list the charities we haven't heard from. [See the code](https://github.com/Aidan-Alexander/mel-intake).
+- **MEL intake scripts:** the code behind "Slack to database" and "Charity newsletters" above: small scripts GitHub runs every day. [See the code](https://github.com/Aidan-Alexander/mel-intake).
 
 ## Credits
 

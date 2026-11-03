@@ -82,6 +82,15 @@ h1 { margin: 0 0 22px; font: 790 clamp(2.5rem, 1.7rem + 3.2vw, 3.9rem)/1 var(--f
 .after { margin-top: 28px; max-width: 46rem; color: var(--muted); }
 .after p { margin: 0 0 10px; }
 
+/* the "ask your Claude" line at the top, and its page */
+.ask-callout { margin: 0 0 24px; padding: 13px 18px; border-radius: 16px; background: #fff4cf; border: 1px solid #f1d983; font-size: 1.05rem; max-width: 46rem; box-shadow: 0 6px 18px rgba(200, 150, 20, 0.12); }
+.ask-callout a { font-weight: 650; }
+.ask-box { max-width: 46rem; margin: 8px 0 22px; }
+
+/* a row of small images, like MailSmüsh's icon and gifs */
+.img-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 10px 0 8px; }
+.prose .img-row img, .img-row img { display: block; width: 88px; height: 88px; object-fit: cover; margin: 0; border-radius: 22px; border: 1px solid var(--line); box-shadow: 0 4px 12px rgba(60, 45, 20, 0.12); }
+
 /* the one-line setup */
 .setup { background: var(--accent-soft); border: 1px solid #cdebdc; border-radius: 16px; padding: 14px 14px 12px; }
 .setup .label { color: var(--accent); }

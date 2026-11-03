@@ -63,6 +63,8 @@ def fix_url(url: str, src_dir: str) -> str:
         target = "/"
     elif resolved == "GETTING-STARTED.md":
         target = "/getting-started/"
+    elif resolved == "ASK-CLAUDE.md":
+        target = "/ask-claude/"
     elif resolved == "summarise-granola/example-summary.md":
         target = "/summarise-granola/example/"
     elif resolved.lower().endswith(IMAGES):
@@ -84,6 +86,7 @@ def tidy(fragment: str, src_dir: str) -> str:
     """Tidy GitHub's HTML for the site: plain tables, bare images, ids on headings, fixed links."""
     fragment = fragment.replace("<markdown-accessiblity-table>", '<div class="table-wrap">').replace("</markdown-accessiblity-table>", "</div>")
     fragment = re.sub(r'<a target="_blank" rel="noopener noreferrer" href="[^"]*">(<img [^>]*>)</a>', r"\1", fragment)
+    fragment = re.sub(r'<p(?: dir="auto")?>((?:\s*<img [^>]*>\s*)+)</p>', r'<p class="img-row">\1</p>', fragment)
     fragment = re.sub(r'<(h[1-4])(?: [^>]*)?>(.*?)</\1>', lambda m: f'<{m.group(1)} id="{slug(m.group(2))}">{m.group(2)}</{m.group(1)}>', fragment)
     fragment = re.sub(r'(href|src)="([^"]*)"', lambda m: f'{m.group(1)}="{html.escape(fix_url(html.unescape(m.group(2)), src_dir))}"', fragment)
     fragment = re.sub(r'<a href="(https?://[^"]+)"', r'<a href="\1" target="_blank" rel="noopener"', fragment)
@@ -165,7 +168,10 @@ def setup_box(line: str) -> str:
 def build_home(readme: str) -> None:
     sections = split_sections(readme)
     title = re.search(r"^# (.+)$", sections[""], re.M).group(1)
-    intro_md = "\n".join(l for l in sections[""].splitlines() if not l.startswith("# ") and "Easier to read on the website" not in l)
+    intro_lines = [l for l in sections[""].splitlines() if not l.startswith("# ") and "Easier to read on the website" not in l]
+    ask_line = next((l for l in intro_lines if l.startswith("No time to look at this yourself?")), "")
+    intro_md = "\n".join(l for l in intro_lines if l != ask_line)
+    ask_html = f'<p class="ask-callout">{inline(ask_line)}</p>' if ask_line else ""
     packaged = sections["Packaged for you to install"]
     table = "\n".join(l for l in packaged.splitlines() if l.startswith("|"))
     after_table = "\n".join(l for l in packaged.splitlines() if not l.startswith("|"))
@@ -199,6 +205,7 @@ def build_home(readme: str) -> None:
     body = f"""<section class="hero">
   <p class="eyebrow">How I use Claude at AIM</p>
   <h1>{html.escape(title)}</h1>
+  {ask_html}
   <div class="intro">{tidy(render(intro_md), "")}</div>
 </section>
 <section class="packaged" id="packaged">
@@ -256,6 +263,25 @@ def build_doc(src: str, dest: str, crumb_href: str, crumb_text: str) -> None:
     write(dest, page(title, body, title))
 
 
+def build_ask() -> None:
+    """The page with the prompt that asks someone's own Claude which tools would suit them."""
+    md = (ROOT / "ASK-CLAUDE.md").read_text(encoding="utf-8")
+    title = re.search(r"^# (.+)$", md, re.M).group(1)
+    before, _, rest = md.partition("```\n")
+    prompt, _, after = rest.partition("\n```")
+    before = "\n".join(l for l in before.splitlines() if not l.startswith("# "))
+    body = f"""<nav class="crumb"><a href="/">← All tools</a></nav>
+<header class="page-head">
+  <h1>{html.escape(title)}</h1>
+  <div class="intro">{tidy(render(before), "")}</div>
+</header>
+<div class="setup ask-box"><p class="label">Paste this into Claude</p><pre class="setup-line"><code>{html.escape(prompt.strip())}</code></pre></div>
+<article class="prose">
+{tidy(render(after), "")}
+</article>"""
+    write("ask-claude/index.html", page(title, body, "A prompt that asks your own Claude which of these tools would suit your work."))
+
+
 def write(rel: str, text: str) -> None:
     dest = SITE / rel
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -280,6 +306,7 @@ def main() -> None:
     for folder in PACKAGES:
         build_package(folder, rows[folder]["setup"], rows[folder]["demo"])
     build_doc("GETTING-STARTED.md", "getting-started/index.html", "/", "All tools")
+    build_ask()
     build_doc("summarise-granola/example-summary.md", "summarise-granola/example/index.html", "/summarise-granola/", "Call summaries")
     for folder in ("call-actions", "automations-page"):
         for name in ("index.html", "demo.js"):

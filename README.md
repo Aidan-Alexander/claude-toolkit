@@ -2,6 +2,8 @@
 
 *Easier to read on the website: [aidan-claude-toolkit.netlify.app](https://aidan-claude-toolkit.netlify.app)*
 
+No time to look at this yourself? [Ask your Claude to check this site and recommend tools from it that might be a good fit for your workflow](ASK-CLAUDE.md).
+
 I'm Aidan Alexander, COO at Ambitious Impact (AIM). This is a bunch of systems I've set up so that Claude helps me work better and more efficiently. My Claude has written it up so colleagues and anyone else in the AIM community can borrow the useful bits.
 
 Some systems/tools I've packaged up for you to install: You paste one line into Claude Code and it does the rest, asking you a few questions as it goes. No coding needed.
@@ -66,7 +68,10 @@ I keep track of everything that runs on its own on my automations page (above).
 
 - **Team meeting timer:** the timer we use for AIM's team meetings, with animated farm animals, a spin-the-wheel and a few joke modes. [Use it](https://aimteammeeting.netlify.app) or [see the code](https://github.com/Aidan-Alexander/aim-meeting-timer).
 - **AIM blog archive:** the old Charity Entrepreneurship blog posts, rebuilt from web archives after our website moved, so old links still work. [Read it](https://aim-blog-archive.netlify.app).
-- **MailSmush:** a Mac app that puts my three Gmail and Google Calendar accounts in one window. It isn't public yet: ask me if you'd like it.
+- **MailSmüsh:** keeps my three Gmail inboxes and Google Calendars in one place, as a desktop app of its own, outside Chrome. Each account gets its own animated icon. [See it and get it](https://github.com/Aidan-Alexander/mailsmush): Claude Code can install it for you.
+
+  <p><img src="images/mailsmush/icon.png" width="88" alt="MailSmüsh's icon: a smiling hedgehog"> <img src="images/mailsmush/personal.gif" width="88" alt="A man dancing in pyjamas"> <img src="images/mailsmush/aim.gif" width="88" alt="A cartoon rocket"> <img src="images/mailsmush/farmkind.gif" width="88" alt="A piglet"></p>
+
 - **MEL intake scripts:** the code behind "Slack to database" and "Charity newsletters" above: small scripts GitHub runs every day. [See the code](https://github.com/Aidan-Alexander/mel-intake).
 
 ## Credits

@@ -86,7 +86,7 @@ def tidy(fragment: str, src_dir: str) -> str:
     """Tidy GitHub's HTML for the site: plain tables, bare images, ids on headings, fixed links."""
     fragment = fragment.replace("<markdown-accessiblity-table>", '<div class="table-wrap">').replace("</markdown-accessiblity-table>", "</div>")
     fragment = re.sub(r'<a target="_blank" rel="noopener noreferrer" href="[^"]*">(<img [^>]*>)</a>', r"\1", fragment)
-    fragment = re.sub(r'<p(?: dir="auto")?>((?:\s*<img [^>]*>\s*)+)</p>', r'<p class="img-row">\1</p>', fragment)
+    fragment = re.sub(r'<p(?: dir="auto")?>((?:\s*<img [^>]*>\s*){2,})</p>', r'<p class="img-row">\1</p>', fragment)
     fragment = re.sub(r'<(h[1-4])(?: [^>]*)?>(.*?)</\1>', lambda m: f'<{m.group(1)} id="{slug(m.group(2))}">{m.group(2)}</{m.group(1)}>', fragment)
     fragment = re.sub(r'(href|src)="([^"]*)"', lambda m: f'{m.group(1)}="{html.escape(fix_url(html.unescape(m.group(2)), src_dir))}"', fragment)
     fragment = re.sub(r'<a href="(https?://[^"]+)"', r'<a href="\1" target="_blank" rel="noopener"', fragment)
@@ -194,7 +194,7 @@ def build_home(readme: str) -> None:
     <p class="what">{inline(row["what"])}</p>
     <div class="facts">
       <p><span class="label">Why it's useful</span>{inline(row["why"])}</p>
-      <p><span class="label">You'll need</span>{inline(row["needs"])}</p>
+      <p><span class="label">Connectors you'll need</span>{inline(row["needs"])}</p>
     </div>
     {setup_box(row["setup"])}
     <p class="pkg-links">{" ".join(links)}</p>

@@ -39,11 +39,13 @@ Ask these together (with AskUserQuestion if you have it), each with its one-line
 4. **Spelling**: British or American English.
 5. **Where to save**: a "Call summaries" folder in their Google Drive (recommended, and Aidan's choice; you'll create it if needed), the top level of My Drive, or a folder they name.
 6. **1:1 docs** (optional, and fairly niche): "Do you keep a running Google Doc with anyone you meet regularly, such as a 1:1 agenda doc with a manager or report? If you like, each call's summary gets a dated link at the top of that person's doc." Aidan uses this for his direct reports. If yes, ask for each person's name and the doc's link, and whether the link should go at the top of the doc or at the top of a particular tab (they give the tab's name). This needs the Google Docs connector: check for its `read_doc` and `update_doc` tools, and if it's missing, tell them to connect Google Docs in Settings → Connectors and start a new session before it'll work. Record the docs either way.
+7. **Automatic:** "Should Claude check for new calls every hour on weekdays, 9–6, and summarise them by itself? It runs while the Claude app is open. Or only when you ask?" If they're also installing the call actions tracker, suggest *only when I ask*: the tracker summarises every call itself. Aidan's calls are summarised automatically, by his call actions tracker.
 
 ## 4. Do what their answers need
 
 - **Folder:** if they chose a "Call summaries" folder, search their Drive with `search_files` for a folder they own with exactly that name, not in the trash. If there isn't one, create it with Google Drive `create_file`, title "Call summaries" and `contentMimeType` `application/vnd.google-apps.folder`. Note its ID. Do the same lookup for a folder they named.
 - **1:1 docs:** for each doc, `read_doc` it once to check it opens. If they named a tab, check it exists and tell them if it doesn't.
+- **Automatic:** if they said yes, create a scheduled task with `create_scheduled_task`: `taskId` "summarise-new-calls", `title` "Summarise new calls", `cronExpression` `40 9-18 * * 1-5` (local time), and this `prompt`: "Use the summarise-granola skill in Automatic mode: read ~/.claude/skills/summarise-granola/SKILL.md and settings.md, and follow its Automatic mode. Nobody is watching: never ask questions. This task may only create Google Docs in the summaries folder, add one dated link at the top of the 1:1 docs listed in settings.md, and write summarised.json in the skill's folder. Nothing is sent or shared." The tool's result says whether it was saved in Auto mode; if not, tell them the first run will stop to ask permission for each tool, and to approve each with the option that remembers it. It only runs while the Claude app is open.
 
 ## 5. Write settings.md
 
@@ -62,9 +64,11 @@ Claude wrote this at setup. Change anything by asking Claude ("make my call summ
 - 1:1 docs (each summary gets a dated link at the top):
   - Priya Shah: https://docs.google.com/document/d/... (top of the doc)
   - Tom Reid: https://docs.google.com/document/d/... (top of the tab "Call summaries")
+- Automatic: on (scheduled task "summarise-new-calls", every hour on weekdays, 9–6)
+- Automatic since: 2026-11-03T14:00:00Z (calls before this are left alone)
 ```
 
-Write "1:1 docs: none" if they skipped that question. End the file with this section:
+Write "1:1 docs: none" if they skipped that question, and "Automatic: off" (with no "Automatic since" line) if they only want summaries when they ask. End the file with this section:
 
 ```markdown
 ## My own rules
@@ -81,6 +85,7 @@ Offer to summarise their most recent Granola call now, following SKILL.md. If th
 
 In a few lines:
 - In any new Claude Code session, say "summarise my last call", "summarise my call with Priya", or type `/summarise-granola`. A session that was already open may not see the new skill until it's restarted.
+- If automatic is on, new calls get summarised by themselves, about an hour after they end, while the Claude app is open. To pause it: Scheduled in the Claude app's sidebar → Summarise new calls → switch it off.
 - It never sends or shares anything: the doc is private until they share it.
 - To change how it works, they can just ask ("stop adding transcripts"). To update the skill later, they paste the same setup line again: their settings, and any changes they've asked for, are kept.
 - If they'd like it to happen automatically after every call, plus a tracker of what they said they'd do, that's the call-actions package: https://aidan-claude-toolkit.netlify.app/call-actions/

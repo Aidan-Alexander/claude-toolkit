@@ -1,4 +1,4 @@
-# Setting up work hours (instructions for Claude)
+# Setting up the work hours enforcer (instructions for Claude)
 
 You're setting up the `work-hours` package for the person you're working with, from Aidan Alexander's Claude toolkit (github.com/Aidan-Alexander/claude-toolkit). It's two schedules for their Mac, and they can have either or both:
 - **Stop work:** on their workdays, a warning a few minutes before work ends. Then, at the set time, a Shortcut of theirs runs, or, with no Shortcut, a message says it's time to stop.

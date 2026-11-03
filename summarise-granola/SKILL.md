@@ -11,10 +11,11 @@ Reads a call's transcript from Granola, writes a summary that lets the user re-l
 
 Connector tools are often deferred: load them with tool search before calling them. If a connector is missing, or its calls fail because of sign-in, tell the user to reconnect it in Claude under Settings → Connectors and then start a new session, and stop.
 
-## Two ways this runs
+## Three ways this runs
 
 - **Normal:** the user asked for a summary. You can ask them things when you genuinely need to.
 - **Unattended:** you were started with `unattended <meeting id>`, usually by the call-actions automation. Nobody is watching, so never ask a question. Take names from the meeting title and the invite. If you still can't name a speaker, call them "Participant 2" (and so on) and say so at the top of the summary. Skip step 1. Finish with the summary doc's link.
+- **Automatic:** you were started with `automatic`, by this skill's own scheduled task. Follow "Automatic mode" at the end of this file.
 
 ## 1. Pick the call
 
@@ -93,7 +94,22 @@ If settings.md lists 1:1 docs and this call was essentially a 1:1 with one of th
 
 ## 8. Report back
 
+Add the call to `summarised.json` in this skill's folder (a JSON list; create it if it's missing), as `{"id": "<meeting id>", "title": "...", "date": "YYYY-MM-DD", "doc": "<summary doc link>"}`, so automatic mode never summarises it twice.
+
 Reply with the doc link, where it was saved, whether a 1:1 doc link was added, and one line on how sure you are about who said what. Never send the summary to anyone or change who can see it: the user decides who to share it with.
+
+## Automatic mode
+
+Only when settings.md says "Automatic: on". The skill's scheduled task starts it with `automatic`, about once an hour on weekdays. Nobody is watching: never ask questions.
+
+1. Read `summarised.json` in this skill's folder (an empty list if it doesn't exist yet).
+2. Granola `list_meetings` with `time_range: "last_7_days"` and `involvement: {"captured_by_me": true}`. Keep the calls that started after "Automatic since" in settings.md and aren't in summarised.json, oldest first.
+3. Check each one is over. Call `get_meeting_transcript` with `max_chars: 1000` and `include_timestamps: true`.
+   - No transcript yet: leave it for the next run.
+   - Under 2,000 characters (`total_chars`) is a false start: add it to summarised.json with `"doc": null` and move on.
+   - Otherwise fetch the end of the transcript (`offset`: `total_chars` minus 3,000, `max_chars: 3000`, `include_timestamps: true`). The last `[m:ss]` stamp plus the transcript's start time (`created_at`) is when the talking stopped. The call is over once that's more than 15 minutes ago; if there are no timestamps, once it started more than 2 hours ago.
+4. Summarise each finished call, up to 3 per run, following steps 2 to 8 in Unattended mode.
+5. Finish with one line per call: its title and the doc link, or why it was skipped. If there was nothing new, say "Nothing new".
 
 ## Changing the settings
 

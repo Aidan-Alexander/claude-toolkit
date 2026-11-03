@@ -1,10 +1,10 @@
-# Work hours
+# Work hours enforcer
 
 **Runs in:** your Mac (Mac only), set up by Claude Code (the Code tab of the Claude desktop app) · **Needs:** no connectors · **Setup:** about 10 minutes
 
 Two scheduled stops for a Mac you use for both work and home. **Stop work** warns you a few minutes before your workday ends, then runs a Shortcut you've made, say one that turns on a Focus and quits Slack. **Bedtime** warns you, then puts the Mac to sleep. You can skip either one from the warning.
 
-I use one laptop for work and everything else, so I run both.
+It's there to help me with my work-life balance. I use one laptop for work and everything else, so I run both.
 
 This isn't really a Claude feature. It's a small script that your Mac's own scheduler runs. Claude Code sets it up for you: it asks how you'd like it, installs it and tests it with you. After that, Claude isn't involved. It runs whether or not the Claude app is open, and doesn't count towards your Claude usage.
 

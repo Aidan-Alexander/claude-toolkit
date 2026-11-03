@@ -18,10 +18,10 @@ That's a made-up call. [Read the whole example summary](example-summary.md).
 
 ## What it does
 
-1. **Picks the call:** the one you name, or the one that just ended. If neither is obvious, it shows you your recent calls to choose from.
+1. **Picks the call:** if you like, it checks for new calls every hour on weekdays and summarises each one by itself. Or it does the one you name when you ask, or the one that just ended.
 2. **Reads the whole transcript** from Granola, however long.
 3. **Works out who said what.** Granola's speaker labels are often wrong, especially when a room shares one laptop, so it checks them against what was said and marks anything it's unsure of with "(?)".
-4. **Writes the summary** and saves it as a Google Doc, in a "Call summaries" folder if you like.
+4. **Writes the summary** and saves it as a Google Doc in a folder on your Drive ("Call summaries", unless you choose another).
 5. **Optionally** adds a tidied transcript to the end of the doc, and a dated link to the summary at the top of your 1:1 doc with that person.
 6. **Gives you the link.** It never sends or shares anything: the doc is private until you share it.
 
@@ -34,6 +34,7 @@ That's a made-up call. [Read the whole example summary](example-summary.md).
 | Spelling | British or American English | British |
 | Where docs go | A "Call summaries" folder, or the top of My Drive | The folder |
 | 1:1 docs | Add a dated link to each summary at the top of your running doc with that person | Yes, for my direct reports |
+| Automatic | Check for new calls every hour on weekdays and summarise them by itself, or only when you ask | Every call, automatically (through my call actions tracker) |
 
 You can change any of these later, or anything else about how it works, by asking Claude ("make my call summaries shorter").
 
@@ -56,6 +57,8 @@ In any Claude Code session:
 - "summarise my call with Priya on Tuesday"
 - `/summarise-granola`
 
+If you turned on automatic, you don't need to ask: each call is summarised about an hour after it ends, while the Claude app is open.
+
 A summary takes a few minutes. You can keep working in another session while it runs.
 
 ## Good to know
@@ -73,4 +76,4 @@ This grew out of [HartreeWorks' summarise-call skill](https://github.com/Hartree
 
 ## Changes
 
-- 2026-11-03: First version in the toolkit: connectors only, with setup questions.
+- 2026-11-03: First version in the toolkit: connectors only, with setup questions, and an optional automatic mode.

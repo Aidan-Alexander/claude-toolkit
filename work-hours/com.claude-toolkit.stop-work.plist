@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- The launchd job for stop work. install.sh copies it into ~/Library/LaunchAgents, swaps in
+     full paths (launchd doesn't understand ~) and sets Hour and Minute to your warning time.
+     launchd runs it every day; work-hours.sh checks whether today is one of your days. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.claude-toolkit.stop-work</string>
+  <key>ProgramArguments</key><array><string>/bin/bash</string><string>~/.work-hours/work-hours.sh</string><string>stop-work</string></array>
+  <key>StartCalendarInterval</key><dict><key>Hour</key><integer>17</integer><key>Minute</key><integer>55</integer></dict>
+  <key>StandardErrorPath</key><string>~/.work-hours/errors.txt</string>
+</dict>
+</plist>

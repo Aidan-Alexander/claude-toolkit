@@ -1,0 +1,824 @@
+<title>Call actions</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: one calm working column for a list you keep open all day. A dated header with the day's tallies,
+   a composer, then sections by what each item needs from you: your OK, Claude's turn, your to-dos (by priority
+   or by call), recent calls, done, and a line back to Claude. */
+:root {
+  --bg: #f2f4f1;
+  --surface: #ffffff;
+  --raised: #f7f9f6;
+  --ink: #131a16;
+  --muted: #5b6761;
+  --faint: #8a948e;
+  --line: #dfe5e0;
+  --line-strong: #c9d2cc;
+  --accent: #1c7455;
+  --accent-ink: #ffffff;
+  --accent-soft: #e0f0e7;
+  --amber: #995a00;
+  --amber-soft: #fcefd8;
+  --red: #b42318;
+  --red-soft: #fde8e5;
+  /* priority tiers: P0 red, P1 orange, P2 gold, P3 slate blue */
+  --p0: #d23a2e; --p1: #db6812; --p2: #b08806; --p3: #476fa5;
+  --tint: 7%;
+  --shadow: 0 1px 2px rgba(19, 26, 22, 0.05), 0 6px 18px rgba(19, 26, 22, 0.04);
+  --font-display: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0f0d; --surface: #121815; --raised: #171f1b; --ink: #e6ece8; --muted: #9ba79f; --faint: #6b7771;
+    --line: #212a26; --line-strong: #2f3934; --accent: #5ccb9b; --accent-ink: #06120c; --accent-soft: #12291f;
+    --amber: #ebb45f; --amber-soft: #2a2010; --red: #ff8a7b; --red-soft: #321816;
+    --p0: #ff7465; --p1: #ff9e50; --p2: #e6c252; --p3: #8cafe2;
+    --tint: 11%;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.22);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b0f0d; --surface: #121815; --raised: #171f1b; --ink: #e6ece8; --muted: #9ba79f; --faint: #6b7771;
+  --line: #212a26; --line-strong: #2f3934; --accent: #5ccb9b; --accent-ink: #06120c; --accent-soft: #12291f;
+  --amber: #ebb45f; --amber-soft: #2a2010; --red: #ff8a7b; --red-soft: #321816;
+  --p0: #ff7465; --p1: #ff9e50; --p2: #e6c252; --p3: #8cafe2;
+  --tint: 11%;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.22);
+  color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15.5px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.wrap {
+  max-width: 50rem; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 80px;
+  display: flex; flex-direction: column; gap: 34px;
+}
+a { color: var(--accent); }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* header */
+.top { display: flex; flex-direction: column; gap: 10px; }
+.eyebrow { font: 500 0.72rem/1 var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); min-height: 0.72rem; }
+h1 { margin: 0; font-family: var(--font-display); font-weight: 760; font-size: clamp(2.1rem, 1.6rem + 2vw, 2.8rem); letter-spacing: -0.03em; line-height: 1; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 58ch; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.stat { display: inline-flex; align-items: center; gap: 8px; font: 500 0.78rem/1 var(--font-mono); padding: 7px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.stat::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
+.stat.todo::before { background: var(--accent); }
+.stat.p0 { color: var(--p0); border-color: color-mix(in oklab, var(--p0) 35%, var(--line)); }
+.stat.p0::before { background: var(--p0); }
+.stat.warn { color: var(--amber); border-color: color-mix(in oklab, var(--amber) 35%, var(--line)); }
+.stat.warn::before { background: var(--amber); }
+.stat.claude::before { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.stat.bad { color: var(--red); border-color: color-mix(in oklab, var(--red) 35%, var(--line)); }
+.stat.bad::before { background: var(--red); }
+
+/* composer */
+.add { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 6px 8px 6px 14px; box-shadow: var(--shadow); transition: border-color 150ms ease, box-shadow 150ms ease; }
+.add:focus-within { border-color: color-mix(in oklab, var(--accent) 55%, var(--line)); box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow); }
+.add-row { display: flex; align-items: center; gap: 10px; }
+.add-row .plus { width: 22px; height: 22px; border-radius: 50%; border: 1.5px dashed var(--line-strong); flex: none; display: grid; place-content: center; color: var(--faint); font: 500 0.95rem/1 var(--font-body); }
+.add-row input[type="text"] { flex: 1; min-width: 0; border: 0; background: transparent; font-size: 1.02rem; padding: 11px 2px; }
+.add-row input[type="text"]:focus-visible { outline: none; }
+.add-row input[type="text"]::placeholder { color: var(--faint); }
+.add-opts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 9px 4px 8px 32px; border-top: 1px solid var(--line); font-size: 0.84rem; color: var(--muted); }
+.add .opt { display: inline-flex; align-items: center; gap: 8px; }
+.add input[type="date"] { font: 500 0.78rem/1 var(--font-mono); border: 1px solid var(--line-strong); border-radius: 999px; padding: 6px 10px; background: var(--surface); color: var(--ink); }
+.add input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+
+/* buttons */
+.btn { border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 7px 14px; cursor: pointer; font-size: 0.87rem; font-weight: 500; line-height: 1.2; transition: border-color 120ms ease, color 120ms ease, background-color 120ms ease, filter 120ms ease; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); color: var(--accent-ink); }
+.btn.small { padding: 5px 11px; font-size: 0.8rem; border-radius: 8px; }
+.btn.danger:hover { border-color: var(--red); color: var(--red); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+/* sections */
+section { display: flex; flex-direction: column; gap: 12px; }
+.sec-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+h2 { margin: 0; font: 600 0.72rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); display: flex; gap: 10px; align-items: center; }
+h2 .n { color: var(--faint); font-weight: 500; letter-spacing: 0.04em; }
+.seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; background: var(--raised); border: 1px solid var(--line); }
+.seg button { border: 0; background: transparent; border-radius: 999px; padding: 5px 12px; font-size: 0.78rem; font-weight: 500; color: var(--muted); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+ul.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+/* groups */
+.group { display: flex; flex-direction: column; gap: 8px; }
+.group + .group { margin-top: 18px; }
+.group-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding: 0 4px; }
+.group-head .title { font-family: var(--font-display); font-weight: 650; font-size: 1.04rem; letter-spacing: -0.01em; color: var(--ink); text-decoration: none; }
+.group-head a.title:hover { color: var(--accent); }
+.group-head .arrow { color: var(--faint); font-weight: 400; margin-left: 3px; }
+.group-head .date { font: 500 0.75rem/1 var(--font-mono); color: var(--faint); }
+.tier { font: 700 0.78rem/1 var(--font-mono); letter-spacing: 0.05em; padding: 5px 9px; border-radius: 7px; color: var(--prio, var(--muted)); background: color-mix(in oklab, var(--prio, var(--muted)) 15%, transparent); }
+
+/* items */
+[data-prio="P0"] { --prio: var(--p0); }
+[data-prio="P1"] { --prio: var(--p1); }
+[data-prio="P2"] { --prio: var(--p2); }
+[data-prio="P3"] { --prio: var(--p3); }
+.item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 14px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 14px 14px 16px; box-shadow: var(--shadow); }
+.item:hover { border-color: var(--line-strong); }
+.item.plan { border-color: color-mix(in oklab, var(--amber) 45%, var(--line)); background: color-mix(in oklab, var(--amber) 6%, var(--surface)); grid-template-columns: minmax(0, 1fr) auto; }
+.item.quiet { background: transparent; box-shadow: none; border-style: dashed; grid-template-columns: minmax(0, 1fr); }
+.item[data-prio] { background: color-mix(in oklab, var(--prio) var(--tint), var(--surface)); border-color: color-mix(in oklab, var(--prio) 32%, var(--line)); box-shadow: inset 3px 0 0 var(--prio), var(--shadow); }
+.item.leaving { opacity: 0; transform: translateX(14px); }
+.item .body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.text { font-weight: 600; font-size: 1rem; line-height: 1.4; overflow-wrap: anywhere; }
+
+.tick { appearance: none; -webkit-appearance: none; margin: 1px 0 0; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line-strong); background: var(--surface); display: grid; place-content: center; cursor: pointer; flex: none; }
+.tick::after { content: ""; width: 9px; height: 5px; border: solid var(--accent-ink); border-width: 0 0 2px 2px; transform: translateY(-1px) rotate(-45deg) scale(0); }
+.tick:hover { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.tick:checked { background: var(--accent); border-color: var(--accent); }
+.tick:checked::after { transform: translateY(-1px) rotate(-45deg) scale(1); }
+.item[data-prio] .tick { border-color: color-mix(in oklab, var(--prio) 60%, var(--line-strong)); }
+
+.meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.78rem; color: var(--muted); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; background: var(--raised); border: 1px solid var(--line); line-height: 1.35; }
+.item[data-prio] .chip { background: color-mix(in oklab, var(--surface) 72%, transparent); }
+a.chip { color: inherit; text-decoration: none; }
+a.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.claude { background: var(--accent-soft); border-color: transparent; color: var(--accent); font-weight: 600; }
+.chip.new { background: var(--accent); border-color: transparent; color: var(--accent-ink); font-weight: 700; letter-spacing: 0.02em; }
+.chip.due { font-family: var(--font-mono); font-size: 0.73rem; }
+.chip.overdue { background: var(--red-soft); border-color: transparent; color: var(--red); }
+.chip.soon { background: var(--amber-soft); border-color: transparent; color: var(--amber); }
+.item[data-prio] .chip.overdue { background: var(--red-soft); }
+.item[data-prio] .chip.soon { background: var(--amber-soft); }
+.item[data-prio] .chip.new { background: var(--accent); }
+.item[data-prio] .chip.claude { background: var(--accent-soft); }
+.age { font: 500 0.73rem/1 var(--font-mono); color: var(--faint); }
+
+.note { margin: 0; font-size: 0.9rem; line-height: 1.55; padding: 9px 12px; border-radius: 10px; background: var(--raised); border: 1px solid var(--line); overflow-wrap: anywhere; }
+.item[data-prio] .note { background: color-mix(in oklab, var(--surface) 80%, transparent); }
+.note .who { display: block; font: 600 0.64rem/1.2 var(--font-mono); text-transform: uppercase; letter-spacing: 0.13em; color: var(--accent); margin-bottom: 3px; }
+.note.mine { background: transparent; border-style: dashed; color: var(--muted); }
+.note.mine .who { color: var(--faint); }
+.note a { color: var(--accent); font-weight: 600; text-decoration: none; border-bottom: 1px solid color-mix(in oklab, var(--accent) 40%, transparent); }
+.note a:hover { border-bottom-color: var(--accent); }
+.note a + a { margin-left: 10px; }
+
+details.more > summary { list-style: none; cursor: pointer; font-size: 0.8rem; color: var(--faint); width: fit-content; display: inline-flex; align-items: center; gap: 7px; }
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary::before { content: ""; width: 5px; height: 5px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); }
+details.more[open] > summary::before { transform: rotate(45deg); }
+details.more > summary:hover { color: var(--accent); }
+details.more[open] > summary { margin-bottom: 8px; }
+details.more .row { margin-top: 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--line-strong); border-radius: 10px; padding: 9px 11px; background: var(--surface); resize: vertical; min-height: 2.8rem; font-size: 0.9rem; line-height: 1.45; }
+textarea:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+textarea::placeholder { color: var(--faint); }
+.label { font-size: 0.82rem; color: var(--muted); }
+
+/* priority pill */
+.prio-wrap { position: relative; display: inline-flex; flex: none; align-self: start; }
+.prio-wrap::after { content: ""; position: absolute; right: 11px; top: 50%; width: 5px; height: 5px; border: solid var(--faint); border-width: 0 1.5px 1.5px 0; transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+.prio-wrap[data-prio]::after { border-color: var(--prio); }
+select.prio { appearance: none; -webkit-appearance: none; font: 600 0.75rem/1 var(--font-mono); letter-spacing: 0.04em; padding: 7px 27px 7px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--muted); cursor: pointer; }
+select.prio:hover { border-color: var(--accent); }
+.prio-wrap[data-prio] select.prio { color: var(--prio); border-color: color-mix(in oklab, var(--prio) 45%, transparent); background: color-mix(in oklab, var(--prio) 15%, var(--surface)); }
+select.prio:disabled { cursor: default; }
+
+/* snooze */
+.snz-wrap { position: relative; display: inline-flex; }
+.snz-wrap::after { content: ""; position: absolute; right: 10px; top: 50%; width: 5px; height: 5px; border: solid var(--faint); border-width: 0 1.5px 1.5px 0; transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+select.snooze { appearance: none; -webkit-appearance: none; font-size: 0.8rem; font-weight: 500; line-height: 1.2; padding: 5px 26px 5px 11px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer; }
+select.snooze:hover { border-color: var(--accent); color: var(--accent); }
+.done-item.snz .t { text-decoration: none; color: var(--ink); }
+
+/* states */
+.empty { margin: 0; color: var(--muted); background: transparent; border: 1px dashed var(--line-strong); border-radius: var(--radius); padding: 18px; }
+.notice { margin: 0; padding: 11px 15px; border-radius: 12px; background: var(--amber-soft); color: var(--amber); }
+
+/* recent calls */
+.calls { gap: 0; }
+.calls li { display: grid; grid-template-columns: 7.2rem minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+.calls li:last-child { border-bottom: 0; }
+.calls .date { font: 500 0.75rem/1.4 var(--font-mono); color: var(--faint); }
+.calls a { color: var(--ink); text-decoration: none; font-weight: 600; overflow-wrap: anywhere; }
+.calls a:hover { color: var(--accent); }
+.calls .count { font-size: 0.8rem; color: var(--muted); white-space: nowrap; display: inline-flex; gap: 8px; align-items: center; }
+
+/* done */
+details.done > summary { list-style: none; cursor: pointer; font: 600 0.72rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); display: inline-flex; align-items: center; gap: 9px; }
+details.done > summary::-webkit-details-marker { display: none; }
+details.done > summary::before { content: ""; width: 5px; height: 5px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); }
+details.done[open] > summary::before { transform: rotate(45deg); }
+details.done[open] > summary { margin-bottom: 10px; }
+.done-item { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; padding: 9px 4px; border-bottom: 1px solid var(--line); }
+.done-item:last-child { border-bottom: 0; }
+.done-item .t-wrap { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.done-item .t { text-decoration: line-through; text-decoration-color: var(--faint); color: var(--muted); overflow-wrap: anywhere; }
+.done-item .why { font-size: 0.82rem; color: var(--faint); overflow-wrap: anywhere; }
+.done-item .when { font: 500 0.72rem/1 var(--font-mono); color: var(--faint); white-space: nowrap; }
+
+/* tell Claude */
+.fb form { display: flex; flex-direction: column; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); }
+.fb ul.list { gap: 0; }
+.fb li { display: flex; flex-direction: column; gap: 6px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.fb li:last-child { border-bottom: 0; }
+.foot { margin: 0; font-size: 0.8rem; color: var(--faint); max-width: 60ch; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 560px) {
+  .calls li { grid-template-columns: 1fr; gap: 3px; }
+  .add-opts { padding-left: 4px; }
+  .item { padding: 12px; gap: 4px 12px; }
+  /* On a phone the priority pill floats top right, so it doesn't take a whole column from the text. */
+  .item { position: relative; grid-template-columns: auto minmax(0, 1fr); }
+  .item.plan { grid-template-columns: minmax(0, 1fr); }
+  .item > .prio-wrap { position: absolute; top: 10px; right: 10px; }
+  .item:has(> .prio-wrap) > .body > .text { padding-right: 112px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .item { transition: border-color 150ms ease, background-color 150ms ease, opacity 220ms ease, transform 220ms ease; }
+  .tick { transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease; }
+  .tick::after { transition: transform 180ms cubic-bezier(0.2, 0.9, 0.3, 1.3); }
+  details.more > summary::before, details.done > summary::before { transition: transform 150ms ease; }
+}
+</style>
+
+<main class="wrap" id="app">
+  <header class="top">
+    <div class="eyebrow" id="today"></div>
+    <h1>Call actions</h1>
+    <p class="lede">{{LEDE}}</p>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <form class="add" id="add-form" autocomplete="off">
+    <div class="add-row">
+      <span class="plus" aria-hidden="true">+</span>
+      <label for="add-text" class="visually-hidden">New action</label>
+      <input type="text" id="add-text" placeholder="Add an action of your own…" maxlength="500">
+      <button class="btn primary" type="submit" id="add-btn">Add</button>
+    </div>
+    <div class="add-opts">
+      <label class="opt" for="add-prio">Priority
+        <span class="prio-wrap"><select id="add-prio" class="prio"><option value="">None</option><option>P0</option><option>P1</option><option>P2</option><option>P3</option></select></span>
+      </label>
+      <label class="opt" for="add-due">Due <input type="date" id="add-due"></label>
+      <label class="opt" for="add-ask"><input type="checkbox" id="add-ask"> Ask Claude to do it</label>
+    </div>
+  </form>
+
+  <p class="notice" id="notice" hidden></p>
+
+  <section id="sec-ok" hidden>
+    <h2>Needs your OK <span class="n" id="n-ok"></span></h2>
+    <ul class="list" id="list-ok"></ul>
+  </section>
+
+  <section id="sec-claude" hidden>
+    <h2>Claude's turn <span class="n" id="n-claude"></span></h2>
+    <ul class="list" id="list-claude"></ul>
+  </section>
+
+  <section id="sec-todo">
+    <div class="sec-head">
+      <h2>To do <span class="n" id="n-todo"></span></h2>
+      <div class="seg" role="group" aria-label="Arrange to-dos">
+        <button type="button" id="view-priority" data-view="priority" aria-pressed="true">By priority</button>
+        <button type="button" id="view-call" data-view="call" aria-pressed="false">By call</button>
+      </div>
+    </div>
+    <div id="list-todo"></div>
+    <p class="empty" id="empty-todo">Loading your actions…</p>
+  </section>
+
+  <section id="sec-calls">
+    <h2>Recent calls</h2>
+    <ul class="list calls" id="list-calls"></ul>
+    <p class="empty" id="empty-calls" hidden>Calls appear here once Claude has summarised them.</p>
+  </section>
+
+  <details class="done" id="sec-snoozed" hidden>
+    <summary>Snoozed <span id="n-snoozed"></span></summary>
+    <div id="list-snoozed"></div>
+  </details>
+
+  <details class="done" id="sec-done">
+    <summary>Done and dropped, last 30 days <span id="n-done"></span></summary>
+    <div id="list-done"></div>
+  </details>
+
+  <section class="fb" id="sec-fb">
+    <h2>Tell Claude</h2>
+    <form id="fb-form" autocomplete="off">
+      <label for="fb-text" class="label">Feedback on how Claude picks or handles your actions and follow-ups. Claude reads it on its next check and keeps it for future calls.</label>
+      <textarea id="fb-text" rows="2" maxlength="2000" placeholder="e.g. Don't draft emails to my manager, I'd rather write those myself"></textarea>
+      <div class="row"><button class="btn" type="submit" id="fb-btn">Send to Claude</button></div>
+    </form>
+    <ul class="list" id="list-fb"></ul>
+  </section>
+
+  <p class="foot">Nothing here is ever sent to anyone: Claude only drafts, and you do the sending.</p>
+</main>
+
+<script>
+(() => {
+  "use strict";
+  const DAY = 86400000;
+  const $ = (id) => document.getElementById(id);
+  const S = { actions: new Map(), calls: [], feedback: [], got: new Set(), prevSeen: null };
+  let db = null;
+
+  // ---------- small helpers ----------
+  function h(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k === "text") n.textContent = v;
+      else if (k === "checked" || k === "open" || k === "disabled") n[k] = true;
+      else n.setAttribute(k, v);
+    }
+    for (const kid of kids.flat()) {
+      if (kid == null || kid === false || kid === "") continue;
+      n.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    }
+    return n;
+  }
+  function parseDay(s) {
+    if (!s) return null;
+    const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(s) ? s + "T12:00:00" : s);
+    return isNaN(d) ? null : d;
+  }
+  function fmtDay(s) {
+    const d = parseDay(s);
+    return d ? d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) : "";
+  }
+  function localDay(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function safeUrl(u) {
+    try { const x = new URL(u); return x.protocol === "https:" || x.protocol === "http:" ? x.href : null; }
+    catch { return null; }
+  }
+  function linkEls(links) {
+    return (Array.isArray(links) ? links : [])
+      .map((l) => { const u = safeUrl(l && l.url); return u ? h("a", { href: u, target: "_blank", rel: "noopener" }, String(l.label || "Link")) : null; })
+      .filter(Boolean);
+  }
+  function isNew(a) { return S.prevSeen && a.createdAt && a.createdAt > S.prevSeen; }
+  function noteUnread(a) { return !!(a.note && a.noteUnread); }
+  function isFollowup(a) { return a.source === "followup"; }
+  function isAsana(a) { return a.source === "asana"; }
+  // A snoozed item comes back on its snoozeUntil day, even before a Claude run moves it back to open.
+  function asleep(a) { return a.state === "snoozed" && !!a.snoozeUntil && a.snoozeUntil > localDay(new Date()); }
+  function woke(a) { return (a.state === "snoozed" && !asleep(a)) || !!(a.wokeAt && Date.now() - Date.parse(a.wokeAt) < 2 * DAY); }
+  const SNOOZES = [["1", "Until tomorrow"], ["3", "For 3 days"], ["7", "For a week"], ["14", "For 2 weeks"], ["30", "For a month"]];
+  function snoozeSelect(a) {
+    return h("span", { class: "snz-wrap" },
+      h("select", { class: "snooze", id: "snz-" + a.id, "aria-label": "Snooze" },
+        h("option", { value: "" }, "Snooze…"),
+        SNOOZES.map(([v, label]) => h("option", { value: v }, label))));
+  }
+
+  // Priority: you set P0 (most urgent) to P3 by hand; Claude never sets it. Anything due by
+  // tomorrow (overdue included) turns P0 on the day before it's due, unless you pick a priority
+  // after that, which wins. Worked out fresh each render.
+  const PRIOS = ["P0", "P1", "P2", "P3"];
+  function dueSoon(a) { return !!(a.due && a.due <= localDay(new Date(Date.now() + DAY))); }
+  function autoP0(a) {
+    if (!dueSoon(a)) return false;
+    const since = parseDay(a.due);
+    since.setHours(0, 0, 0, 0);
+    since.setDate(since.getDate() - 1);
+    return !(a.priorityAt && new Date(a.priorityAt) >= since);
+  }
+  function prio(a) { return autoP0(a) ? "P0" : PRIOS.includes(a.priority) ? a.priority : null; }
+  function prioRank(a) { const p = prio(a); return p ? PRIOS.indexOf(p) : PRIOS.length; }
+  function prioSelect(a) {
+    const auto = autoP0(a);
+    const sel = h("select", { class: "prio", id: "prio-" + a.id, "aria-label": "Priority",
+      title: auto ? "P0 because it's due by tomorrow. Pick another priority to override." : null },
+      h("option", { value: "" }, "Priority"),
+      PRIOS.map((p) => h("option", { value: p }, p)));
+    sel.value = prio(a) || "";
+    return h("span", { class: "prio-wrap", "data-prio": prio(a) }, sel);
+  }
+  // Tasks synced from Asana link back to it; ticking one here completes it there on Claude's next sync.
+  function asanaChip(a) {
+    const label = "Asana" + (a.asanaProject ? " · " + a.asanaProject : "");
+    const u = safeUrl(a.asanaUrl);
+    return u ? h("a", { class: "chip", href: u, target: "_blank", rel: "noopener", title: "Open in Asana" }, label)
+             : h("span", { class: "chip" }, label);
+  }
+  function callChip(a) {
+    const u = safeUrl(a.summaryUrl);
+    return u ? h("a", { class: "chip", href: u, target: "_blank", rel: "noopener" }, a.callTitle)
+             : h("span", { class: "chip" }, a.callTitle);
+  }
+
+  let view = "priority";
+  try { if (localStorage.getItem("callActions.view") === "call") view = "call"; } catch (e) {}
+
+  function dueChip(due) {
+    const d = parseDay(due);
+    if (!d) return null;
+    const today = localDay(new Date());
+    const tomorrow = localDay(new Date(Date.now() + DAY));
+    if (due < today) return h("span", { class: "chip due overdue" }, "Overdue · " + fmtDay(due));
+    if (due === today) return h("span", { class: "chip due soon" }, "Due today");
+    if (due === tomorrow) return h("span", { class: "chip due soon" }, "Due tomorrow");
+    return h("span", { class: "chip due" }, "Due " + fmtDay(due));
+  }
+
+  let noticeTimer = null;
+  function notice(msg, sticky) {
+    const n = $("notice");
+    n.textContent = msg;
+    n.hidden = false;
+    clearTimeout(noticeTimer);
+    if (!sticky) noticeTimer = setTimeout(() => { n.hidden = true; }, 8000);
+  }
+
+  // ---------- writes: one at a time per document ----------
+  const queues = new Map();
+  function enqueue(path, op) {
+    const prev = queues.get(path) || Promise.resolve();
+    const next = prev.catch(() => {}).then(op);
+    queues.set(path, next);
+    next.finally(() => { if (queues.get(path) === next) queues.delete(path); }).catch(() => {});
+    return next;
+  }
+  function saveFailed(err) {
+    const code = err && err.code;
+    if (code === "quota_exceeded") notice("The tracker is full. Ask Claude to clear out old done items.", true);
+    else notice("Couldn't save that change. Check your connection and try again.");
+  }
+
+  // When you last opened or used the page.
+  let lastTouch = 0;
+  function touch() {
+    if (!db || Date.now() - lastTouch < 10 * 60000) return;
+    lastTouch = Date.now();
+    const at = new Date().toISOString();
+    enqueue("meta/activity", () => db.doc("meta/activity").set({ lastActiveAt: at })).catch(() => {});
+  }
+
+  function update(id, fields) {
+    touch();
+    const body = Object.assign({}, fields, { updatedAt: new Date().toISOString() });
+    return enqueue("actions/" + id, () => db.collection("actions").doc(id).update(body)).catch(saveFailed);
+  }
+
+  // ---------- what each button does ----------
+  function act(id, what, days) {
+    const a = S.actions.get(id);
+    if (!a) return;
+    const now = new Date().toISOString();
+    const box = $("note-" + id);
+    const note = box ? box.value.trim() : "";
+    // A note typed before any button travels with it, e.g. why you dropped something.
+    const withNote = (f) => (note ? Object.assign(f, { note: note, noteAt: now, noteUnread: true }) : f);
+    let fields = null;
+    if (what === "tick") fields = withNote({ state: "done", doneAt: now, prevState: a.state });
+    else if (what === "drop") fields = withNote({ state: "dropped", doneAt: now, prevState: a.state });
+    else if (what === "undo") fields = { state: ["open", "needs_ok"].includes(a.prevState) ? a.prevState : "open", doneAt: null };
+    else if (what === "go" || what === "ask") fields = withNote({ state: "queued", queuedAt: now, prevState: a.state });
+    else if (what === "cancel") fields = { state: ["open", "needs_ok"].includes(a.prevState) ? a.prevState : "open", queuedAt: null };
+    else if (what === "note") { if (!note) { box && box.focus(); return; } fields = withNote({}); }
+    else if (what === "snooze") fields = withNote({ state: "snoozed", snoozeUntil: localDay(new Date(Date.now() + days * DAY)), snoozedAt: now, wokeAt: null, prevState: a.state === "snoozed" ? "open" : a.state });
+    else if (what === "wake") fields = { state: "open", snoozeUntil: null, wokeAt: null };
+    if (!fields) return;
+    if (box && note) box.value = "";
+    update(id, fields);
+  }
+
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-act]");
+    if (!b) return;
+    const host = b.closest("[data-id]");
+    if (host) act(host.getAttribute("data-id"), b.getAttribute("data-act"));
+  });
+  document.addEventListener("change", (e) => {
+    const t = e.target;
+    if (!t.matches) return;
+    const host = t.closest("[data-id]");
+    if (t.matches("input.tick") && host) {
+      // Let the tick and slide-out play before the item moves to Done.
+      const calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      host.classList.add("leaving");
+      setTimeout(() => act(host.getAttribute("data-id"), "tick"), calm ? 0 : 260);
+    }
+    if (t.matches("select.snooze") && host && t.value) {
+      const days = Number(t.value);
+      const calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      host.classList.add("leaving");
+      setTimeout(() => act(host.getAttribute("data-id"), "snooze", days), calm ? 0 : 260);
+    }
+    if (t.matches("select.prio") && host) {
+      update(host.getAttribute("data-id"), { priority: t.value || null, priorityAt: new Date().toISOString() });
+    }
+  });
+  document.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => {
+    view = b.getAttribute("data-view");
+    try { localStorage.setItem("callActions.view", view); } catch (e) {}
+    render();
+  }));
+
+  $("add-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!db) return;
+    const text = $("add-text").value.trim();
+    if (!text) { $("add-text").focus(); return; }
+    const due = $("add-due").value || null;
+    const priority = $("add-prio").value || null;
+    const ask = $("add-ask").checked;
+    const now = new Date().toISOString();
+    const doc = { text: text, due: due, priority: priority, state: ask ? "queued" : "open", source: "manual", kind: "manual", createdAt: now, updatedAt: now };
+    if (ask) Object.assign(doc, { queuedAt: now, prevState: "open" });
+    $("add-text").value = ""; $("add-due").value = ""; $("add-prio").value = ""; $("add-ask").checked = false;
+    touch();
+    db.collection("actions").add(doc).catch((err) => { $("add-text").value = text; saveFailed(err); });
+  });
+
+  $("fb-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!db) return;
+    const text = $("fb-text").value.trim();
+    if (!text) { $("fb-text").focus(); return; }
+    $("fb-text").value = "";
+    touch();
+    db.collection("feedback").add({ text: text, createdAt: new Date().toISOString() })
+      .catch((err) => { $("fb-text").value = text; saveFailed(err); });
+  });
+
+  // ---------- rendering ----------
+  function claudeLines(a, label) {
+    const out = [];
+    const links = linkEls(a.links);
+    if (a.claude || links.length) out.push(h("p", { class: "note" }, h("span", { class: "who" }, label), a.claude || "", links.length ? " " : "", links));
+    if (a.reply) out.push(h("p", { class: "note" }, h("span", { class: "who" }, "Claude replied"), a.reply));
+    if (noteUnread(a)) out.push(h("p", { class: "note mine" }, h("span", { class: "who" }, "Your note"), a.note, " (Claude reads it on its next check)"));
+    return out;
+  }
+  function metaRow(a, withCall) {
+    return h("div", { class: "meta" },
+      isNew(a) ? h("span", { class: "chip new" }, "New") : null,
+      a.kind === "drafted" ? h("span", { class: "chip claude" }, "Claude drafted") : null,
+      woke(a) ? h("span", { class: "chip soon" }, "Back from snooze") : null,
+      isFollowup(a) ? h("span", { class: "chip" }, (a.channel === "slack" ? "Slack" : "Email") + " · no reply since " + fmtDay(a.sentAt)) : null,
+      isAsana(a) ? asanaChip(a) : null,
+      withCall && a.callTitle ? callChip(a) : null,
+      a.who ? h("span", { class: "chip" }, a.who) : null,
+      a.due ? dueChip(a.due) : null,
+      ageText(a));
+  }
+  function ageText(a) {
+    if (isFollowup(a) || isAsana(a)) return null;
+    const since = parseDay(a.callDate) || parseDay(a.createdAt);
+    if (!since) return null;
+    const days = Math.floor((Date.now() - since) / DAY);
+    return days >= 3 ? h("span", { class: "age" }, "open " + days + " days") : null;
+  }
+  function noteBox(a, buttons, extra) {
+    return h("details", { class: "more", id: "more-" + a.id },
+      h("summary", null, "Note to Claude, or more"),
+      h("label", { class: "visually-hidden", for: "note-" + a.id }, "Note to Claude"),
+      h("textarea", { id: "note-" + a.id, rows: "2", maxlength: "1000", placeholder: "e.g. make the draft shorter, or why you're dropping it" }),
+      h("div", { class: "row" }, buttons.map(([act, label, cls]) => h("button", { class: "btn small" + (cls ? " " + cls : ""), type: "button", "data-act": act }, label)), extra));
+  }
+
+  // A follow-up shows Snooze and Dismiss up front; other items keep Snooze and Drop under "more".
+  function todoItem(a, withCall) {
+    const fu = isFollowup(a);
+    return h("li", { class: "item", "data-id": a.id, "data-prio": prio(a) },
+      h("input", { type: "checkbox", class: "tick", id: "tick-" + a.id, "aria-label": "Done: " + a.text }),
+      h("div", { class: "body" },
+        h("div", { class: "text" }, a.text),
+        metaRow(a, withCall),
+        claudeLines(a, a.kind === "drafted" ? "Claude did" : "Claude"),
+        fu ? h("div", { class: "row" }, snoozeSelect(a), h("button", { class: "btn small danger", type: "button", "data-act": "drop" }, "Dismiss")) : null,
+        fu ? noteBox(a, [["note", "Send note"], ["ask", "Ask Claude to do it"]])
+           : noteBox(a, [["note", "Send note"], ["ask", "Ask Claude to do it"], ["drop", "Drop", "danger"]], snoozeSelect(a))),
+      prioSelect(a));
+  }
+  function planItem(a) {
+    return h("li", { class: "item plan", "data-id": a.id, "data-prio": prio(a) },
+      h("div", { class: "body" },
+        h("div", { class: "text" }, a.text),
+        metaRow(a, true),
+        claudeLines(a, "Claude's plan"),
+        h("label", { class: "label", for: "note-" + a.id }, "Anything to change first? (optional)"),
+        h("textarea", { id: "note-" + a.id, rows: "2", maxlength: "1000" }),
+        h("div", { class: "row" },
+          h("button", { class: "btn primary", type: "button", "data-act": "go" }, "Go ahead"),
+          h("button", { class: "btn", type: "button", "data-act": "drop" }, "Not needed"))),
+      prioSelect(a));
+  }
+  function claudeTurnItem(a) {
+    const working = a.state === "working";
+    return h("li", { class: "item quiet", "data-id": a.id },
+      h("div", { class: "body" },
+        h("div", { class: "text" }, a.text),
+        h("div", { class: "meta" },
+          h("span", { class: "chip claude" }, working ? "Claude is working on it" : "Queued: Claude picks it up on its next check"),
+          a.callTitle ? h("span", { class: "chip" }, a.callTitle) : null),
+        a.note ? h("p", { class: "note mine" }, h("span", { class: "who" }, "Your note"), a.note) : null,
+        working ? null : h("div", { class: "row" }, h("button", { class: "btn small", type: "button", "data-act": "cancel" }, "Cancel"))));
+  }
+
+  // "By call": one group per call, newest first, with your own items, follow-ups and Asana tasks on top; priority order inside each.
+  function groupsByCall(items) {
+    const map = new Map();
+    for (const a of items) {
+      const key = a.callId || (isFollowup(a) ? "_followups" : isAsana(a) ? "_asana" : "_mine");
+      const titles = { _followups: "Waiting on a reply", _asana: "From Asana", _mine: "Added by you" };
+      if (!map.has(key)) map.set(key, { key, title: a.callTitle || titles[key], date: a.callDate || "", url: safeUrl(a.summaryUrl), items: [] });
+      map.get(key).items.push(a);
+    }
+    const groups = [...map.values()];
+    const rank = (g) => ({ _mine: 0, _followups: 1, _asana: 2 }[g.key] ?? 3);
+    groups.sort((x, y) => rank(x) - rank(y) || (y.date || "").localeCompare(x.date || ""));
+    return groups.map((g) => ({
+      head: h("div", { class: "group-head" },
+        g.url ? h("a", { class: "title", href: g.url, target: "_blank", rel: "noopener", title: "Open the call summary" }, g.title, h("span", { class: "arrow", "aria-hidden": "true" }, "↗"))
+              : h("span", { class: "title" }, g.title),
+        g.date ? h("span", { class: "date" }, fmtDay(g.date)) : null),
+      items: g.items.sort((p, q) => prioRank(p) - prioRank(q) || (p.n || 0) - (q.n || 0) || (p.createdAt || "").localeCompare(q.createdAt || "")),
+    }));
+  }
+  // "By priority": one tier per priority, P0 first; inside a tier, soonest due date first.
+  function groupsByPriority(items) {
+    return [...PRIOS, null].map((p) => ({ p, items: items.filter((a) => prio(a) === p) }))
+      .filter((t) => t.items.length)
+      .map((t) => ({
+        head: h("div", { class: "group-head" },
+          h("span", { class: "tier", "data-prio": t.p }, t.p || "No priority yet"),
+          h("span", { class: "date" }, t.items.length + (t.items.length === 1 ? " item" : " items"))),
+        items: t.items.sort((x, y) => (x.due || "9999").localeCompare(y.due || "9999")
+          || (y.callDate || "").localeCompare(x.callDate || "") || (x.n || 0) - (y.n || 0)),
+      }));
+  }
+
+  function capture() {
+    const values = {};
+    document.querySelectorAll("#app textarea[id^='note-']").forEach((t) => { if (t.value) values[t.id] = t.value; });
+    const open = [...document.querySelectorAll("details.more[open]")].map((d) => d.id);
+    const f = document.activeElement;
+    const focus = f && f.id && (f.id.startsWith("note-") || f.id.startsWith("prio-")) ? { id: f.id, s: f.selectionStart, e: f.selectionEnd } : null;
+    return { values, open, focus };
+  }
+  function restore(k) {
+    for (const [id, v] of Object.entries(k.values)) { const t = $(id); if (t) t.value = v; }
+    for (const id of k.open) { const d = $(id); if (d) d.open = true; }
+    if (k.focus) {
+      const t = $(k.focus.id);
+      if (t) { t.focus({ preventScroll: true }); try { t.setSelectionRange(k.focus.s, k.focus.e); } catch (e) {} }
+    }
+  }
+
+  function render() {
+    const kept = capture();
+    $("today").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+    const all = [...S.actions.values()];
+    const byState = (st) => all.filter((a) => st.includes(a.state));
+    const ok = byState(["needs_ok"]).sort((p, q) => prioRank(p) - prioRank(q) || (p.createdAt || "").localeCompare(q.createdAt || ""));
+    const turn = byState(["queued", "working"]).sort((p, q) => (p.queuedAt || "").localeCompare(q.queuedAt || ""));
+    const todo = all.filter((a) => a.state === "open" || (a.state === "snoozed" && !asleep(a)));
+    const sleeping = all.filter(asleep).sort((p, q) => (p.snoozeUntil || "").localeCompare(q.snoozeUntil || ""));
+    const cutoff = new Date(Date.now() - 30 * DAY).toISOString();
+    const done = byState(["done", "dropped"]).filter((a) => (a.doneAt || "") >= cutoff)
+      .sort((p, q) => (q.doneAt || "").localeCompare(p.doneAt || ""));
+
+    // summary
+    const today = localDay(new Date());
+    const overdue = todo.filter((a) => a.due && a.due < today).length;
+    const p0 = todo.concat(ok).filter((a) => prio(a) === "P0").length;
+    $("stats").replaceChildren(...[
+      h("span", { class: "stat todo" }, todo.length + " to do"),
+      p0 ? h("span", { class: "stat p0" }, p0 + " P0") : null,
+      ok.length ? h("span", { class: "stat warn" }, ok.length + " need" + (ok.length === 1 ? "s" : "") + " your OK") : null,
+      turn.length ? h("span", { class: "stat claude" }, turn.length + " with Claude") : null,
+      overdue ? h("span", { class: "stat bad" }, overdue + " overdue") : null,
+      sleeping.length ? h("span", { class: "stat" }, sleeping.length + " snoozed") : null,
+    ].filter(Boolean));
+
+    $("sec-ok").hidden = !ok.length;
+    $("n-ok").textContent = ok.length || "";
+    $("list-ok").replaceChildren(...ok.map(planItem));
+
+    $("sec-claude").hidden = !turn.length;
+    $("n-claude").textContent = turn.length || "";
+    $("list-claude").replaceChildren(...turn.map(claudeTurnItem));
+
+    $("n-todo").textContent = todo.length || "";
+    const byPriority = view === "priority";
+    $("view-priority").setAttribute("aria-pressed", String(byPriority));
+    $("view-call").setAttribute("aria-pressed", String(!byPriority));
+    $("list-todo").replaceChildren(...(byPriority ? groupsByPriority(todo) : groupsByCall(todo)).map((g) =>
+      h("div", { class: "group" }, g.head, h("ul", { class: "list" }, g.items.map((a) => todoItem(a, byPriority))))));
+    const loaded = S.got.has("actions");
+    $("empty-todo").hidden = loaded && todo.length > 0;
+    $("empty-todo").textContent = loaded
+      ? "Nothing to do. Claude adds what you take on in calls here after each one, and you can add your own above."
+      : "Loading your actions…";
+
+    $("sec-snoozed").hidden = !sleeping.length;
+    $("n-snoozed").textContent = sleeping.length ? "(" + sleeping.length + ")" : "";
+    $("list-snoozed").replaceChildren(...sleeping.map((a) => h("div", { class: "done-item snz", "data-id": a.id },
+      h("span", { class: "t-wrap" },
+        h("span", { class: "t" }, a.text),
+        h("span", { class: "why" }, a.callTitle || (isFollowup(a) ? "Waiting on a reply" + (a.who ? ", " + a.who : "") : isAsana(a) ? "From Asana" : "Added by you"))),
+      h("span", { class: "row" },
+        h("span", { class: "when" }, "until " + fmtDay(a.snoozeUntil)),
+        h("button", { class: "btn small", type: "button", "data-act": "wake" }, "Bring back")))));
+
+    $("n-done").textContent = done.length ? "(" + done.length + ")" : "";
+    $("list-done").replaceChildren(...done.map((a) => h("div", { class: "done-item", "data-id": a.id },
+      h("span", { class: "t-wrap" },
+        h("span", { class: "t" }, a.text),
+        a.note && a.noteAt === a.doneAt ? h("span", { class: "why" }, a.note) : null),
+      h("span", { class: "row" },
+        h("span", { class: "when" }, (a.state === "dropped" ? (isFollowup(a) ? "dismissed " : "dropped ") : "done ") + fmtDay(a.doneAt)),
+        h("button", { class: "btn small", type: "button", "data-act": "undo" }, "Undo")))));
+
+    const calls = S.calls.filter((c) => c.addedAt).slice(0, 12);
+    $("empty-calls").hidden = !S.got.has("calls") || calls.length > 0;
+    $("list-calls").replaceChildren(...calls.map((c) => {
+      const u = safeUrl(c.summaryUrl);
+      const count = c.error ? "Couldn't work out the actions" : c.actionCount ? c.actionCount + " action" + (c.actionCount === 1 ? "" : "s") : "No clear actions for you";
+      return h("li", null,
+        h("span", { class: "date" }, fmtDay(c.date)),
+        u ? h("a", { href: u, target: "_blank", rel: "noopener" }, c.title || "Call summary") : h("span", null, c.title || "Call"),
+        h("span", { class: "count" }, count,
+          S.prevSeen && c.addedAt && c.addedAt > S.prevSeen ? h("span", { class: "chip new" }, "New") : null));
+    }));
+
+    $("list-fb").replaceChildren(...S.feedback.map((f) => h("li", null,
+      h("p", { class: "note mine" }, h("span", { class: "who" }, "You, " + fmtDay(f.createdAt)), f.text),
+      f.reply ? h("p", { class: "note" }, h("span", { class: "who" }, "Claude"), f.reply)
+              : h("p", { class: "note mine" }, "Claude reads this on its next check."))));
+
+    restore(kept);
+  }
+
+  // ---------- start ----------
+  function stop(message) {
+    $("add-form").hidden = true;
+    $("sec-fb").hidden = true;
+    $("empty-todo").textContent = message;
+    $("empty-todo").hidden = false;
+  }
+
+  async function boot() {
+    render();
+    const api = window.claude;
+    if (!api || typeof api.use !== "function") { stop("Open this page in claude.ai, signed in, to see your actions."); return; }
+    const slow = setTimeout(() => {
+      if (!S.got.has("actions")) notice("Can't reach your tracker yet. It fills in as soon as the connection is back.", true);
+    }, 10000);
+    const [dbNs, user] = await Promise.all([api.use("db"), api.use("user")]);
+    if (user) {
+      let owner = null;
+      try { owner = await user.isOwner(); } catch (e) {}
+      if (owner === false) { clearTimeout(slow); stop("This tracker is private to its owner."); return; }
+    }
+    if (!dbNs) { clearTimeout(slow); stop("Open this page in claude.ai, signed in, to see your actions."); return; }
+    db = dbNs;
+
+    try {
+      const prev = await db.doc("meta/activity").get();
+      S.prevSeen = prev.exists ? prev.data().lastActiveAt || null : null;
+    } catch (e) {}
+    touch();
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") touch(); });
+
+    const loaded = (name, snap) => {
+      S.got.add(name);
+      if (name === "actions" && !snap.metadata.fromCache) { clearTimeout(slow); $("notice").hidden = true; }
+      render();
+    };
+    const failed = (e) => { clearTimeout(slow); if (e && e.code !== "revoked") notice("The tracker stopped updating. Reload the page to reconnect.", true); };
+
+    db.collection("actions").onSnapshot((snap) => {
+      S.actions = new Map(snap.docs.map((d) => [d.id, Object.assign({ id: d.id }, d.data())]));
+      loaded("actions", snap);
+    }, failed);
+    db.collection("calls").orderBy("date", "desc").limit(20).onSnapshot((snap) => {
+      S.calls = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+      loaded("calls", snap);
+    }, failed);
+    db.collection("feedback").orderBy("createdAt", "desc").limit(8).onSnapshot((snap) => {
+      S.feedback = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+      loaded("feedback", snap);
+    }, failed);
+  }
+  boot();
+})();
+</script>

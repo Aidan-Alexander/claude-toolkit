@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<script src="demo.js"></script>
+</head>
+<body>
+<style>
+.demo-banner { background: var(--accent); color: var(--on-accent); font-family: var(--font-body); font-size: 0.875rem; line-height: 1.5; }
+.demo-banner p {
+  max-width: 64rem; margin: 0 auto; padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.demo-banner a { color: inherit; font-weight: 600; }
+.demo-banner a:focus-visible { outline-color: var(--on-accent); }
+</style>
+<div class="demo-banner" role="note"><p>This is a demo with made-up entries. Your own page is private to you and lists what’s really running for you. <a href="https://github.com/Aidan-Alexander/claude-toolkit/tree/main/automations-page">Set up your own</a></p></div>
+<title>My automations (demo)</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;600&display=swap">
+<style>
+/* Layout: a register of everything that runs on its own. Bands by where it runs (needs your computer on, runs in
+   the cloud, elsewhere), one card per place, each automation a row with its timetable entry in a fixed left column;
+   switched-off ones fold away at the bottom. */
+:root {
+  --bg: #F1F3F2;
+  --panel: #FFFFFF;
+  --ink: #18211D;
+  --muted: #59655F;
+  --line: #D5DBD8;
+  --accent: #1C5B54;
+  --on-accent: #FFFFFF;
+  --ok: #1F7346;
+  --ok-bg: #E0F0E6;
+  --warn: #8F5400;
+  --warn-bg: #FAEBCF;
+  --bad: #A8241A;
+  --bad-bg: #F9E0DD;
+  --off: #5F6964;
+  --off-bg: #E5E9E7;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101513; --panel: #171E1B; --ink: #E3EAE6; --muted: #97A39D; --line: #2A3430; --accent: #74C3B6;
+    --on-accent: #0D1714; --ok: #74D39F; --ok-bg: #16301F; --warn: #F2B85E; --warn-bg: #382911; --bad: #FF8B80;
+    --bad-bg: #3B1B18; --off: #A2ACA7; --off-bg: #232B28;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101513; --panel: #171E1B; --ink: #E3EAE6; --muted: #97A39D; --line: #2A3430; --accent: #74C3B6;
+  --on-accent: #0D1714; --ok: #74D39F; --ok-bg: #16301F; --warn: #F2B85E; --warn-bg: #382911; --bad: #FF8B80;
+  --bad-bg: #3B1B18; --off: #A2ACA7; --off-bg: #232B28;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.page {
+  max-width: 64rem; margin: 0 auto; display: grid; gap: 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 48px;
+}
+h1, h2, h3, h4 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 700; letter-spacing: -0.01em; line-height: 1.1; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible, summary:focus-visible, .job:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px;
+}
+
+.top { display: grid; gap: 18px; }
+.lede { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+.summary { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; font-variant-numeric: tabular-nums; }
+.total { font-family: var(--font-display); font-weight: 700; font-size: 1.125rem; margin-right: 4px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px;
+  font-size: 0.8125rem; font-weight: 600; white-space: nowrap;
+}
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.tone-ok { color: var(--ok); background: var(--ok-bg); }
+.tone-warn { color: var(--warn); background: var(--warn-bg); }
+.tone-bad { color: var(--bad); background: var(--bad-bg); }
+.tone-off { color: var(--off); background: var(--off-bg); }
+
+.toolbar { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; font-size: 0.875rem; }
+.checked { font-weight: 600; font-variant-numeric: tabular-nums; }
+.checked:empty { display: none; }
+.hint { margin: 0; color: var(--muted); max-width: 72ch; }
+.say {
+  font-family: var(--font-mono); font-size: 0.8125rem; color: var(--ink); background: var(--off-bg);
+  padding: 1px 6px; border-radius: 4px; white-space: nowrap;
+}
+.stale { flex-basis: 100%; margin: 0; color: var(--warn); }
+
+.attention { border: 1px solid var(--warn); background: var(--warn-bg); border-radius: 10px; padding: 12px 16px; display: grid; gap: 6px; }
+.attention h2 { font-size: 1rem; }
+.attention ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 4px; }
+.attention button {
+  font: inherit; font-weight: 600; color: var(--ink); background: none; border: 0; padding: 0; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+
+#list { display: grid; gap: 40px; }
+.band { display: grid; gap: 20px; }
+.band > header h2 { font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.band > header p { margin: 4px 0 0; color: var(--muted); }
+.place, .off-group { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.place-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 16px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.place-head h3 { font-size: 1.25rem; font-weight: 700; }
+.place-head .count { color: var(--muted); font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+.place-note { margin: 0; color: var(--muted); font-size: 0.875rem; flex-basis: 100%; }
+.jobs > .job + .job { border-top: 1px solid var(--line); }
+.job { display: grid; grid-template-columns: 12rem minmax(0, 1fr); gap: 8px 24px; padding: 16px 18px; }
+.when { display: grid; gap: 2px; align-content: start; }
+.sched { font-weight: 600; }
+.cron { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
+.body { display: grid; gap: 8px; min-width: 0; }
+.head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.head h4 { font-size: 1.0625rem; font-weight: 700; }
+.place-tag { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.what { margin: 0; max-width: 68ch; }
+.facts { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 4px 12px; margin: 0; font-size: 0.875rem; }
+.facts dt { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; padding-top: 2px; }
+.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.status-line { margin: 0; font-size: 0.8125rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.job.is-warn .status-line, .job.is-bad .status-line { color: var(--ink); }
+.off-group > summary {
+  cursor: pointer; padding: 14px 18px; font-family: var(--font-display); font-weight: 700; font-size: 1.125rem;
+}
+.off-group > summary .count { font-family: var(--font-body); font-weight: 400; font-size: 0.875rem; color: var(--muted); margin-left: 8px; }
+.off-group[open] > summary { border-bottom: 1px solid var(--line); }
+.off-group .what { color: var(--muted); }
+.empty { color: var(--muted); margin: 0; }
+
+.foot { border-top: 1px solid var(--line); padding-top: 20px; color: var(--muted); font-size: 0.875rem; display: grid; gap: 6px; }
+.foot h2 { font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink); }
+.foot p { margin: 0; max-width: 72ch; }
+
+@media (max-width: 640px) {
+  .job { grid-template-columns: minmax(0, 1fr); }
+  .facts { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .facts dt { padding-top: 6px; }
+}
+</style>
+
+<div class="page">
+  <header class="top">
+    <div>
+      <h1>My automations</h1>
+      <p class="lede">Everything that runs on its own for you, wherever it runs, with what it does, where its results land and how to pause it.</p>
+    </div>
+    <div class="summary" id="summary" aria-live="polite"></div>
+    <div class="toolbar">
+      <span class="checked" id="checked"></span>
+      <p class="hint" id="hint">To update the statuses, ask Claude Code to <span class="say">check my automations</span>.</p>
+      <p class="stale" id="stale" hidden>Couldn’t reach the latest list, so this may be out of date.</p>
+    </div>
+    <div class="attention" id="attention" hidden></div>
+  </header>
+
+  <main id="list">
+    <p class="empty" id="state">Loading the list of automations…</p>
+  </main>
+
+  <footer class="foot">
+    <h2>Keeping this page current</h2>
+    <p>The page doesn’t check anything itself. It shows what Claude last wrote here. To update the statuses, ask Claude Code to <span class="say">check my automations</span>. It looks at the Claude app’s Scheduled tasks and your claude.ai routines, asks you about anything elsewhere, and tells you what needs a look.</p>
+    <p>If you said yes to it at setup, Claude also updates this list whenever it sets up, changes or removes an automation for you. You can always ask it to add something it didn’t set up, such as a Zapier zap.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  // Where things run. An entry with any other place goes under "Elsewhere", one card per `where`.
+  var PLACES = {
+    claude: { label: 'Claude app · Scheduled', note: 'The Scheduled list in the Claude app. These run only while the app is open. A missed run happens when the app next opens.' },
+    routine: { label: 'claude.ai routines', note: 'Claude sessions that run in the cloud on a schedule.' }
+  };
+  var BANDS = [
+    { title: 'Needs your computer on', note: 'These stop while your computer is asleep or off.', places: ['claude'] },
+    { title: 'Runs in the cloud', note: 'These run whether or not your computer is on.', places: ['routine'] }
+  ];
+  var ELSEWHERE = { title: 'Elsewhere', note: 'Automations in other tools. Claude can’t see these, so it asks you about them when you check.' };
+  var STATUS = {
+    failed: { label: 'Failed', tone: 'bad' },
+    attention: { label: 'Needs a look', tone: 'warn' },
+    ok: { label: 'Working', tone: 'ok' },
+    pending: { label: 'Not run yet', tone: 'off' },
+    unknown: { label: 'Not checked', tone: 'off' },
+    off: { label: 'Switched off', tone: 'off' }
+  };
+  var fmt = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var list = document.getElementById('list');
+  var summary = document.getElementById('summary');
+  var attention = document.getElementById('attention');
+  var checked = document.getElementById('checked');
+  var hint = document.getElementById('hint');
+  var stale = document.getElementById('stale');
+  var jobs = null;
+  var meta = null;
+  var owner = true; // the page's owner is almost always the one viewing it; corrected below if not
+  var offOpen = false;
+  var loadTimer = null;
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function when(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return isNaN(d) ? '' : fmt.format(d).replace(/ /g, ' '); // keep a date on one line
+  }
+  function safeUrl(u) {
+    try { var x = new URL(u); return x.protocol === 'https:' || x.protocol === 'http:' ? x.href : null; } catch (e) { return null; }
+  }
+  function statusOf(job) { return STATUS[job.status] ? job.status : 'unknown'; }
+  function pill(key, text) { return el('span', 'pill tone-' + STATUS[key].tone, text || STATUS[key].label); }
+  function message(text) { list.textContent = ''; list.appendChild(el('p', 'empty', text)); }
+  function whereOf(j) {
+    if (PLACES[j.place]) return PLACES[j.place].label;
+    return String(j.where || '').trim() || 'Other tools';
+  }
+  function placeRank(p) {
+    var r = Object.keys(PLACES).indexOf(p);
+    return r < 0 ? 99 : r;
+  }
+  function sorted(items) {
+    return items.slice().sort(function (a, b) {
+      return (placeRank(a.place) - placeRank(b.place)) || ((a.order || 99) - (b.order || 99)) ||
+        String(a.name || '').localeCompare(String(b.name || ''));
+    });
+  }
+
+  function renderChecked() {
+    var at = meta && when(meta.checkedAt);
+    checked.textContent = at ? 'Last checked ' + at : 'Not checked yet';
+  }
+
+  function renderSummary() {
+    summary.textContent = '';
+    var counts = {};
+    jobs.forEach(function (j) { var k = statusOf(j); counts[k] = (counts[k] || 0) + 1; });
+    summary.appendChild(el('span', 'total', (jobs.length - (counts.off || 0)) + ' running'));
+    Object.keys(STATUS).forEach(function (k) {
+      if (counts[k]) summary.appendChild(pill(k, counts[k] + ' ' + STATUS[k].label.toLowerCase()));
+    });
+  }
+
+  function renderAttention() {
+    var flagged = jobs.filter(function (j) { var k = statusOf(j); return k === 'failed' || k === 'attention'; });
+    attention.textContent = '';
+    attention.hidden = !flagged.length;
+    if (!flagged.length) return;
+    attention.appendChild(el('h2', null, flagged.length === 1 ? '1 automation needs a look' : flagged.length + ' automations need a look'));
+    var ul = el('ul');
+    flagged.forEach(function (j) {
+      var li = el('li');
+      var b = el('button', null, j.name || 'Unnamed');
+      b.type = 'button';
+      b.addEventListener('click', function () {
+        var target = document.getElementById('job-' + j.id);
+        if (!target) return;
+        target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+        target.focus({ preventScroll: true });
+      });
+      li.appendChild(b);
+      if (j.statusNote) li.appendChild(document.createTextNode(': ' + j.statusNote));
+      ul.appendChild(li);
+    });
+    attention.appendChild(ul);
+  }
+
+  function renderJob(j, showPlace) {
+    var k = statusOf(j);
+    var a = el('article', 'job is-' + STATUS[k].tone);
+    a.id = 'job-' + j.id;
+    a.tabIndex = -1;
+
+    var w = el('div', 'when');
+    w.appendChild(el('span', 'sched', j.schedule || 'No schedule recorded'));
+    if (j.cron) w.appendChild(el('span', 'cron', j.cron));
+    a.appendChild(w);
+
+    var b = el('div', 'body');
+    var head = el('div', 'head');
+    head.appendChild(el('h4', null, j.name || 'Unnamed'));
+    head.appendChild(pill(k));
+    if (showPlace) head.appendChild(el('span', 'place-tag', whereOf(j)));
+    b.appendChild(head);
+    if (j.what) b.appendChild(el('p', 'what', j.what));
+
+    var dl = el('dl', 'facts');
+    function fact(label, value, links) {
+      var good = (Array.isArray(links) ? links : []).map(function (l) {
+        return l && safeUrl(l.url) ? { label: l.label, url: safeUrl(l.url) } : null;
+      }).filter(Boolean);
+      if (!value && !good.length) return;
+      dl.appendChild(el('dt', null, label));
+      var dd = el('dd', null, value || '');
+      good.forEach(function (l) {
+        if (dd.textContent) dd.appendChild(document.createTextNode(' '));
+        var link = el('a', null, l.label || l.url);
+        link.href = l.url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        dd.appendChild(link);
+      });
+      dl.appendChild(dd);
+    }
+    fact('Results', j.results, j.links);
+    fact('To pause', j.pause);
+    fact('Lives in', j.source);
+    if (dl.childNodes.length) b.appendChild(dl);
+
+    var bits = [];
+    if (j.statusNote) bits.push(j.statusNote);
+    if (j.lastRun && when(j.lastRun)) bits.push('Last ran ' + when(j.lastRun));
+    if (j.nextRun && when(j.nextRun) && k !== 'off') bits.push('Next ' + when(j.nextRun));
+    if (bits.length) b.appendChild(el('p', 'status-line', bits.join(' · ')));
+    a.appendChild(b);
+    return a;
+  }
+
+  function renderPlace(group) {
+    var section = el('section', 'place');
+    var head = el('div', 'place-head');
+    head.appendChild(el('h3', null, group.label));
+    head.appendChild(el('span', 'count', group.items.length + ' running'));
+    if (group.note) head.appendChild(el('p', 'place-note', group.note));
+    section.appendChild(head);
+    var wrap = el('div', 'jobs');
+    sorted(group.items).forEach(function (j) { wrap.appendChild(renderJob(j, false)); });
+    section.appendChild(wrap);
+    return section;
+  }
+
+  function renderBand(title, noteText, groups) {
+    var section = el('section', 'band');
+    var header = el('header');
+    header.appendChild(el('h2', null, title));
+    if (noteText) header.appendChild(el('p', null, noteText));
+    section.appendChild(header);
+    groups.forEach(function (g) { section.appendChild(renderPlace(g)); });
+    list.appendChild(section);
+  }
+
+  function render() {
+    if (!jobs) return;
+    renderChecked();
+    if (!jobs.length) {
+      summary.textContent = '';
+      attention.hidden = true;
+      message(owner ? 'Nothing is listed yet. Ask Claude Code to “check my automations” and it will fill in this page.'
+        : 'Nothing is listed yet.');
+      return;
+    }
+    renderSummary();
+    renderAttention();
+    list.textContent = '';
+    var active = jobs.filter(function (j) { return statusOf(j) !== 'off'; });
+    var off = jobs.filter(function (j) { return statusOf(j) === 'off'; });
+
+    BANDS.forEach(function (band) {
+      var groups = band.places.map(function (p) {
+        return { label: PLACES[p].label, note: PLACES[p].note, items: active.filter(function (j) { return j.place === p; }) };
+      }).filter(function (g) { return g.items.length; });
+      if (groups.length) renderBand(band.title, band.note, groups);
+    });
+
+    // Everything else, one card per tool or machine, in the order of their names.
+    var others = {};
+    var keys = [];
+    active.forEach(function (j) {
+      if (PLACES[j.place]) return;
+      var label = whereOf(j);
+      var key = label.toLowerCase();
+      if (!others[key]) { others[key] = { label: label, note: '', items: [] }; keys.push(key); }
+      others[key].items.push(j);
+    });
+    if (keys.length) {
+      keys.sort(function (a, b) { return others[a].label.localeCompare(others[b].label); });
+      renderBand(ELSEWHERE.title, ELSEWHERE.note, keys.map(function (key) { return others[key]; }));
+    }
+
+    if (off.length) {
+      var details = el('details', 'off-group');
+      details.open = offOpen;
+      details.addEventListener('toggle', function () { offOpen = details.open; });
+      var sum = el('summary', null, 'Switched off');
+      sum.appendChild(el('span', 'count', off.length + (off.length === 1 ? ' automation' : ' automations')));
+      details.appendChild(sum);
+      var wrap = el('div', 'jobs');
+      sorted(off).forEach(function (j) { wrap.appendChild(renderJob(j, true)); });
+      details.appendChild(wrap);
+      list.appendChild(details);
+    }
+  }
+
+  // The first answer from the store ends the loading wait; until then, say if it's taking long.
+  function settle() {
+    if (loadTimer) { clearTimeout(loadTimer); loadTimer = null; }
+    stale.hidden = true;
+  }
+
+  if (!window.claude || typeof window.claude.use !== 'function') {
+    message('Open this page in claude.ai to see the list.');
+    return;
+  }
+  window.claude.use('user').then(function (user) {
+    return user ? user.isOwner() : true;
+  }).then(function (isOwner) {
+    if (isOwner !== false) return;
+    owner = false;
+    hint.hidden = true;
+    render();
+  }, function () {});
+  window.claude.use('db').then(function (db) {
+    if (!db) {
+      message('The list can’t load in this view. Open the page in claude.ai while signed in.');
+      return;
+    }
+    loadTimer = setTimeout(function () {
+      loadTimer = null;
+      if (jobs) stale.hidden = false;
+      else message('The list can’t be reached yet. It will appear here as soon as it loads.');
+    }, 10000);
+    db.collection('automations').onSnapshot(function (snap) {
+      jobs = snap.docs.map(function (d) { var x = Object.assign({}, d.data()); x.id = d.id; return x; });
+      if (!(snap.metadata && snap.metadata.fromCache)) settle();
+      render();
+    }, function (err) {
+      settle();
+      jobs = null;
+      summary.textContent = '';
+      attention.hidden = true;
+      message('The list didn’t load (' + ((err && err.code) || 'error') + '). Reload the page to try again.');
+    });
+    db.doc('meta/page').onSnapshot(function (snap) {
+      meta = snap.exists ? snap.data() : null;
+      render();
+    }, function () {});
+  }, function () {
+    message('The list can’t load in this view. Open the page in claude.ai while signed in.');
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+# Setting up the Call actions tracker (instructions for Claude)
+
+You're setting up the `call-actions` skill and its tracker page for the person you're working with, from Aidan Alexander's Claude toolkit (github.com/Aidan-Alexander/claude-toolkit). Assume they aren't technical: do the technical parts yourself, explain each step in a sentence of plain English, and don't show them commands unless they ask.
+
+What you'll set up:
+- a private tracker page: a claude.ai artifact only they can open;
+- the call-actions skill, in their personal skills folder;
+- a scheduled task in the Claude app that runs the skill on a schedule.
+
+## 1. What should it cover?
+
+Ask first, because it decides what else is needed:
+- **Calls and follow-ups** (what Aidan uses): actions from their Granola calls, plus a weekly check for emails and Slack messages that never got a reply.
+- **Calls only.**
+- **Follow-ups only:** no Granola needed.
+
+With any of these, they can also bring in their Asana tasks (step 4), which suits people who use Asana lightly.
+
+## 2. Check the tools and connectors
+
+- Tools: you need the Artifact tool (to publish the page), ArtifactData (to read and write its data) and the scheduled-tasks tools (`create_scheduled_task`). Look for them with tool search if your tools are deferred. If any is missing, stop and tell them this needs the Code tab of the Claude desktop app, signed in to their Claude account.
+- Connectors: **Gmail** always; **Granola** and **Google Drive** for calls. Optional: **Slack** (Slack drafts and Slack follow-ups), **Google Calendar** (proposing meeting times; calendar holds), **Google Docs** (agenda points in 1:1 docs) and **Asana** (their Asana tasks on the tracker). Check each one's tools are there. If a required one is missing, stop and tell them: "In Claude, open Settings → Connectors and connect <names>. Then start a new session here and paste the setup line again: a session only sees connectors that were connected when it started."
+- For calls, the summarise-granola skill must be set up: check for `~/.claude/skills/summarise-granola/settings.md`. If it's missing, set it up first: fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/summarise-granola/SETUP.md exactly as written and follow it, questions and all (skip its test run). Then come back here.
+
+## 3. Download the skill
+
+The folder is `~/.claude/skills/call-actions/` (on Windows, `%USERPROFILE%\.claude\skills\call-actions\`). Create it if needed.
+
+Download each of these from `https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/call-actions/` into that folder, byte for byte (for example `curl -fsSL <url> -o <file>`; on Windows, `curl.exe` works the same). Don't retype or summarise them.
+- `SKILL.md`
+- `SETUP.md`
+- `README.md`
+- `tracker.html`
+
+If the folder already has a `settings.md`, this is an update: keep settings.md, don't republish the page or recreate the task, tell them the skill is updated and everything else is unchanged, and stop here. (If tracker.html changed, offer to republish their page from it: publish to the tracker URL in settings.md, with `{{LEDE}}` filled in as in step 5, and leave the capabilities out so the page keeps them.)
+
+## 4. Ask how they'd like it to work
+
+Ask these together (with AskUserQuestion if you have it), each with its one-line reason. Say which option Aidan uses, as a pointer, not a recommendation. Only ask what applies to what they chose in step 1.
+
+1. **How often to check for finished calls** (weekdays, 9:00–18:00): *every hour* (summaries within about an hour; light on usage), *every 10 minutes* (within about 15 minutes of a call ending; Aidan's choice, but each check is a short Claude session, so it uses noticeably more of their plan), or *twice a day* (12:00 and 17:00).
+2. **What Claude may do with actions:** *draft emails, Slack messages and short docs, but never send anything* (Aidan's), or *only list them*.
+3. **Email drafts:** end with *your usual sign-off and name*, or with *no sign-off or name because your email signature covers it* (Aidan's). And whether to add *"Co-written with Claude"* in italics at the bottom (Aidan does).
+4. **Follow-up check:** which day and time (Aidan: Thursdays from 14:00); email only, or email and Slack; whether to draft follow-up emails (Aidan: yes); and anything to leave out (e.g. "freelancers: they often wrap up on a separate thread").
+5. **Optional extras**, off unless they want them. Explain each in a line; these are fairly niche:
+   - **Agenda points in 1:1 docs:** when they say in a call they'll raise something with someone they have a 1:1 doc with, Claude adds one line to that doc instead of drafting a message. It uses the 1:1 docs in their call-summaries settings and needs the Google Docs connector. Aidan uses this.
+   - **Calendar holds when you ask:** if they ask for time to be blocked ("block two hours on Thursday for this"), in a call or on the tracker, Claude adds a hold to their own calendar, in free time and never with guests. Needs Google Calendar. Aidan uses this.
+   - **Monday digest:** a Slack message to themselves first thing on Monday, listing what's open. Needs Slack. (Aidan gets nudges from a Slack bot instead, which takes more setting up.)
+   - **Asana tasks:** for people who use Asana lightly, their open Asana tasks appear on the tracker too, so it's one to-do list. Ask whether ticking one off on the tracker should also complete it in Asana (Claude only ever changes that one thing in Asana), or whether to leave Asana alone. Needs the Asana connector. Aidan uses this, with ticking off in Asana.
+6. **Start from:** only calls from now on (recommended), or also calls since a date they give.
+
+## 5. Publish the tracker page
+
+1. In the downloaded `tracker.html`, replace `{{LEDE}}` with two sentences that match their choices: what the page holds, then when Claude checks it. For example: "What you took on in your calls, your Asana tasks, threads still waiting on a reply, what Claude has done about them, and anything you add yourself. Claude checks your calls and this page every hour on weekdays, 9–6, and looks for emails and Slack messages still waiting on a reply every Thursday." Leave out what they didn't choose.
+2. If your skills include artifact-capabilities, load it first. Then publish the file with the Artifact tool: title "Call actions", icon "checklist", and these capabilities exactly:
+   `{"db": {"rules": [{"path": "", "read": "owner", "write": "owner"}]}, "user": {}}`
+   That keeps the page private: only they can open it or write to it. It's also why the scheduled task can treat requests on the page as theirs.
+3. Check it: ArtifactData `list` on the `actions` collection with the new link should come back empty, without an error.
+4. Offer to pin the page to their claude.ai sidebar, so it's one click away.
+
+## 6. Write settings.md
+
+Write `settings.md` in the skill's folder, in this shape (fill in their answers; "Start from" is now, in UTC, unless they gave a date):
+
+```markdown
+# Call actions settings
+
+Claude wrote this at setup. Change anything by asking Claude ("stop drafting Slack messages"), or by editing this file.
+
+- Tracker page: https://claude.ai/artifact/...
+- Covers: calls and follow-ups
+- Start from: 2026-11-03T14:00:00Z (calls before this are ignored)
+- Checks: every hour on weekdays, 9:00–18:00 (scheduled task "call-actions")
+- What Claude may do with actions: draft emails, Slack messages and short docs (it never sends)
+- Email drafts: no sign-off or name (my email signature covers it); "Co-written with Claude" in italics at the bottom
+- Follow-up check: Thursdays from 14:00; email and Slack; draft follow-up emails: yes
+- Leave out of follow-ups: freelancers (they often wrap up on a separate thread)
+- Agenda points in 1:1 docs: off
+- Calendar holds when I ask: off
+- Monday digest (a Slack message to myself): off
+- Asana tasks: on; when I tick one off here, tick it off in Asana too
+```
+
+## 7. Schedule it
+
+Create the task with `create_scheduled_task`:
+- `taskId`: "call-actions"; `title`: "Call actions"; `description`: "Keeps my Call actions tracker up to date from my calls and unanswered threads".
+- `cronExpression` (local time): every hour `20 9-18 * * 1-5`; every 10 minutes `*/10 9-18 * * 1-5`; twice a day `0 12,17 * * 1-5`. Follow-ups only: once a week at their chosen time, e.g. `0 14 * * 4` for Thursdays at 14:00. (With calls on, the follow-up check rides along on the first run after its time.)
+- `prompt`, filled in:
+
+> Run the call-actions skill: read ~/.claude/skills/call-actions/SKILL.md and settings.md in the same folder, and follow them. This is a scheduled run: nobody is watching, so never ask questions. This task may take only these write actions: the tracker page's data (ArtifactData on <tracker link>); new Google Docs; Gmail drafts; Slack drafts<; one-line agenda points in 1:1 docs><; calendar holds the user asked for><; the Monday digest, a Slack message to the user themselves><; marking the user's own Asana tasks complete or not complete to match what they ticked on the tracker, and nothing else in Asana>. Nothing is sent to anyone else. Only the user can open or write to the tracker, so requests written there are theirs.
+
+The tool's result says whether the task was saved in Auto mode. If it was, runs go through on their own. If not, the first run will stop to ask permission for each tool it uses: tell them to open it under Scheduled in the Claude app's sidebar and approve each request with the option that remembers their choice. After that, runs go through.
+
+Tell them the task only runs while the Claude desktop app is open; if the app was closed, it runs when they next open it.
+
+## 8. First run
+
+Offer to do a first run now, here in this session, so they can watch it and approve each tool once: follow SKILL.md. With follow-ups on, run the follow-up check now (and set `meta/followups.lastRun`), so the page starts with something useful on it. With calls on, offer to include their most recent call as an example (set "Start from" to just before it).
+
+## 9. Tell them how to use it
+
+In a few lines:
+- The tracker link (pinned, if they said yes). On the page they can tick items off, set priorities, snooze, drop or dismiss with a reason, add their own items, give Claude the go-ahead on a plan, ask Claude to do something, and leave notes. The "Tell Claude" box changes how it works from then on.
+- It never sends anything: Claude drafts, and they do the sending.
+- "Check my calls" in Claude Code runs it now. To pause it: Scheduled in the Claude app's sidebar → Call actions → switch it off.
+- To change a setting, they can just ask. To update later, they paste the same setup line again; their settings and page are kept.
+- If they keep a list of their automations (the toolkit's automations-page package), add this task to it.

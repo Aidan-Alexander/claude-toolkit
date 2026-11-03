@@ -32,7 +32,14 @@ Download each of these from `https://raw.githubusercontent.com/Aidan-Alexander/c
 - `README.md`
 - `tracker.html`
 
-If the folder already has a `settings.md`, this is an update: keep settings.md, don't republish the page or recreate the task, tell them the skill is updated and everything else is unchanged, and stop here. (If tracker.html changed, offer to republish their page from it: publish to the tracker URL in settings.md, with `{{LEDE}}` filled in as in step 5, and leave the capabilities out so the page keeps them.)
+Put an untouched copy of each downloaded file in a `.original` folder inside the skill's folder: that's how a later update can tell whether anyone has changed them.
+
+**If the folder already has a `settings.md`, this is an update.** Before you download anything:
+1. Compare each file in the folder with its copy in `.original/` (if there's no `.original` folder, skip this check).
+2. If a file differs, someone has changed the package's own files, probably by asking Claude to. Tell the person in plain words what's different, and carry each change into settings.md as a line under "My own rules", so it survives the update. If a change can't be put as a rule (say, a change to how the page looks), keep their version as `<file name>.mine` and tell them.
+3. Then download the new files, refresh `.original/`, and keep settings.md as it is. Don't recreate the scheduled task.
+4. If tracker.html changed, offer to republish their page from it: publish to the tracker URL in settings.md, with `{{LEDE}}` filled in as in step 5, and leave the capabilities out so the page keeps them. Their items are kept either way: they live in the page's database. If they kept a `tracker.html.mine`, say that republishing replaces the page's look with the new version, and ask first.
+5. Tell them what's new (the "Changes" list at the end of README.md), and that their settings, own rules and tracker are unchanged. Stop here.
 
 ## 4. Ask how they'd like it to work
 
@@ -65,7 +72,7 @@ Write `settings.md` in the skill's folder, in this shape (fill in their answers;
 ```markdown
 # Call actions settings
 
-Claude wrote this at setup. Change anything by asking Claude ("stop drafting Slack messages"), or by editing this file.
+Claude wrote this at setup. Change anything by asking Claude ("stop drafting Slack messages"): Claude records the change here, so it's kept when the skill updates.
 
 - Tracker page: https://claude.ai/artifact/...
 - Covers: calls and follow-ups
@@ -79,6 +86,11 @@ Claude wrote this at setup. Change anything by asking Claude ("stop drafting Sla
 - Calendar holds when I ask: off
 - Monday digest (a Slack message to myself): off
 - Asana tasks: on; when I tick one off here, tick it off in Asana too
+
+## My own rules
+
+Anything you've asked Claude to do differently goes here, one line each. It's kept when the skill updates.
+- (none yet)
 ```
 
 ## 7. Schedule it
@@ -104,5 +116,5 @@ In a few lines:
 - The tracker link (pinned, if they said yes). On the page they can tick items off, set priorities, snooze, drop or dismiss with a reason, add their own items, give Claude the go-ahead on a plan, ask Claude to do something, and leave notes. The "Tell Claude" box changes how it works from then on.
 - It never sends anything: Claude drafts, and they do the sending.
 - "Check my calls" in Claude Code runs it now. To pause it: Scheduled in the Claude app's sidebar → Call actions → switch it off.
-- To change a setting, they can just ask. To update later, they paste the same setup line again; their settings and page are kept.
+- To change how it works, they can just ask, in Claude Code or in the page's "Tell Claude" box. To update later, they paste the same setup line again: their settings, their own rules and their tracker are kept.
 - If they keep a list of their automations (the toolkit's automations-page package), add this task to it.

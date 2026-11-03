@@ -15,7 +15,7 @@ BASE = ("<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;pad
         "img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>\n")
 BANNER = """
   <p class="notice" style="margin:0">This is a demo with made-up calls and emails. Click around: nothing is saved or sent,
-  and Claude's side is faked. <a href="https://github.com/Aidan-Alexander/claude-toolkit/tree/main/call-actions#readme">How it works and how to set it up</a></p>
+  and Claude's side is faked. <a href="https://aidan-claude-toolkit.netlify.app/call-actions/">How it works and how to set it up</a></p>
 """
 
 
@@ -25,7 +25,7 @@ def main() -> None:
     page = page.replace("{{LEDE}}", LEDE)
     head, main_tag, body = page.partition('<main class="wrap" id="app">')
     assert main_tag, "couldn't find the page's <main>"
-    out = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+    out = ('<!doctype html>\n<html lang="en" data-theme="light">\n<head>\n<meta charset="utf-8">\n'
            '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
            + BASE + head + '<script src="demo.js"></script>\n</head>\n<body>\n'
            + main_tag + BANNER + body + "\n</body>\n</html>\n")

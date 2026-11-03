@@ -25,7 +25,7 @@ RESET = (
 )
 
 HEAD = """<!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -45,7 +45,7 @@ BANNER = """<style>
 .demo-banner a { color: inherit; font-weight: 600; }
 .demo-banner a:focus-visible { outline-color: var(--on-accent); }
 </style>
-<div class="demo-banner" role="note"><p>This is a demo with made-up entries. Your own page is private to you and lists what’s really running for you. <a href="https://github.com/Aidan-Alexander/claude-toolkit/tree/main/automations-page">Set up your own</a></p></div>
+<div class="demo-banner" role="note"><p>This is a demo with made-up entries. Your own page is private to you and lists what’s really running for you. <a href="https://aidan-claude-toolkit.netlify.app/automations-page/">Set up your own</a></p></div>
 """
 
 FOOT = "\n</body>\n</html>\n"

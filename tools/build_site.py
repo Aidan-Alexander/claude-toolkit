@@ -1,0 +1,291 @@
+#!/usr/bin/env python3
+"""Builds the toolkit's website, site/, from the write-ups in this repo.
+
+The website is a friendlier front end for the same files: a home page made from README.md, a page
+per package made from its README.md, the getting-started guide, the example summary, and the live
+demos. Markdown goes through GitHub's own renderer (via the gh command-line tool), so pages say
+exactly what the repo says. Run tools/publish.sh after changing a write-up or demo: it calls this,
+then deploys site/ to Netlify. site/ is a build output and isn't kept in git.
+"""
+import html
+import posixpath
+import re
+import shutil
+import subprocess
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+SITE = ROOT / "site"
+REPO = "Aidan-Alexander/claude-toolkit"
+GITHUB = f"https://github.com/{REPO}"
+NETLIFY = "https://aidan-claude-toolkit.netlify.app"
+PACKAGES = ["summarise-granola", "call-actions", "automations-page", "work-hours"]
+THUMBS = {"summarise-granola": "summarise-granola/example.png", "call-actions": "call-actions/screenshot.png",
+          "automations-page": "automations-page/screenshot.png"}
+IMAGES = (".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp")
+
+# The work-hours package has no screenshot, so its card shows the warning window in HTML.
+STOP_WORK_MOCK = """<div class="mock" role="img" aria-label="The stop-work warning: work stops at 18:01, with Skip today and OK buttons">
+  <div class="mock-window">
+    <p class="mock-title">Stop work</p>
+    <p>Work stops at 18:01. Save what you're doing.</p>
+    <p class="mock-hint">To keep working today, type why and click Skip today.</p>
+    <div class="mock-input"></div>
+    <div class="mock-buttons"><span>Skip today</span><span class="mock-ok">OK</span></div>
+  </div>
+</div>"""
+
+
+def render(md: str) -> str:
+    """Markdown to HTML with GitHub's renderer."""
+    out = subprocess.run(["gh", "api", "markdown", "-f", f"text={md}", "-f", "mode=gfm", "-f", f"context={REPO}"],
+                         capture_output=True, text=True, check=True)
+    return out.stdout
+
+
+def slug(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", html.unescape(re.sub(r"<[^>]+>", "", text)).lower()).strip("-")
+
+
+def fix_url(url: str, src_dir: str) -> str:
+    """Point a link from a write-up at the right place on the site, or at GitHub."""
+    if url.startswith(NETLIFY):
+        return url[len(NETLIFY):] or "/"
+    if re.match(r"^[a-z][a-z0-9+.-]*:", url) or url.startswith(("#", "//")):
+        return url
+    path, _, frag = url.partition("#")
+    resolved = posixpath.normpath(posixpath.join(src_dir, path)) if path else src_dir
+    resolved = "" if resolved == "." else resolved
+    top = resolved.split("/")[0]
+    if resolved in PACKAGES or (resolved.endswith("/README.md") and top in PACKAGES):
+        target = f"/{top}/"
+    elif resolved in ("", "README.md"):
+        target = "/"
+    elif resolved == "GETTING-STARTED.md":
+        target = "/getting-started/"
+    elif resolved == "summarise-granola/example-summary.md":
+        target = "/summarise-granola/example/"
+    elif resolved.lower().endswith(IMAGES):
+        copy_asset(resolved)
+        target = "/" + resolved
+    else:
+        kind = "tree" if (ROOT / resolved).is_dir() else "blob"
+        target = f"{GITHUB}/{kind}/main/{resolved}"
+    return target + (f"#{frag}" if frag else "")
+
+
+def copy_asset(rel: str) -> None:
+    dest = SITE / rel
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / rel, dest)
+
+
+def tidy(fragment: str, src_dir: str) -> str:
+    """Tidy GitHub's HTML for the site: plain tables, bare images, ids on headings, fixed links."""
+    fragment = fragment.replace("<markdown-accessiblity-table>", '<div class="table-wrap">').replace("</markdown-accessiblity-table>", "</div>")
+    fragment = re.sub(r'<a target="_blank" rel="noopener noreferrer" href="[^"]*">(<img [^>]*>)</a>', r"\1", fragment)
+    fragment = re.sub(r'<(h[1-4])(?: [^>]*)?>(.*?)</\1>', lambda m: f'<{m.group(1)} id="{slug(m.group(2))}">{m.group(2)}</{m.group(1)}>', fragment)
+    fragment = re.sub(r'(href|src)="([^"]*)"', lambda m: f'{m.group(1)}="{html.escape(fix_url(html.unescape(m.group(2)), src_dir))}"', fragment)
+    fragment = re.sub(r'<a href="(https?://[^"]+)"', r'<a href="\1" target="_blank" rel="noopener"', fragment)
+    fragment = re.sub(r'<pre class="notranslate"><code class="notranslate">(Set up &quot;)', r'<pre class="setup-line"><code>\1', fragment)
+    return fragment
+
+
+def page(title: str, body: str, description: str, home: bool = False) -> str:
+    full_title = "Aidan's Claude toolkit" if home else f"{title} · Aidan's Claude toolkit"
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{html.escape(full_title)}</title>
+<meta name="description" content="{html.escape(description)}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<header class="bar"><div class="wrap bar-inner">
+  <a class="brand" href="/">Aidan's Claude toolkit</a>
+  <nav><a href="/getting-started/">Getting started</a><a href="{GITHUB}" target="_blank" rel="noopener">GitHub</a></nav>
+</div></header>
+<main class="wrap">
+{body}
+</main>
+<footer class="wrap foot">
+  <p>Everything here lives on <a href="{GITHUB}" target="_blank" rel="noopener">GitHub</a>, including the files Claude reads when it sets things up. This site is built from those files.</p>
+  {FOOTER}
+</footer>
+<script src="/site.js"></script>
+</body>
+</html>
+"""
+
+
+def split_sections(md: str) -> dict:
+    """README sections by their ## heading ('' holds everything before the first one)."""
+    parts, current = {"": []}, ""
+    for line in md.splitlines():
+        m = re.match(r"^## (.+)$", line)
+        if m:
+            current = m.group(1).strip()
+            parts[current] = []
+        else:
+            parts[current].append(line)
+    return {k: "\n".join(v).strip() for k, v in parts.items()}
+
+
+def package_rows(table_md: str) -> list[dict]:
+    rows = []
+    for line in table_md.splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        m = re.match(r"\[\*\*(.+?)\*\*\]\((.+?)/?\)", cells[0]) if cells else None
+        if not m or len(cells) < 5:
+            continue
+        demo = re.search(r"\[Try the demo\]\((.+?)\)\.?", cells[1])
+        rows.append({"name": m.group(1), "folder": m.group(2).strip("/"),
+                     "what": re.sub(r"\s*\[Try the demo\]\(.+?\)\.?", "", cells[1]).strip(),
+                     "demo": fix_url(demo.group(1), "") if demo else None,
+                     "why": cells[2], "needs": cells[3], "setup": cells[4].strip("`")})
+    return rows
+
+
+def inline(md: str) -> str:
+    """One line of Markdown to HTML (renders through GitHub, then drops the wrapping paragraph)."""
+    out = tidy(render(md), "")
+    return re.sub(r"^\s*<p[^>]*>(.*)</p>\s*$", r"\1", out, flags=re.S)
+
+
+def setup_box(line: str) -> str:
+    return (f'<div class="setup"><p class="label">Set it up: paste this into Claude Code</p>'
+            f'<pre class="setup-line"><code>{html.escape(line)}</code></pre></div>')
+
+
+def build_home(readme: str) -> None:
+    sections = split_sections(readme)
+    title = re.search(r"^# (.+)$", sections[""], re.M).group(1)
+    intro_md = "\n".join(l for l in sections[""].splitlines() if not l.startswith("# ") and "Easier to read on the website" not in l)
+    packaged = sections["Packaged for you to install"]
+    table = "\n".join(l for l in packaged.splitlines() if l.startswith("|"))
+    after_table = "\n".join(l for l in packaged.splitlines() if not l.startswith("|"))
+    cards = []
+    for row in package_rows(table):
+        f = row["folder"]
+        thumb = THUMBS.get(f)
+        if thumb:
+            copy_asset(thumb)
+            shot = f'<a class="pkg-shot" href="/{f}/" tabindex="-1" aria-hidden="true"><img src="/{thumb}" alt="" loading="lazy"></a>'
+        else:
+            shot = f'<a class="pkg-shot mock-shot" href="/{f}/" tabindex="-1" aria-hidden="true">{STOP_WORK_MOCK}</a>'
+        links = [f'<a href="/{f}/">How it works</a>']
+        if row["demo"]:
+            links.append(f'<a href="{row["demo"]}">Try the demo</a>')
+        cards.append(f"""<article class="pkg">
+  {shot}
+  <div class="pkg-main">
+    <h3><a href="/{f}/">{html.escape(row["name"])}</a></h3>
+    <p class="what">{inline(row["what"])}</p>
+    <div class="facts">
+      <p><span class="label">Why it's useful</span>{inline(row["why"])}</p>
+      <p><span class="label">You'll need</span>{inline(row["needs"])}</p>
+    </div>
+    {setup_box(row["setup"])}
+    <p class="pkg-links">{" ".join(links)}</p>
+  </div>
+</article>""")
+    others = "\n\n".join(f"## {name}\n\n{text}" for name, text in sections.items()
+                         if name not in ("", "Packaged for you to install", "Credits", "Licence"))
+    body = f"""<section class="hero">
+  <p class="eyebrow">How I use Claude at AIM</p>
+  <h1>{html.escape(title)}</h1>
+  <div class="intro">{tidy(render(intro_md), "")}</div>
+</section>
+<section class="packaged" id="packaged">
+  <h2>Packaged for you to install</h2>
+  <div class="pkgs">
+{chr(10).join(cards)}
+  </div>
+  <div class="after">{tidy(render(after_table), "")}</div>
+</section>
+<section class="prose others">
+{tidy(render(others), "")}
+</section>"""
+    write("index.html", page(title, body, "How Aidan Alexander uses Claude at Ambitious Impact, with tools you can install in Claude Code.", home=True))
+
+
+def build_package(folder: str, setup_line: str, demo: str | None) -> None:
+    md = (ROOT / folder / "README.md").read_text(encoding="utf-8")
+    title = re.search(r"^# (.+)$", md, re.M).group(1)
+    meta_line = next((l for l in md.splitlines() if l.startswith("**Runs in:**")), "")
+    facts = []
+    for part in meta_line.split(" · "):
+        m = re.match(r"\*\*(.+?):\*\*\s*(.+)", part.strip())
+        if m:
+            facts.append(f'<li><span class="label">{html.escape(m.group(1))}</span>{inline(m.group(2))}</li>')
+    body_md = "\n".join(l for l in md.splitlines() if not l.startswith("# ") and l != meta_line)
+    body_html = tidy(render(body_md), folder)
+    if folder == "work-hours":
+        body_html = body_html.replace('<h2 id="what-it-looks-like">What it looks like</h2>',
+                                      '<h2 id="what-it-looks-like">What it looks like</h2>\n' + STOP_WORK_MOCK, 1)
+    links = [f'<a href="{demo}">Try the demo</a>'] if demo else []
+    links.append(f'<a href="{GITHUB}/tree/main/{folder}" target="_blank" rel="noopener">See the files on GitHub</a>')
+    body = f"""<nav class="crumb"><a href="/">← All tools</a></nav>
+<header class="page-head">
+  <h1>{html.escape(title)}</h1>
+  <ul class="meta">{"".join(facts)}</ul>
+  {setup_box(setup_line)}
+  <p class="pkg-links">{" ".join(links)}</p>
+</header>
+<article class="prose">
+{body_html}
+</article>"""
+    first_para = next((l for l in md.splitlines()[3:] if l and not l.startswith(("#", "**", "!", "|"))), title)
+    write(f"{folder}/index.html", page(title, body, re.sub(r"[*_`\[\]]|\(.*?\)", "", first_para)))
+
+
+def build_doc(src: str, dest: str, crumb_href: str, crumb_text: str) -> None:
+    md = (ROOT / src).read_text(encoding="utf-8")
+    title = re.search(r"^# (.+)$", md, re.M).group(1)
+    body_md = "\n".join(l for l in md.splitlines() if not l.startswith("# "))
+    body = f"""<nav class="crumb"><a href="{crumb_href}">← {crumb_text}</a></nav>
+<header class="page-head"><h1>{html.escape(title)}</h1></header>
+<article class="prose">
+{tidy(render(body_md), posixpath.dirname(src))}
+</article>"""
+    write(dest, page(title, body, title))
+
+
+def write(rel: str, text: str) -> None:
+    dest = SITE / rel
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(text, encoding="utf-8")
+
+
+FOOTER = ""
+
+
+def main() -> None:
+    global FOOTER
+    if SITE.exists():
+        shutil.rmtree(SITE)
+    SITE.mkdir()
+    for name in ("site.css", "site.js"):
+        shutil.copyfile(ROOT / "tools" / name, SITE / name)
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    sections = split_sections(readme)
+    FOOTER = tidy(render(f"**Credits.** {sections['Credits']}\n\n**Licence.** {sections['Licence']}"), "")
+    build_home(readme)
+    rows = {r["folder"]: r for r in package_rows(sections["Packaged for you to install"])}
+    for folder in PACKAGES:
+        build_package(folder, rows[folder]["setup"], rows[folder]["demo"])
+    build_doc("GETTING-STARTED.md", "getting-started/index.html", "/", "All tools")
+    build_doc("summarise-granola/example-summary.md", "summarise-granola/example/index.html", "/summarise-granola/", "Call summaries")
+    for folder in ("call-actions", "automations-page"):
+        for name in ("index.html", "demo.js"):
+            copy_asset(f"{folder}/demo/{name}")
+    print("Built", SITE)
+
+
+if __name__ == "__main__":
+    main()

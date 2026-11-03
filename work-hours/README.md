@@ -83,7 +83,7 @@ Claude checks you're on a Mac, asks you the questions above, sets it up, and sho
 - **Opening the Mac during the warning period,** say a few minutes before bedtime, brings up the warning with the time that's left.
 - **macOS may say "background items" were added.** That's these jobs. If you switch them off in System Settings → General → Login Items, they won't run.
 - **Older Macs:** the Shortcut needs macOS 12 (Monterey) or later. Bedtime and the plain reminder don't.
-- **Updating:** paste the setup line again. Your settings are kept.
+- **Updating:** paste the setup line again. Your settings are kept, and if the scripts on your Mac were changed, Claude shows you what's different and asks before replacing them.
 - **Removing:** ask Claude Code to "remove work-hours". It switches both off and keeps your settings and log, in case you want them back.
 
 ## Changes

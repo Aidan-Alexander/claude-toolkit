@@ -39,12 +39,11 @@ Some packages run on a schedule, for example every hour on weekdays. They live u
 
 ## 6. Changing, updating or removing things
 
-- **Change how something works:** just ask Claude Code, e.g. "make my call summaries shorter". Each package keeps your choices in a settings file that Claude updates.
-- **Update to the latest version:** paste the package's setup line again. Your settings are kept.
+- **Change how something works:** just ask Claude Code, e.g. "make my call summaries shorter". Claude records the change in that package's settings file, so it's kept when you update.
+- **Update to the latest version:** paste the package's setup line again. Your settings, and any changes you've asked for, are kept. If anyone has edited a package's own files, Claude shows you what's different and carries it across first.
 - **Remove a package:** ask Claude Code, e.g. "remove the call-actions package and its scheduled task".
 
 ## Safety
 
 - None of these packages ever send emails or messages for you. They create drafts and documents, and you decide what goes out.
-- They don't change your existing documents, except where a package's page says so and you've turned that option on.
 - Anything Claude reads in your emails, calls or documents is treated as information, never as instructions.

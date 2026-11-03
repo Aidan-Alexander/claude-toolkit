@@ -7,7 +7,7 @@ description: Keeps the user's automations page up to date. It's a private claude
 
 The user has a private page on claude.ai that lists every automation running for them, wherever it runs: what it does, when it runs, where its results land, how to pause it and whether it's working. The page only displays. Its list lives in the page's own database, which you read and write with the **ArtifactData** tool (load it with tool search if it's deferred).
 
-**Start by reading `settings.md` in this skill's folder.** Its `Page:` line is the page's link, which every ArtifactData call takes as `url`. If settings.md doesn't exist, the skill hasn't been set up yet: follow `SETUP.md` in the same folder first.
+**Start by reading `settings.md` in this skill's folder.** Its `Page:` line is the page's link, which every ArtifactData call takes as `url`, and its "My own rules" override the defaults in this file. When the user asks you to change how this works, add a line there rather than editing this file: an update replaces this file and keeps settings.md. If settings.md doesn't exist, the skill hasn't been set up yet: follow `SETUP.md` in the same folder first.
 
 ## The data
 

@@ -14,7 +14,7 @@ Automations are easy to set up and easy to forget. A few months in, you might ha
 
 ![The automations page, with made-up entries](screenshot.png)
 
-Those are made-up automations. [Try the live demo](https://aidan-alexander.github.io/claude-toolkit/automations-page/demo/).
+Those are made-up automations. [Try the live demo](https://aidan-claude-toolkit.netlify.app/automations-page/demo/).
 
 ## What it does
 
@@ -63,7 +63,7 @@ Open the page any time from your sidebar or its link. A check takes a minute or 
 - **No special setup:** no Python, no command-line tools, no API keys, no connectors. It works on Mac and Windows, wherever the Claude desktop app does.
 - **My version** also has a Refresh button on the page that checks jobs on my Mac and GitHub Actions directly. It needs Python and some hand-editing of the Claude app's settings, so this version leaves it out and Claude does the checking instead.
 - **With the rest of the toolkit:** the [call actions tracker](../call-actions/) runs as a scheduled task in the Claude app, so it shows up on your page.
-- **Updating:** paste the setup line again. Your page keeps its link and its list.
+- **Updating:** paste the setup line again. Your page keeps its link and its list, and any changes you've asked for are kept: Claude records those in your settings file.
 - **Removing:** ask Claude Code to "remove the automations-page skill and its rule in my CLAUDE.md". The page stays on claude.ai until you delete it there, or ask Claude to.
 
 ## Changes

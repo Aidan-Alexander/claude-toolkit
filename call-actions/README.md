@@ -10,7 +10,7 @@ I keep it open all day. I have a lot of calls, and most end with a handful of sm
 
 ![The Call actions tracker, with made-up items](screenshot.png)
 
-**[Try the live demo](https://aidan-alexander.github.io/claude-toolkit/call-actions/demo/)**: it runs on made-up calls and emails, so click around. Nothing is saved or sent.
+**[Try the live demo](https://aidan-claude-toolkit.netlify.app/call-actions/demo/)**: it runs on made-up calls and emails, so click around. Nothing is saved or sent.
 
 ## What it does
 
@@ -49,7 +49,7 @@ I keep it open all day. I have a lot of calls, and most end with a handful of sm
 | Monday digest | A Slack message to yourself on Monday morning listing what's open | I use a Slack bot that also nudges me when I haven't opened the page for a day; this is the simpler version |
 | Asana tasks | Leave them out, show them on the tracker, or show them and tick them off in Asana when you tick them here | Show them, and tick them off in Asana too |
 
-You can change any of these later by asking Claude.
+You can change any of these later, or anything else about how it works, by asking Claude.
 
 ## Set it up
 

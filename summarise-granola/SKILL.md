@@ -7,7 +7,7 @@ description: Turns a Granola call into a detailed, chronological summary saved a
 
 Reads a call's transcript from Granola, writes a summary that lets the user re-live the call, and saves it as a Google Doc. It uses only connectors: Granola and Google Drive, plus Google Docs for the optional 1:1 doc links.
 
-**Start by reading `settings.md` in this skill's folder.** If it doesn't exist, the skill hasn't been set up yet: follow `SETUP.md` in the same folder first, then carry on.
+**Start by reading `settings.md` in this skill's folder.** Its "My own rules" section overrides the defaults in this file. If it doesn't exist, the skill hasn't been set up yet: follow `SETUP.md` in the same folder first, then carry on.
 
 Connector tools are often deferred: load them with tool search before calling them. If a connector is missing, or its calls fail because of sign-in, tell the user to reconnect it in Claude under Settings → Connectors and then start a new session, and stop.
 
@@ -97,4 +97,4 @@ Reply with the doc link, where it was saved, whether a 1:1 doc link was added, a
 
 ## Changing the settings
 
-If the user asks to change how summaries work ("make them shorter", "add Priya's 1:1 doc", "stop doing transcripts"), update settings.md to match and tell them what changed.
+If the user asks to change how summaries work ("make them shorter", "add Priya's 1:1 doc", "stop doing transcripts"), update settings.md: change the matching setting, or add a line under "My own rules" for anything else. Tell them what changed. Don't edit this file or summary-format.md: an update replaces them, and only settings.md is kept.

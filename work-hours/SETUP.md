@@ -27,9 +27,9 @@ Download each of these into that folder, byte for byte, for example with `curl -
 - https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/work-hours/README.md
 - https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/work-hours/SETUP.md
 
-Then run `chmod +x ~/.work-hours/*.sh`, and check that `work-hours.sh` starts with `#!/bin/bash`.
+Then run `chmod +x ~/.work-hours/*.sh`, and check that `work-hours.sh` starts with `#!/bin/bash`. Put an untouched copy of each downloaded file in `~/.work-hours/.original/`: that's how a later update can tell whether anyone has changed them.
 
-If `~/.work-hours/settings.txt` already exists, this is an update. Keep settings.txt as it is, run `bash ~/.work-hours/install.sh` so the jobs pick up the new files, tell them it's updated and their settings are unchanged, and stop here.
+If `~/.work-hours/settings.txt` already exists, this is an update. Before you download anything, compare each file in `~/.work-hours` with its copy in `~/.work-hours/.original/` (skip this if there's no `.original` folder). If one differs, someone has changed it on purpose: tell them in plain words what's different, keep their version as `<file name>.mine`, and ask whether to replace it with the new version. Then download what they agree to, refresh `.original/`, keep settings.txt as it is, run `bash ~/.work-hours/install.sh` so the jobs pick up the new files, tell them it's updated and their settings are unchanged, and stop here.
 
 Otherwise, check they don't already have something similar running: look in `launchctl list` for a label that mentions stop work, bedtime or work hours and doesn't start with `com.claude-toolkit.`. If you find one, tell them and ask before going on, so they don't end up with two warnings.
 
@@ -122,7 +122,7 @@ In a few lines:
 - To skip a day, they click **Skip today** or **Not tonight** in the warning, typing a reason first if they chose that.
 - To pause, change or remove it, they ask Claude Code and mention work-hours: "pause my work-hours bedtime", "move my work-hours stop time to 17:30", "remove work-hours".
 - "Show my work-hours log" lists each run and skip. The log is `~/.work-hours/log.txt`.
-- To update it later, they paste the same setup line again. Their settings are kept.
+- To update it later, they paste the same setup line again. Their settings are kept, and if they've changed the scripts, Claude asks before replacing them.
 
 ## 9. Add it to their automations page, if they have one
 

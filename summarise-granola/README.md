@@ -35,7 +35,7 @@ That's a made-up call. [Read the whole example summary](example-summary.md).
 | Where docs go | A "Call summaries" folder, or the top of My Drive | The folder |
 | 1:1 docs | Add a dated link to each summary at the top of your running doc with that person | Yes, for my direct reports |
 
-You can change any of these later by asking Claude ("make my call summaries shorter").
+You can change any of these later, or anything else about how it works, by asking Claude ("make my call summaries shorter").
 
 ## Set it up
 
@@ -64,7 +64,7 @@ A summary takes a few minutes. You can keep working in another session while it 
 - **Privacy:** the transcript is read by Claude under your account. The doc it creates is in your Drive and private to you.
 - **Usage:** a detailed summary of an hour-long call uses a fair amount of your Claude plan's usage, roughly what a long chat would.
 - **No special setup:** no Python, no command-line tools, no API keys. It works on Mac and Windows, wherever Claude Code and Granola do.
-- **Updating:** paste the setup line again. Your settings are kept.
+- **Updating:** paste the setup line again. Your settings, and any changes you've asked for, are kept: Claude records those in your settings file. If anyone has edited the skill's own files, Claude shows you what's different and carries it across first.
 - **Removing:** ask Claude Code to "remove the summarise-granola skill".
 
 ## Credits

@@ -21,9 +21,9 @@ Download each of these files from `https://raw.githubusercontent.com/Aidan-Alexa
 - `SETUP.md`
 - `README.md`
 
-Check that SKILL.md starts with `---` and contains `name: automations-page`, and that page.html contains `<title>My automations</title>`.
+Check that SKILL.md starts with `---` and contains `name: automations-page`, and that page.html contains `<title>My automations</title>`. Then put an untouched copy of each downloaded file in a `.original` folder inside the skill's folder: that's how a later update can tell whether anyone has changed them.
 
-If the folder already has a `settings.md`, this is an update. Keep settings.md as it is, and put the new page.html on their existing page: read the page first with the Artifact tool's `read` action and the link in settings.md (the tool needs that before it publishes over a page), then publish exactly as in step 3, adding `url` set to that link and leaving out `icon`. Their list is kept, because it lives in the page's database, not in the page itself. Tell them the skill and the page are updated and their list is unchanged, and stop here.
+If the folder already has a `settings.md`, this is an update. Before you download anything, compare each file in the folder with its copy in `.original/` (skip this if there's no `.original` folder). If one differs, someone has changed the package's own files: tell the person in plain words what's different, carry each change into settings.md as a line under "My own rules", and if a change can't be put as a rule (say, a change to how the page looks), keep their version as `<file name>.mine` and ask before you republish the page. Then download the new files, refresh `.original/`, keep settings.md as it is, and put the new page.html on their existing page: read the page first with the Artifact tool's `read` action and the link in settings.md (the tool needs that before it publishes over a page), then publish exactly as in step 3, adding `url` set to that link and leaving out `icon`. Their list is kept, because it lives in the page's database, not in the page itself. Tell them the skill and the page are updated and their list is unchanged, and stop here.
 
 ## 3. Publish their page
 
@@ -49,6 +49,11 @@ Write `settings.md` in the skill's folder, in this shape:
 Claude wrote this at setup. If the page's link ever changes, update it here.
 
 - Page: https://claude.ai/artifact/...
+
+## My own rules
+
+Anything you've asked Claude to do differently goes here, one line each. It's kept when the skill updates.
+- (none yet)
 ```
 
 ## 5. Fill in the page
@@ -86,4 +91,4 @@ In a few lines:
 - Their page is at the link (and in their sidebar, if they pinned it). It's private until they share it.
 - The page doesn't check anything itself. To update the statuses, they say "check my automations" in any new Claude Code session. A session that was already open may not see the new skill until it's restarted.
 - To add something new, such as a Zapier zap they made themselves, they tell Claude what it does and ask it to add it to their automations page.
-- To update the skill later, they paste the same setup line again. Their page keeps its link and its list.
+- To update the skill later, they paste the same setup line again. Their page keeps its link and its list, and any changes they've asked for are kept.

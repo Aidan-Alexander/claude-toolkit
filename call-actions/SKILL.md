@@ -5,7 +5,7 @@ description: Keeps your Call actions tracker page up to date. After each Granola
 
 # Call actions
 
-Read `settings.md` in this skill's folder first: it has the tracker page's link and the choices made at setup. If it's missing, follow `SETUP.md` in this folder instead.
+Read `settings.md` in this skill's folder first: it has the tracker page's link and the choices made at setup, and its "My own rules" override the defaults in this file (never the hard limits). If it's missing, follow `SETUP.md` in this folder instead. When the user asks you, in a session, to change how this works, record it in settings.md, not in this file: an update replaces this file and keeps settings.md.
 
 Each run does these things, in this order:
 1. Does what the user has asked of Claude on the tracker since the last run, and brings back snoozed items whose day has come.

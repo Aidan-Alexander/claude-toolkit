@@ -21,9 +21,13 @@ Download each of these files from `https://raw.githubusercontent.com/Aidan-Alexa
 - `SETUP.md`
 - `README.md`
 
-Check that SKILL.md starts with `---` and contains `name: summarise-granola`.
+Check that SKILL.md starts with `---` and contains `name: summarise-granola`. Then put an untouched copy of each downloaded file in a `.original` folder inside the skill's folder: that's how a later update can tell whether anyone has changed them.
 
-If the folder already has a `settings.md`, this is an update: keep settings.md as it is, tell them the skill is updated and their settings are unchanged, and stop here.
+**If the folder already has a `settings.md`, this is an update.** Before you download anything:
+1. Compare each file in the folder with its copy in `.original/` (if there's no `.original` folder, skip this check).
+2. If a file differs, someone has changed the package's own files, probably by asking Claude to. Tell the person in plain words what's different, and carry each change into settings.md as a line under "My own rules", so it survives the update. If a change can't be put as a rule, keep their version as `<file name>.mine` and tell them.
+3. Then download the new files, refresh `.original/`, and keep settings.md as it is.
+4. Tell them the skill is updated, what's new (the "Changes" list at the end of README.md), and that their settings and own rules are unchanged. Stop here.
 
 ## 3. Ask how they'd like it to work
 
@@ -48,7 +52,7 @@ Write `settings.md` in the skill's folder, in this shape:
 ```markdown
 # Call summaries settings
 
-Claude wrote this at setup. Change anything by asking Claude ("make my call summaries shorter") or by editing this file.
+Claude wrote this at setup. Change anything by asking Claude ("make my call summaries shorter"): Claude records the change here, so it's kept when the skill updates.
 
 - First name: Sam
 - Length: Detailed
@@ -60,7 +64,14 @@ Claude wrote this at setup. Change anything by asking Claude ("make my call summ
   - Tom Reid: https://docs.google.com/document/d/... (top of the tab "Call summaries")
 ```
 
-Write "1:1 docs: none" if they skipped that question.
+Write "1:1 docs: none" if they skipped that question. End the file with this section:
+
+```markdown
+## My own rules
+
+Anything you've asked Claude to do differently goes here, one line each. It's kept when the skill updates.
+- (none yet)
+```
 
 ## 6. Offer a test run
 
@@ -71,5 +82,5 @@ Offer to summarise their most recent Granola call now, following SKILL.md. If th
 In a few lines:
 - In any new Claude Code session, say "summarise my last call", "summarise my call with Priya", or type `/summarise-granola`. A session that was already open may not see the new skill until it's restarted.
 - It never sends or shares anything: the doc is private until they share it.
-- To change a setting, they can just ask ("stop adding transcripts"), and to update the skill later, they paste the same setup line again (their settings are kept).
-- If they'd like it to happen automatically after every call, plus a tracker of what they said they'd do, that's the call-actions package: https://github.com/Aidan-Alexander/claude-toolkit/tree/main/call-actions
+- To change how it works, they can just ask ("stop adding transcripts"). To update the skill later, they paste the same setup line again: their settings, and any changes they've asked for, are kept.
+- If they'd like it to happen automatically after every call, plus a tracker of what they said they'd do, that's the call-actions package: https://aidan-claude-toolkit.netlify.app/call-actions/

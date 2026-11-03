@@ -27,6 +27,22 @@ Why Claude Code? It does everything Chat and Cowork do, and other things besides
 
 None of them ever send anything for you. They write drafts and documents, and you do the sending.
 
+## PSA – you can change your Claude thinking words!
+
+While Claude Code works, it shows a word like "Pondering…" or "Combobulating…". You can swap these for your own. Paste this into Claude Code:
+
+```
+I want to change the words Claude Code shows while it's working ("Thinking…", "Pondering…" and so on). They're the "spinnerVerbs" setting in ~/.claude/settings.json. Show me the current list as a numbered list: if I haven't changed it yet, find Claude Code's built-in list in its installed files or its documentation. Then ask me which to remove and what to add. Save the result as "spinnerVerbs" with "mode": "replace" and my full list in "verbs", keep every other setting as it is, and show me the final list.
+```
+
+Some I've added:
+
+- Cuddling…
+- Faffing…
+- Nematoding…
+- Going through puberty…
+- Fibremaxxing…
+
 ## Other skills and automations I use
 
 ### Charity monitoring at AIM

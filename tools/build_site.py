@@ -200,8 +200,9 @@ def build_home(readme: str) -> None:
     <p class="pkg-links">{" ".join(links)}</p>
   </div>
 </article>""")
+    psa = "\n\n".join(f"## {name}\n\n{text}" for name, text in sections.items() if name.startswith("PSA"))
     others = "\n\n".join(f"## {name}\n\n{text}" for name, text in sections.items()
-                         if name not in ("", "Packaged for you to install", "Credits", "Licence"))
+                         if name not in ("", "Packaged for you to install", "Credits", "Licence") and not name.startswith("PSA"))
     body = f"""<section class="hero">
   <p class="eyebrow">How I use Claude at AIM</p>
   <h1>{html.escape(title)}</h1>
@@ -215,6 +216,7 @@ def build_home(readme: str) -> None:
   </div>
   <div class="after">{tidy(render(after_table), "")}</div>
 </section>
+{f'<section class="prose psa">{tidy(render(psa), "")}</section>' if psa else ""}
 <section class="prose others">
 {tidy(render(others), "")}
 </section>"""

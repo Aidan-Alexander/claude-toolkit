@@ -87,6 +87,14 @@ h1 { margin: 0 0 22px; font: 790 clamp(2.5rem, 1.7rem + 3.2vw, 3.9rem)/1 var(--f
 .ask-callout a { font-weight: 650; }
 .ask-box { max-width: 46rem; margin: 8px 0 22px; }
 
+/* the PSA about Claude Code's thinking words: a pink-and-cream box, with the words as little spinner pills */
+.prose.psa { margin: 40px 0 0; padding: 26px 26px 12px; border-radius: 22px; background: linear-gradient(135deg, #fff0f5 0%, #fff7e8 100%); border: 1px solid #f5d2de; max-width: 52rem; box-shadow: var(--shadow); }
+.prose.psa h2 { margin-top: 0; }
+.prose.psa pre { background: var(--surface); }
+.prose.psa ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.prose.psa li { margin: 0; padding: 6px 13px; border-radius: 999px; background: var(--surface); border: 1px solid #f0cfd9; font: 500 0.9rem/1.2 var(--font-mono); color: #b8456e; }
+.prose.psa li::before { content: "\2733  "; color: #e07a50; }
+
 /* a row of small images, like MailSmüsh's icon and gifs */
 .img-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 10px 0 8px; }
 .prose .img-row img, .img-row img { display: block; width: 88px; height: 88px; object-fit: cover; margin: 0; border-radius: 22px; border: 1px solid var(--line); box-shadow: 0 4px 12px rgba(60, 45, 20, 0.12); }

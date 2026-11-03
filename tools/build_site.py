@@ -27,7 +27,7 @@ CANONICAL = "https://aidan-alexander.com" + BASE
 OUT = SITE / BASE.strip("/")
 PACKAGES = ["summarise-granola", "call-actions", "automations-page", "work-hours"]
 THUMBS = {"summarise-granola": "summarise-granola/example.png", "call-actions": "call-actions/screenshot.png",
-          "automations-page": "automations-page/screenshot.png", "mailsmush": "images/mailsmush/thumb.png"}
+          "automations-page": "automations-page/screenshot.png", "mailsmush": "images/mailsmush/thumb.gif"}
 IMAGES = (".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp")
 # Old links (from before the move under /claude-tooling/) follow the pages to their new place.
 REDIRECTS = "\n".join(
@@ -172,9 +172,14 @@ def inline(md: str) -> str:
     return re.sub(r"^\s*<p[^>]*>(.*)</p>\s*$", r"\1", out, flags=re.S)
 
 
+def packaged_key(sections: dict) -> str:
+    """The README section with the install table; its heading may carry a tagline after ' – '."""
+    return next(k for k in sections if k.startswith("Packaged for you to install"))
+
+
 def setup_box(line: str) -> str:
     return (f'<div class="setup"><p class="label">Set it up: paste this into Claude Code</p>'
-            f'<pre class="setup-line"><code>{html.escape(line)}</code></pre></div>')
+            f'<pre class="setup-line" title="{html.escape(line)}"><code>{html.escape(line)}</code></pre></div>')
 
 
 def build_home(readme: str) -> None:
@@ -184,7 +189,10 @@ def build_home(readme: str) -> None:
     ask_line = next((l for l in intro_lines if l.startswith("No time to look at this yourself?")), "")
     intro_md = "\n".join(l for l in intro_lines if l != ask_line)
     ask_html = f'<p class="ask-callout">{inline(ask_line)}</p>' if ask_line else ""
-    packaged = sections["Packaged for you to install"]
+    key = packaged_key(sections)
+    packaged = sections[key]
+    heading, _, tagline = key.partition(" – ")
+    heading_html = html.escape(heading) + (f' <span class="h2-dash">–</span> <span class="from-claude">{html.escape(tagline)}</span>' if tagline else "")
     table = "\n".join(l for l in packaged.splitlines() if l.startswith("|"))
     after_table = "\n".join(l for l in packaged.splitlines() if not l.startswith("|"))
     cards = []
@@ -217,7 +225,7 @@ def build_home(readme: str) -> None:
 </article>""")
     psa = "\n\n".join(f"## {name}\n\n{text}" for name, text in sections.items() if name.startswith("PSA"))
     others = "\n\n".join(f"## {name}\n\n{text}" for name, text in sections.items()
-                         if name not in ("", "Packaged for you to install", "Credits", "Licence") and not name.startswith("PSA"))
+                         if name not in ("", key, "Credits", "Licence") and not name.startswith("PSA"))
     body = f"""<section class="hero">
   <p class="eyebrow">My open-source systems for working with Claude</p>
   <h1>{html.escape(title)}</h1>
@@ -225,7 +233,7 @@ def build_home(readme: str) -> None:
   <div class="intro">{tidy(render(intro_md), "")}</div>
 </section>
 <section class="packaged" id="packaged">
-  <h2>Packaged for you to install</h2>
+  <h2>{heading_html}</h2>
   <div class="pkgs">
 {chr(10).join(cards)}
   </div>
@@ -320,7 +328,7 @@ def main() -> None:
     sections = split_sections(readme)
     FOOTER = tidy(render(f"**Credits.** {sections['Credits']}\n\n**Licence.** {sections['Licence']}"), "")
     build_home(readme)
-    rows = {r["folder"]: r for r in package_rows(sections["Packaged for you to install"])}
+    rows = {r["folder"]: r for r in package_rows(sections[packaged_key(sections)])}
     for folder in PACKAGES:
         build_package(folder, rows[folder]["setup"], rows[folder]["demo"])
     build_doc("GETTING-STARTED.md", "getting-started/index.html", f"{BASE}/", "All tools")

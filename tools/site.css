@@ -104,6 +104,12 @@ h1 { margin: 0 0 22px; font: 790 clamp(2.5rem, 1.7rem + 3.2vw, 3.9rem)/1 var(--f
 .setup { background: var(--accent-soft); border: 1px solid #cdebdc; border-radius: 16px; padding: 14px 14px 12px; }
 .setup .label { color: var(--accent); }
 pre.setup-line { margin: 6px 0 0; }
+/* setup lines show on one line: people only need to copy them (the full line is in the tooltip) */
+.setup:not(.ask-box) pre.setup-line { padding: 11px 92px 11px 14px; overflow: hidden; }
+.setup:not(.ask-box) pre.setup-line code { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+.setup:not(.ask-box) .copy { top: 50%; transform: translateY(-50%); }
+.from-claude { color: #7c4ddb; }
+.h2-dash { color: var(--faint); font-weight: 500; }
 
 /* copy buttons (site.js adds them to every code block) */
 .code-wrap { position: relative; }

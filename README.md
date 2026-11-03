@@ -21,6 +21,8 @@ I also list other skills I have installed that I haven't packaged up, in case it
 
 All four run in **Claude Code**: the Code tab of the Claude desktop app, not the usual chat. If you haven't used it before, [Getting started](GETTING-STARTED.md) covers the one-off setup, which takes about 10 minutes.
 
+Why Claude Code? It does everything Chat and Cowork do, and other things besides. Apart from Projects, there's basically no reason to use Chat and Cowork, at least for me. When you first use it, switch it to Auto mode, so it isn't constantly asking your permission for tiny things.
+
 None of them ever send anything for you. They write drafts and documents, and you do the sending.
 
 ## Other skills and automations I use

@@ -2,6 +2,8 @@
 
 Everything in this toolkit runs in **Claude Code**. That sounds technical, but here it just means a tab in the Claude desktop app where Claude can work on your computer: you chat with it the same way as usual, and it does the setting up. You do this part once; after that, each package takes a few minutes.
 
+**Why Claude Code?** It does everything Chat and Cowork do, and other things besides: it can work with the files on your computer, set things up for you and run them on a schedule. Apart from Projects, which only Chat and Cowork have, there's basically no reason to use them, at least for me.
+
 ## 1. What you need
 
 - A paid Claude plan (Pro, Max, Team or Enterprise). AIM staff: your work account.
@@ -13,6 +15,7 @@ Everything in this toolkit runs in **Claude Code**. That sounds technical, but h
 1. Open the Claude app and sign in.
 2. Click **Code** at the top of the window.
 3. It asks which folder to work in. Pick any folder you like, such as Documents. The toolkit installs into your Claude settings, not into that folder.
+4. Switch its permission mode to **Auto**, in the menu next to the message box, if you have it. Otherwise Claude asks your permission for all sorts of tiny things. Auto mode lets it get on with routine steps and still blocks anything risky.
 
 ## 3. Connect the apps it uses
 
@@ -28,14 +31,14 @@ Each package's page lists the connectors it needs.
 
 Copy the one-line setup instruction from the package's page and paste it into Claude Code. Claude downloads the files, asks you a few questions about how you'd like it to work, and sets it up.
 
-While it works, Claude asks your permission before running commands or using a connector for the first time. Read what it says it's about to do, and click Allow. If you're unsure, ask it to explain first.
+If you're not in Auto mode, Claude asks your permission before running commands or using a connector for the first time. Read what it says it's about to do, and click Allow. If you're unsure, ask it to explain first.
 
 ## 5. Scheduled packages
 
 Some packages run on a schedule, for example every hour on weekdays. They live under **Scheduled** in the Claude app's sidebar, where you can see each run, start one by hand, or switch it off.
 
 - They run while the Claude desktop app is open. If your computer was shut, they catch up when you next open the app.
-- If the Code tab offers an **Auto** permissions mode, switch to it before installing a scheduled package: the scheduled task is then saved in Auto mode and can run without stopping to ask. If not, the first run will stop and ask permission for each tool it uses. Open it under Scheduled and approve each request with the option that remembers your choice; after that, runs go through on their own.
+- If you switched to **Auto** mode in step 2, a scheduled task you install is saved in Auto mode too, so it runs without stopping to ask. If not, the first run will stop and ask permission for each tool it uses. Open it under Scheduled and approve each request with the option that remembers your choice; after that, runs go through on their own.
 
 ## 6. Changing, updating or removing things
 

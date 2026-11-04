@@ -79,7 +79,8 @@ h1 { margin: 0 0 22px; font: 790 clamp(2.5rem, 1.7rem + 3.2vw, 3.9rem)/1 var(--f
 .what { margin: 0 0 16px; font-size: 1.05rem; }
 .facts { display: grid; gap: 12px; margin-bottom: 18px; }
 .facts p { margin: 0; color: var(--muted); }
-.facts .label { font-weight: 800; color: var(--ink); }
+/* Why it's useful / Connectors: bold mini-headings in the display font (the mono font only goes up to 600) */
+.facts .label { font: 780 0.98rem/1.3 var(--font-display); letter-spacing: -0.005em; text-transform: none; color: var(--ink); margin-bottom: 2px; }
 .label { display: block; font: 600 0.68rem/1.4 var(--font-mono); letter-spacing: 0.13em; text-transform: uppercase; color: var(--faint); margin-bottom: 3px; }
 .pkg-links { margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
 .pkg-links a { display: inline-flex; align-items: center; padding: 8px 15px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 0.93rem; text-decoration: none; }

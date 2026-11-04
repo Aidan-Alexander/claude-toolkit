@@ -1,6 +1,6 @@
 ---
 name: summarise-granola
-description: Turns a Granola call into a detailed, chronological summary saved as a Google Doc. Use for "/summarise-granola", "summarise my call", "summarise my last call", "summarise my call with <name>", "call summary" and similar requests.
+description: Turns a Granola call, or a call transcript someone shares with you (a shared Granola note, or pasted in), into a detailed, chronological summary saved as a Google Doc. Use for "/summarise-granola", "summarise my call", "summarise my last call", "summarise my call with <name>", "summarise this transcript", "call summary" and similar requests.
 ---
 
 # Summarise a Granola call
@@ -19,6 +19,8 @@ Connector tools are often deferred: load them with tool search before calling th
 
 ## 1. Pick the call
 
+- If the user pasted a transcript into the chat, use that: see "A pasted transcript" below, and skip steps 1 and 2.
+- A Granola note someone else shared with the user isn't in their own recent list: find it by title or person with `search_meetings`, which includes shared notes.
 - If the user named a call (a person, a title or a day), find it with Granola's `search_meetings` or `list_meetings`. If several match, ask which.
 - Otherwise call `list_meetings` with `time_range: "last_7_days"` and `involvement: {"captured_by_me": true}`. If one started in the last 2 hours, take it. If not, show the 5 most recent as a numbered list (title, day and time) and ask which.
 
@@ -27,6 +29,10 @@ Connector tools are often deferred: load them with tool search before calling th
 - `get_meetings` with the meeting ID gives the title, the date (`meeting_at`), the attendees (`known_participants`) and the note's link. Ignore Granola's own AI notes: the transcript is the source.
 - `get_meeting_transcript` with `max_chars: 80000`. While `truncated` is true, call it again with `offset` set to `next_offset`. A long reply may be saved to a file: read all of it. Don't start writing until what you've read adds up to `total_chars`.
 - If there's no transcript (`transcript_unavailable`), say why and stop. "transcript_pending" means try again in a few minutes.
+
+## A pasted transcript
+
+A transcript the user pastes in (say one a colleague sent them from Granola, Zoom, Teams or Meet) replaces steps 1 and 2. If the title, the date or who was there isn't in it or in their message, ask. Speaker labels from other tools are usually names: use them, but still check them against what was said. Where the summary would link the Granola note, say where the transcript came from instead. Then carry on from step 3.
 
 ## 3. Work out who said what
 

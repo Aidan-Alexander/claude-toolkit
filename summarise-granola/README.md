@@ -2,13 +2,15 @@
 
 **Runs in:** Claude Code (the Code tab of the Claude desktop app) · **Needs:** Granola and Google Drive connectors · **Setup:** about 5 minutes
 
-Say "summarise my last call" and Claude turns the call's Granola transcript into a detailed summary in a new Google Doc: what was discussed in the order it happened, who thought what and why, what was decided, and who's doing what next.
+Say "summarise my last call" and Claude turns the call's Granola transcript into a detailed summary in a new Google Doc: what was discussed in the order it happened, who thought what and why, what was decided, and who's doing what next. It works on calls other people recorded too: a Granola note they share with you, or a transcript they send you to paste into Claude.
 
 I use it after nearly every call, and now run it automatically with [Automatic actions from calls](../call-actions/).
 
 ## Why not just use Granola's notes?
 
 Granola's own notes are a quick list of bullets. These summaries tell the story of the call instead: the reasoning behind decisions, changes of mind, the exact words for commitments and hedges ("probably", "70% sure"), plus open questions and key quotes. They're written so you can re-live a call weeks later, or pick up a thread you'd half forgotten. A meaty 45-minute call gets 2,000–4,000 words; a quick check-in gets far fewer. If you'd rather have a one-pager, you can choose that at setup.
+
+They also make it far cheaper to miss a meeting and just read the summary, because they give a far more detailed narrative of the conversation than notes do. So you can skip meetings you need to follow but not contribute to, and have someone share the transcript with you to summarise: either by sharing the Granola note with you in Granola, or by sending you the transcript to paste into Claude.
 
 ## What it looks like
 
@@ -55,6 +57,8 @@ Claude downloads the skill, asks you the questions above, and offers to summaris
 In any Claude Code session:
 - "summarise my last call"
 - "summarise my call with Priya on Tuesday"
+- "summarise Sam's note of the board meeting", for a Granola note someone shared with you
+- "summarise this transcript", with a transcript someone sent you pasted in
 - `/summarise-granola`
 
 If you turned on automatic, you don't need to ask: each call is summarised about an hour after it ends, while the Claude app is open.
@@ -76,4 +80,5 @@ This grew out of [HartreeWorks' summarise-call skill](https://github.com/Hartree
 
 ## Changes
 
+- 2026-11-04: Spells out that it summarises calls other people recorded: a Granola note they share with you, or a transcript you paste in.
 - 2026-11-03: First version in the toolkit: connectors only, with setup questions, and an optional automatic mode.

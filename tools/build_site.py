@@ -23,8 +23,7 @@ REPO = "Aidan-Alexander/claude-toolkit"
 GITHUB = f"https://github.com/{REPO}"
 NETLIFY = "https://aidan-claude-toolkit.netlify.app"
 BASE = "/claude-tooling"
-HOMEPAGE = "https://aidan-alexander.com"
-CANONICAL = HOMEPAGE + BASE
+CANONICAL = "https://aidan-alexander.com" + BASE
 OUT = SITE / BASE.strip("/")
 PACKAGES = ["summarise-granola", "call-actions", "automations-page", "work-hours"]
 THUMBS = {"summarise-granola": "summarise-granola/example.png", "call-actions": "call-actions/screenshot.png",
@@ -124,7 +123,7 @@ def page(title: str, body: str, description: str, home: bool = False) -> str:
 </head>
 <body>
 <header class="bar"><div class="wrap bar-inner">
-  <div class="trail"><a class="home" href="{HOMEPAGE}/">Aidan Alexander</a><span class="sep" aria-hidden="true">/</span><a class="brand" href="{BASE}/">Claude toolkit</a></div>
+  <a class="brand" href="{BASE}/">Aidan's Claude toolkit</a>
   <nav><a href="{BASE}/getting-started/">Getting started</a><a href="{GITHUB}" target="_blank" rel="noopener">GitHub</a></nav>
 </div></header>
 <main class="wrap">

@@ -27,7 +27,8 @@ CANONICAL = "https://aidan-alexander.com" + BASE
 OUT = SITE / BASE.strip("/")
 PACKAGES = ["summarise-granola", "call-actions", "automations-page", "work-hours"]
 THUMBS = {"summarise-granola": "summarise-granola/example.png", "call-actions": "call-actions/screenshot.png",
-          "automations-page": "automations-page/screenshot.png", "mailsmush": "images/mailsmush/thumb.gif"}
+          "automations-page": "automations-page/screenshot.png", "mailsmush": "images/mailsmush/thumb.gif",
+          "calendfree": "images/calendfree/thumb.png"}
 IMAGES = (".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp")
 # Old links (from before the move under /claude-tooling/) follow the pages to their new place.
 REDIRECTS = "\n".join(

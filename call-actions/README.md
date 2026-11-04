@@ -10,7 +10,7 @@ I keep it open all day. I have a lot of calls, and most end with a handful of sm
 
 ![The tracker page, with made-up items](screenshot.png)
 
-**[Try the live demo](https://aidan-claude-toolkit.netlify.app/call-actions/demo/)**: it runs on made-up calls and emails, so click around. Nothing is saved or sent.
+**[Try the live demo](https://aidan-alexander.com/claude-tooling/call-actions/demo/)**: it runs on made-up calls and emails, so click around. Nothing is saved or sent.
 
 ## What it does
 

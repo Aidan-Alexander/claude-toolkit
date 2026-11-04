@@ -88,4 +88,4 @@ In a few lines:
 - If automatic is on, new calls get summarised by themselves, about an hour after they end, while the Claude app is open. To pause it: Scheduled in the Claude app's sidebar → Summarise new calls → switch it off.
 - It never sends or shares anything: the doc is private until they share it.
 - To change how it works, they can just ask ("stop adding transcripts"). To update the skill later, they paste the same setup line again: their settings, and any changes they've asked for, are kept.
-- If they'd like it to happen automatically after every call, plus a tracker of what they said they'd do, that's the call-actions package: https://aidan-claude-toolkit.netlify.app/call-actions/
+- If they'd like it to happen automatically after every call, plus a tracker of what they said they'd do, that's the call-actions package: https://aidan-alexander.com/claude-tooling/call-actions/

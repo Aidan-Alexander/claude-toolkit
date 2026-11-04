@@ -10,8 +10,8 @@
     const d = new Date(Date.now() + n * DAY);
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   };
-  const ABOUT = "https://aidan-claude-toolkit.netlify.app/call-actions/";
-  const SUMMARY = "https://aidan-claude-toolkit.netlify.app/summarise-granola/example/";
+  const ABOUT = "../";
+  const SUMMARY = "../../summarise-granola/example/";
   const demo = (label) => ({ label: label + " (demo)", url: ABOUT });
 
   const calls = {

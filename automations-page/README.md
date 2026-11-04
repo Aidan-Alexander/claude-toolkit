@@ -14,7 +14,7 @@ Automations are easy to set up and easy to forget. A few months in, you might ha
 
 ![The automations page, with made-up entries](screenshot.png)
 
-Those are made-up automations. [Try the live demo](https://aidan-claude-toolkit.netlify.app/automations-page/demo/).
+Those are made-up automations. [Try the live demo](https://aidan-alexander.com/claude-tooling/automations-page/demo/).
 
 ## What it does
 

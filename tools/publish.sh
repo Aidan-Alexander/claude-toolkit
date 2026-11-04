@@ -1,6 +1,6 @@
 #!/bin/bash
 # Rebuilds the demos and the website from the write-ups, then deploys the website to Netlify
-# (aidan-claude-toolkit.netlify.app). Commit and push the write-ups to GitHub as well: the
+# (aidan-claude-toolkit.netlify.app, shown at aidan-alexander.com/claude-tooling). Commit and push the write-ups to GitHub as well: the
 # website links there, and the setup lines fetch from there.
 # Usage: bash tools/publish.sh "what changed"
 set -euo pipefail

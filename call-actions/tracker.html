@@ -145,6 +145,11 @@ ul.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction
 .item[data-prio]::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--prio); }
 .item.plan { background: color-mix(in oklab, var(--amber-soft) 55%, var(--surface)); border-color: var(--amber-line); box-shadow: var(--shadow-callout); grid-template-columns: minmax(0, 1fr) auto; }
 .item.quiet { background: transparent; box-shadow: none; border: 1px dashed var(--line-strong); grid-template-columns: minmax(0, 1fr); }
+/* something Claude did itself: no tick, its own Thanks / Change / Drop buttons */
+.item.did { grid-template-columns: minmax(0, 1fr) auto; }
+details.more.change > summary { display: none; }
+details.more.change[open] { display: flex; flex-direction: column; gap: 8px; }
+details.more.change .row { margin-top: 0; }
 .item.leaving { opacity: 0; transform: translateX(14px); }
 .item .body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .text { font-weight: 600; font-size: 1.02rem; line-height: 1.4; overflow-wrap: anywhere; }
@@ -247,7 +252,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   .item { padding: 14px 12px 12px; gap: 4px 12px; }
   /* On a phone the priority pill floats top right, so it doesn't take a whole column from the text. */
   .item { grid-template-columns: auto minmax(0, 1fr); }
-  .item.plan { grid-template-columns: minmax(0, 1fr); }
+  .item.plan, .item.did { grid-template-columns: minmax(0, 1fr); }
   .item > .prio-wrap { position: absolute; top: 12px; right: 10px; }
   .item:has(> .prio-wrap) > .body > .text { padding-right: 112px; }
 }
@@ -495,9 +500,14 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     const withNote = (f) => (note ? Object.assign(f, { note: note, noteAt: now, noteUnread: true }) : f);
     let fields = null;
     if (what === "tick") fields = withNote({ state: "done", doneAt: now, prevState: a.state });
+    // "Thanks Claude!" on something Claude did: done, and marked as approved.
+    else if (what === "thanks") fields = withNote({ state: "done", doneAt: now, prevState: a.state, approved: true });
     else if (what === "drop") fields = withNote({ state: "dropped", doneAt: now, prevState: a.state });
-    else if (what === "undo") fields = { state: ["open", "needs_ok"].includes(a.prevState) ? a.prevState : "open", doneAt: null };
+    else if (what === "undo") fields = Object.assign({ state: ["open", "needs_ok"].includes(a.prevState) ? a.prevState : "open", doneAt: null }, a.approved ? { approved: null } : {});
     else if (what === "go" || what === "ask") fields = withNote({ state: "queued", queuedAt: now, prevState: a.state });
+    // Asking Claude to change what it drafted or did needs a note saying what to change.
+    else if (what === "change") { if (!note) { box && box.focus(); return; } fields = withNote({ state: "queued", queuedAt: now, prevState: a.state }); }
+    else if (what === "change-open") { const d = $("more-" + id); if (d) { d.open = !d.open; if (d.open && box) box.focus(); } return; }
     else if (what === "cancel") fields = { state: ["open", "needs_ok"].includes(a.prevState) ? a.prevState : "open", queuedAt: null };
     else if (what === "note") { if (!note) { box && box.focus(); return; } fields = withNote({}); }
     else if (what === "snooze") fields = withNote({ state: "snoozed", snoozeUntil: localDay(new Date(Date.now() + days * DAY)), snoozedAt: now, wokeAt: null, prevState: a.state === "snoozed" ? "open" : a.state });
@@ -579,6 +589,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     return h("div", { class: "meta" },
       isNew(a) ? h("span", { class: "chip new" }, "New") : null,
       a.kind === "drafted" ? h("span", { class: "chip claude" }, "Claude drafted") : null,
+      a.kind === "did" ? h("span", { class: "chip claude" }, "Claude did it") : null,
       woke(a) ? h("span", { class: "chip soon" }, "Back from snooze") : null,
       isFollowup(a) ? h("span", { class: "chip" }, (a.channel === "slack" ? "Slack" : "Email") + " · no reply since " + fmtDay(a.sentAt)) : null,
       isAsana(a) ? asanaChip(a) : null,
@@ -594,26 +605,51 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     const days = Math.floor((Date.now() - since) / DAY);
     return days >= 3 ? h("span", { class: "age" }, "open " + days + " days") : null;
   }
-  function noteBox(a, buttons, extra) {
+  function btns(list) {
+    return list.map(([act, label, cls]) => h("button", { class: "btn small" + (cls ? " " + cls : ""), type: "button", "data-act": act }, label));
+  }
+  // The note box. Whatever is typed goes with the button pressed: what to change, a question, or why it's dropped.
+  function noteBox(a, summary, placeholder, buttons, extra) {
     return h("details", { class: "more", id: "more-" + a.id },
-      h("summary", null, "Note to Claude, or more"),
+      h("summary", null, summary),
       h("label", { class: "visually-hidden", for: "note-" + a.id }, "Note to Claude"),
-      h("textarea", { id: "note-" + a.id, rows: "2", maxlength: "1000", placeholder: "e.g. make the draft shorter, or why you're dropping it" }),
-      h("div", { class: "row" }, buttons.map(([act, label, cls]) => h("button", { class: "btn small" + (cls ? " " + cls : ""), type: "button", "data-act": act }, label)), extra));
+      h("textarea", { id: "note-" + a.id, rows: "2", maxlength: "1000", placeholder: placeholder }),
+      h("div", { class: "row" }, btns(buttons), extra));
   }
 
-  // A follow-up shows Snooze and Dismiss up front; other items keep Snooze and Drop under "more".
+  // Something Claude did itself (a calendar hold, an agenda point): thank it, ask for a change, or drop it.
+  function didItem(a, withCall) {
+    return h("li", { class: "item did", "data-id": a.id, "data-prio": prio(a) },
+      h("div", { class: "body" },
+        h("div", { class: "text" }, a.text),
+        metaRow(a, withCall),
+        claudeLines(a, "What Claude did"),
+        h("div", { class: "row" }, btns([["thanks", "Thanks Claude!", "primary"], ["change-open", "Change something"], ["drop", "Drop", "danger"]])),
+        h("details", { class: "more change", id: "more-" + a.id },
+          h("summary", null, "Change something"),
+          h("label", { class: "label", for: "note-" + a.id }, "What should Claude do differently?"),
+          h("textarea", { id: "note-" + a.id, rows: "2", maxlength: "1000", placeholder: "e.g. make it 30 minutes, or put it on the Tuesday instead" }),
+          h("div", { class: "row" }, btns([["change", "Ask Claude to change it", "primary"]])))),
+      prioSelect(a));
+  }
+
+  // A follow-up shows Snooze and Dismiss up front; other items keep Snooze and Drop in the note box.
   function todoItem(a, withCall) {
+    if (a.kind === "did") return didItem(a, withCall);
     const fu = isFollowup(a);
+    const drafted = a.kind === "drafted";
+    const first = drafted ? ["change", "Ask Claude to change it"] : ["ask", "Ask Claude to do it"];
+    const hint = drafted ? "e.g. make it shorter and warmer, a question, or why you're dropping it"
+                         : "e.g. how Claude should do it, a question, or why you're dropping it";
     return h("li", { class: "item", "data-id": a.id, "data-prio": prio(a) },
       h("input", { type: "checkbox", class: "tick", id: "tick-" + a.id, "aria-label": "Done: " + a.text }),
       h("div", { class: "body" },
         h("div", { class: "text" }, a.text),
         metaRow(a, withCall),
-        claudeLines(a, a.kind === "drafted" ? "Claude did" : "Claude"),
+        claudeLines(a, drafted ? "What Claude drafted" : "Claude"),
         fu ? h("div", { class: "row" }, snoozeSelect(a), h("button", { class: "btn small danger", type: "button", "data-act": "drop" }, "Dismiss")) : null,
-        fu ? noteBox(a, [["note", "Send note"], ["ask", "Ask Claude to do it"]])
-           : noteBox(a, [["note", "Send note"], ["ask", "Ask Claude to do it"], ["drop", "Drop", "danger"]], snoozeSelect(a))),
+        fu ? noteBox(a, "Ask Claude", hint, [first, ["note", "Ask a question"]])
+           : noteBox(a, "Ask Claude, snooze or drop", hint, [first, ["note", "Ask a question"], ["drop", "Drop", "danger"]], snoozeSelect(a))),
       prioSelect(a));
   }
   function planItem(a) {
@@ -753,7 +789,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
         h("span", { class: "t" }, a.text),
         a.note && a.noteAt === a.doneAt ? h("span", { class: "why" }, a.note) : null),
       h("span", { class: "row" },
-        h("span", { class: "when" }, (a.state === "dropped" ? (isFollowup(a) ? "dismissed " : "dropped ") : "done ") + fmtDay(a.doneAt)),
+        h("span", { class: "when" }, (a.state === "dropped" ? (isFollowup(a) ? "dismissed " : "dropped ") : a.approved ? "approved " : "done ") + fmtDay(a.doneAt)),
         h("button", { class: "btn small", type: "button", "data-act": "undo" }, "Undo")))));
 
     const calls = S.calls.filter((c) => c.addedAt).slice(0, 12);

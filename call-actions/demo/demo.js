@@ -18,7 +18,7 @@
     "demo-call-1": { title: "Funder check-in: Northbridge Foundation", date: day(0), summaryUrl: SUMMARY, actionCount: 3, error: null, addedAt: ago(2 * HOUR) },
     "demo-call-2": { title: "Weekly 1:1: Priya / Sam", date: day(-1), summaryUrl: SUMMARY, actionCount: 3, error: null, addedAt: ago(26 * HOUR) },
     "demo-call-3": { title: "Hiring sync: operations lead", date: day(-2), summaryUrl: SUMMARY, actionCount: 2, error: null, addedAt: ago(50 * HOUR) },
-    "demo-call-4": { title: "Board prep with Jo", date: day(-4), summaryUrl: SUMMARY, actionCount: 2, error: null, addedAt: ago(98 * HOUR) },
+    "demo-call-4": { title: "Board prep with Jo", date: day(-4), summaryUrl: SUMMARY, actionCount: 3, error: null, addedAt: ago(98 * HOUR) },
     "demo-call-5": { title: "Intro call: volunteer coordinator", date: day(-5), summaryUrl: SUMMARY, actionCount: 0, error: null, addedAt: ago(122 * HOUR) },
   };
   const fromCall = (id, n) => ({ source: "call", n, callId: id, callTitle: calls[id].title, callDate: calls[id].date, summaryUrl: calls[id].summaryUrl });
@@ -40,6 +40,9 @@
     "demo-a9": Object.assign(fromCall("demo-call-4", 1), { text: "Ask Jo which board papers need sign-off", kind: "yours", state: "open", who: "for Jo", priority: "P2", createdAt: ago(98 * HOUR) }),
     "demo-a10": Object.assign(fromCall("demo-call-4", 2), { text: "Send the board pack to all trustees", kind: "yours", state: "dropped", doneAt: ago(70 * HOUR),
       note: "The chair sends this, not me", noteAt: ago(70 * HOUR), createdAt: ago(98 * HOUR) }),
+    "demo-a12": Object.assign(fromCall("demo-call-4", 3), { text: "Block time to read the board pack", kind: "did", state: "open", priority: "P2", due: day(3),
+      claude: "You asked for time to read it before the meeting, so I blocked Thursday 10:00–11:30 in your calendar as \"Read the board pack\". No guests, so nothing was sent.",
+      links: [demo("Calendar hold")], createdAt: ago(98 * HOUR) }),
     "demo-a11": { text: "Book train tickets for the team retreat", kind: "manual", source: "manual", state: "open", priority: "P3", createdAt: ago(30 * HOUR) },
     "asana-demo-1": { text: "Review the volunteer handbook draft", source: "asana", kind: "yours", state: "open", due: day(3),
       asanaProject: "Volunteering 2027", asanaUrl: ABOUT, createdAt: ago(3 * DAY) },
@@ -133,9 +136,11 @@
     const doc = store[coll][id];
     if (coll === "actions" && doc.state === "queued") {
       later(2500, "actions", id, { state: "working" });
-      later(6500, "actions", id, { state: "open", kind: "drafted", noteUnread: false,
-        claude: DONE_TEXT[id] || "Done: I've drafted it and left it where you'll find it, ready for you to check. (In this demo Claude's answers are canned.)",
-        links: (doc.links || []).concat([demo("Draft")]) });
+      const did = doc.kind === "did";
+      later(6500, "actions", id, { state: "open", kind: did ? "did" : "drafted", noteUnread: false,
+        claude: DONE_TEXT[id] || (did ? "Done: I've changed it as you asked. (In this demo Claude's answers are canned.)"
+          : "Done: I've drafted it and left it where you'll find it, ready for you to check. (In this demo Claude's answers are canned.)"),
+        links: did ? doc.links || [] : (doc.links || []).concat([demo("Draft")]) });
     } else if (coll === "actions" && doc.noteUnread && doc.state !== "queued") {
       later(3000, "actions", id, { noteUnread: false,
         reply: "Thanks, noted. (In this demo Claude's replies are canned; the real one reads your note on its next check.)" });

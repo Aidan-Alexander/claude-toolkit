@@ -37,7 +37,7 @@ The page reads and writes these collections. Write times as UTC ISO strings with
 
 **`actions`**: one document per item.
 - `text`: the action as the user would write it on a to-do list. Start with a verb; keep it under about 12 words.
-- `kind`: `drafted` (Claude did its part), `plan` (waiting for the user's go-ahead), `yours`, or `manual` (the user added it).
+- `kind`: `drafted` (Claude made a draft the user still has to check and send or finish), `did` (Claude did the whole thing itself, such as an agenda point or a calendar hold, and nothing's left but a look), `plan` (waiting for the user's go-ahead), `yours`, or `manual` (the user added it). A `did` item shows "Thanks Claude!", "Change something" and "Drop" instead of a tick; "Thanks Claude!" marks it `done` with `approved: true`.
 - `state`: `open`, `needs_ok` (a plan waiting for a go-ahead), `queued` (the user wants Claude to do it), `working` (Claude is on it), `snoozed` (until `snoozeUntil`), `done` or `dropped` (for a follow-up, the page calls this "dismissed").
 - `who` ("for Priya", or null), `due` ("YYYY-MM-DD", or null), `claude` (one or two sentences from Claude, or null), `links` (`[{label, url}]`, http(s) only), `reply` (Claude's answer to a note).
 - `priority` ("P0" to "P3"). Only the user sets this; never write it.
@@ -66,14 +66,14 @@ Make these reads together:
 **Each queued or working item** (working means an earlier run stopped part-way):
 1. Update it to `state: "working"`.
 2. Do it within the hard limits, as "Doing the work" describes. The user's `note`, if there is one, is the instruction. If it came from a call, read that call's summary doc (`summaryUrl`) for context. If it's a follow-up, the thread is the context: "make it shorter" redrafts the Gmail draft on that thread, and "draft it" on a Slack follow-up makes a Slack draft in that thread or DM.
-3. Update it to `state: "open"`, `kind: "drafted"`, `noteUnread: false`, `claude`: one or two sentences on what you did and what's left for the user, and `links`: the new links added to its existing ones. It goes back on their list until they've checked or sent the result.
+3. Update it to `state: "open"`, `kind`: `"drafted"` if the user still has to check and send or finish the result, or `"did"` if Claude did the whole thing (such as a calendar hold or agenda point they asked for), `noteUnread: false`, `claude`: one or two sentences on what you did and what's left for the user, and `links`: the new links added to its existing ones. It goes back on their list until they've checked or sent the result.
 4. If it can't be done within the hard limits, or needs something only the user has, put it back to `state: "open"` and set `reply` to say why and what you did instead. If one of their own items is too vague to act on, ask in `reply` for what's missing.
 
 **Each item with an unread note:** set `reply` (one or two sentences) and `noteUnread: false`, and act on the note:
 - On a dropped or dismissed item, the note is usually why they dropped it. Thank them briefly and say what you'll do differently. Steps 3 and 4 read these notes again as lessons.
 - On an item they ticked as done, the note is almost always an FYI that they've already done it, not a sign the item shouldn't have been captured. Acknowledge it and learn nothing from it, unless the note says the item shouldn't have been there.
 - "This is someone else's", "not mine": set `state: "dropped"` and `doneAt`.
-- A change to Claude's work ("make the draft shorter"): do it, as for a queued item.
+- A change to Claude's work ("make the draft shorter"): do it, as for a queued item. On a `did` item, "Change something" queues it with a note saying what to change. Stay inside the hard limits: Claude can't move or delete a calendar event, even one it added, so add the corrected hold and say in `reply` that the user should delete the old one.
 - A question: answer it in `reply`.
 - Feedback about how to work: handle it like a feedback message.
 
@@ -101,7 +101,7 @@ If you have the Agent tool, launch one agent per claimed call, all in one messag
 Without the Agent tool, do the same yourself, one call at a time.
 
 Then, for each call, write to the tracker with one ArtifactData `batch`:
-- `set` one `actions` document per item, with the fields under "The tracker's data". Map each item's `kind`: "done" becomes `kind: "drafted"` with `state: "open"`; "plan" becomes `kind: "plan"` with `state: "needs_ok"`; "yours" becomes `kind: "yours"` with `state: "open"`. An item with `alreadyDone: true` gets `state: "done"` and `doneAt`. Add `source: "call"`, the call fields, `createdAt` and `updatedAt`.
+- `set` one `actions` document per item, with the fields under "The tracker's data". Map each item's `kind`: "drafted" (or the older "done") becomes `kind: "drafted"` with `state: "open"`; "did" becomes `kind: "did"` with `state: "open"`; "plan" becomes `kind: "plan"` with `state: "needs_ok"`; "yours" becomes `kind: "yours"` with `state: "open"`. An item with `alreadyDone: true` gets `state: "done"` and `doneAt`. Add `source: "call"`, the call fields, `createdAt` and `updatedAt`.
 - `update` the call's `calls` document, pinned with its `if_version`: `status: "done"`, `title`, `date`, `summaryUrl`, `actionCount`, `error: null` and `addedAt`.
 
 If the summary failed, put the call back for the next run (`status` stays `working`; the 2-hour rule retries it), or mark it `failed` after 3 attempts. If the summary worked but the actions step failed, still add the call, with `actionCount: 0` and the `error`, so the user can see it.
@@ -190,18 +190,18 @@ Before you draft anything to a person, check the user hasn't already done it: pe
 - **Google Doc:** Google Drive `create_file` with `contentMimeType: "text/html"` (follow summarise-granola's step 6 for what HTML to use), in the folder from summarise-granola's settings. Title it for what it is, e.g. "Draft: pilot timeline (from 3 Nov call)".
 - **Research:** cite sources with links, and say plainly what you couldn't find.
 - **Anything written in the user's name:** write it as they would: short, plain and in their usual register.
-- **Agenda point** (only if settings.md turns agenda points on): when the action is to raise something with a person who has a 1:1 doc in summarise-granola's settings, add it to that doc instead of drafting a message. `read_doc` the doc. If there's a clear place for the next meeting's agenda (a heading or table for an upcoming date, with a spot for the user's points), add one short bullet there with `update_doc`. Otherwise insert one line at the very top of the doc: "To raise next time (added by Claude): <the point>". Change nothing else. Make the item Done, and say in `claude` where the point went.
+- **Agenda point** (only if settings.md turns agenda points on): when the action is to raise something with a person who has a 1:1 doc in summarise-granola's settings, add it to that doc instead of drafting a message. `read_doc` the doc. If there's a clear place for the next meeting's agenda (a heading or table for an upcoming date, with a spot for the user's points), add one short bullet there with `update_doc`. Otherwise insert one line at the very top of the doc: "To raise next time (added by Claude): <the point>". Change nothing else. Make the item Done with kind "did", and say in `claude` where the point went.
 - **Calendar hold** (only if settings.md turns them on, and only when the user asked for time to be blocked): check `list_events` first, then `create_event` on their own calendar, in free time within working hours, with no attendees, titled for what the time is for, and with "Added by Claude from your Call actions tracker" in the description.
 
 ### 4. What to return
 
 A JSON object, `{"summaryUrl": "<the summary doc's link>", "items": [...]}`, with one item per action:
 - `n`: 1, 2, 3 and so on.
-- `kind`: "done", "plan" or "yours".
+- `kind`: "drafted" (Claude made a draft the user still has to check and send or finish), "did" (Claude did the whole thing, such as an agenda point, a calendar hold they asked for or a fact they asked to find out), "plan" or "yours".
 - `text`: the action as the user would write it on a to-do list: starting with a verb, under about 12 words, and without the call's name (the page shows it).
 - `who`: "for <name>", or null.
 - `due`: "YYYY-MM-DD" if a deadline was said or clearly meant ("before Wednesday's call"), otherwise null.
-- `claude`: one or two plain sentences. For done: what Claude did and what's left for the user. For plan: what Claude would produce and how many minutes the user's review would take. For yours: useful context, or null.
+- `claude`: one or two plain sentences. For drafted or did: what Claude did and what's left for the user. For plan: what Claude would produce and how many minutes the user's review would take. For yours: useful context, or null.
 - `links`: `[{"label": "...", "url": "..."}]`, http(s) only, or `[]`.
 - `alreadyDone`: true if they've already done it, otherwise false.
 

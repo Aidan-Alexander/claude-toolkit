@@ -81,3 +81,4 @@ Claude asks you the questions above, makes your private tracker page, sets up th
 ## Changes
 
 - 2026-11-03: First version in the toolkit, with the weekly follow-up check, snoozing and optional Asana tasks.
+- 2026-11-04: The page now looks like the toolkit website: a warm white page, white cards, pill buttons, and the priority colour as each card's top edge. It's always light, with no dark mode.

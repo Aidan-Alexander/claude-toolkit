@@ -83,3 +83,4 @@ Claude asks you the questions above, makes your private tracker page, sets up th
 - 2026-11-03: First version in the toolkit, with the weekly follow-up check, snoozing and optional Asana tasks.
 - 2026-11-04: The page now looks like the toolkit website: a warm white page, white cards, pill buttons, and the priority colour as each card's top edge. It's always light, with no dark mode.
 - 2026-11-04: Things Claude did itself, like a calendar hold or an agenda point, now show as "Claude did it", with "Thanks Claude!", "Change something" and "Drop" buttons. The note box's buttons now say what they do: "Ask Claude to do it" (or "Ask Claude to change it" on a draft), "Ask a question" and "Drop".
+- 2026-11-05: Agenda points Claude adds to a 1:1 doc now end in an italic "Added by Claude", and use the cell's own kind of bullet, so checkboxes stay checkboxes.

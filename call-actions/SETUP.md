@@ -3,7 +3,7 @@
 You're setting up the `call-actions` skill and its tracker page for the person you're working with, from Aidan Alexander's Claude toolkit (github.com/Aidan-Alexander/claude-toolkit). Assume they aren't technical: do the technical parts yourself, explain each step in a sentence of plain English, and don't show them commands unless they ask.
 
 What you'll set up:
-- a private tracker page: a claude.ai artifact only they can open;
+- a private tracker page: a claude.ai artifact only they can open, pinned to their claude.ai sidebar;
 - the call-actions skill, in their personal skills folder;
 - a scheduled task in the Claude app that runs the skill on a schedule.
 
@@ -39,8 +39,9 @@ Put an untouched copy of each downloaded file in a `.original` folder inside the
 1. Compare each file in the folder with its copy in `.original/` (if there's no `.original` folder, skip this check).
 2. If a file differs, someone has changed the package's own files, probably by asking Claude to. Tell the person in plain words what's different, and carry each change into settings.md as a line under "My own rules", so it survives the update. If a change can't be put as a rule (say, a change to how the page looks), keep their version as `<file name>.mine` and tell them.
 3. Then download the new files, refresh `.original/`, and keep settings.md as it is. Don't recreate the scheduled task.
-4. If tracker.html changed, offer to republish their page from it: publish to the tracker URL in settings.md, with `{{LEDE}}` filled in as in step 5, and leave the capabilities out so the page keeps them. Their items are kept either way: they live in the page's database. If they kept a `tracker.html.mine`, say that republishing replaces the page's look with the new version, and ask first.
-5. Tell them what's new (the "Changes" list at the end of README.md), and that their settings, own rules and tracker are unchanged. Stop here.
+4. Pin the page to their claude.ai sidebar if it isn't already (setups before 5 November 2026 only offered to): the Artifact tool's `pin` action on the tracker URL in settings.md.
+5. If tracker.html changed, offer to republish their page from it: publish to the tracker URL in settings.md, with `{{LEDE}}` filled in as in "5. Publish the tracker page" below, and leave the capabilities out so the page keeps them. Their items are kept either way: they live in the page's database. If they kept a `tracker.html.mine`, say that republishing replaces the page's look with the new version, and ask first.
+6. Tell them what's new (the "Changes" list at the end of README.md), and that their settings, own rules and tracker are unchanged. Stop here.
 
 ## 4. Ask how they'd like it to work
 
@@ -61,11 +62,11 @@ Ask these together (with AskUserQuestion if you have it), each with its one-line
 ## 5. Publish the tracker page
 
 1. In the downloaded `tracker.html`, replace `{{LEDE}}` with two sentences that match their choices: what the page holds, then when Claude checks it. For example: "What you took on in your calls, your Asana tasks, threads still waiting on a reply, what Claude has done about them, and anything you add yourself. Claude checks your calls and this page every hour on weekdays, 9–6, and looks for emails and Slack messages still waiting on a reply every Thursday." Leave out what they didn't choose.
-2. If your skills include artifact-capabilities, load it first. Then publish the file with the Artifact tool: title "Call actions", icon "checklist", and these capabilities exactly:
+2. If your skills include artifact-capabilities, load it first. Then publish the file with the Artifact tool: title "Call actions", icon "checklist", `pin: true` (pinning it to their claude.ai sidebar is part of setting it up, so it's one click away), and these capabilities exactly:
    `{"db": {"rules": [{"path": "", "read": "owner", "write": "owner"}]}, "user": {}}`
    That keeps the page private: only they can open it or write to it. It's also why the scheduled task can treat requests on the page as theirs.
 3. Check it: ArtifactData `list` on the `actions` collection with the new link should come back empty, without an error.
-4. Offer to pin the page to their claude.ai sidebar, so it's one click away.
+4. Check the publish result says the page was pinned. If the pin failed (the page still publishes), try once more with the Artifact tool's `pin` action on the new link. If that fails too, tell them, so they can pin it themselves.
 
 ## 6. Write settings.md
 
@@ -118,7 +119,7 @@ Then save the same choices to the page, so its settings gear (top right) opens w
 ## 9. Tell them how to use it
 
 In a few lines:
-- The tracker link (pinned, if they said yes). On the page they can tick items off, set priorities, snooze, drop or dismiss with a reason, add their own items, give Claude the go-ahead on a plan, ask Claude to do something, and leave notes. The "Tell Claude" box changes how it works from then on.
+- The tracker link, and that it's pinned to their claude.ai sidebar. On the page they can tick items off, set priorities, snooze, drop or dismiss with a reason, add their own items, give Claude the go-ahead on a plan, ask Claude to do something, and leave notes. The "Tell Claude" box changes how it works from then on.
 - It never sends anything: Claude drafts, and they do the sending.
 - The gear at the top right of the page holds their settings: what it covers, summary length and spelling, the follow-up day, agenda points, calendar holds, doc edits, their 1:1 docs, Asana, the Monday digest and the start date. Claude reads them at the start of every check.
 - "Check my calls" in Claude Code runs it now. To pause it: Scheduled in the Claude app's sidebar → Call actions → switch it off.

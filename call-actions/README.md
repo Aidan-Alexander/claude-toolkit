@@ -62,11 +62,11 @@ You can change any of these later, or anything else about how it works, by askin
 Set up "call-actions" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/call-actions/SETUP.md exactly as written (e.g. with curl) and follow it.
 ```
 
-Claude asks you the questions above, makes your private tracker page, sets up the Fancy call summaries skill if you need it, and schedules the checks. It then offers a first run, so your page starts with something on it.
+Claude asks you the questions above, makes your private tracker page and pins it to your claude.ai sidebar, sets up the Fancy call summaries skill if you need it, and schedules the checks. It then offers a first run, so your page starts with something on it.
 
 ## Using it
 
-- **The page:** pin it to your claude.ai sidebar and keep it open. It updates live.
+- **The page:** it's pinned to your claude.ai sidebar. Keep it open: it updates live.
 - **Run it now:** say "check my calls" in Claude Code.
 - **Pause it:** in the Claude app's sidebar, open Scheduled → Call actions and switch it off.
 
@@ -95,3 +95,4 @@ Claude asks you the questions above, makes your private tracker page, sets up th
 - 2026-11-05: The tallies at the top are filters: click "drafts waiting for you" or "done by Claude" (or P0, or overdue) to see just those, and again for everything.
 - 2026-11-05: A settings gear at the top right of the page: change what it covers, summary length and spelling, the follow-up day, agenda points, calendar holds, doc edits, your 1:1 docs, Asana, the Monday digest and the start date, any time. Claude reads them at the start of every check.
 - 2026-11-05: A search box above your to-dos (press / to jump to it). It also narrows Snoozed and Done, and opens them when they have a match.
+- 2026-11-05: Setup now pins the tracker page to your claude.ai sidebar, instead of offering to. Updating pins it too, if it isn't already.

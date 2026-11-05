@@ -46,6 +46,7 @@ I keep it open all day. I have a lot of calls, and most end with a handful of sm
 | Follow-up check | Which day and time; email only or email and Slack; draft follow-ups or not | Thursdays from 14:00, both, drafts on |
 | Agenda points in 1:1 docs | "I'll raise that with Priya" becomes a line in your 1:1 doc with Priya, instead of a drafted message | On |
 | Calendar holds | When you ask for time to be blocked, Claude adds a hold to your own calendar, never with guests | On |
+| Editing your existing docs | When you ask on the tracker, Claude changes an existing Google Doc instead of only making new ones. Docs other people work in only after your go-ahead, and it never deletes their text, touches comments or changes sharing | On |
 | Monday digest | A Slack message to yourself on Monday morning listing what's open | I use a Slack bot that also nudges me when I haven't opened the page for a day; this is the simpler version |
 | Asana tasks | Leave them out, show them on the tracker, or show them and tick them off in Asana when you tick them here | Show them, and tick them off in Asana too |
 
@@ -71,7 +72,7 @@ Claude asks you the questions above, makes your private tracker page, sets up th
 
 ## Good to know
 
-- **It never sends anything.** Emails become Gmail drafts and Slack messages become Slack drafts: you do the sending. It doesn't edit your existing files either, apart from the optional agenda points, calendar holds and ticking off Asana tasks.
+- **It never sends anything.** Emails become Gmail drafts and Slack messages become Slack drafts: you do the sending. It doesn't edit your existing files either, apart from the optional agenda points, calendar holds, doc changes you ask for, and ticking off Asana tasks.
 - **The page is private.** Only you can open it, and only you can ask Claude to do things through it.
 - **It runs while the Claude desktop app is open.** If your laptop was shut, it catches up when you next open the app.
 - **Usage:** each check is a short Claude session, and each call's summary and actions take more. Checking hourly is the lighter choice.
@@ -85,4 +86,5 @@ Claude asks you the questions above, makes your private tracker page, sets up th
 - 2026-11-04: Things Claude did itself, like a calendar hold or an agenda point, now show as "Claude did it", with "Thanks Claude!", "Change something" and "Drop" buttons. The note box's buttons now say what they do: "Ask Claude to do it" (or "Ask Claude to change it" on a draft), "Ask a question" and "Drop".
 - 2026-11-05: Agenda points Claude adds to a 1:1 doc now end in an italic "Added by Claude", and use the cell's own kind of bullet, so checkboxes stay checkboxes.
 - 2026-11-05: The top of the page says when Claude last checked for calls, and lists any calls that aren't in yet (still going, or the transcript isn't ready). It turns amber if the scheduled run seems to have stopped.
+- 2026-11-05: New setup choice, off unless you turn it on: Claude can change an existing Google Doc when you ask on the tracker, instead of only making new ones.
 - 2026-11-05: Agenda points go in the tab where your meetings with that person are (a shared doc with a tab per person works), and are marked the way the doc marks your own points, such as your initials.

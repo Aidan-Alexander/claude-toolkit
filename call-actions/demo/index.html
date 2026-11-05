@@ -170,6 +170,19 @@ details.more.change .row { margin-top: 0; }
 .item.leaving { opacity: 0; transform: translateX(14px); }
 .item .body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .text { font-weight: 600; font-size: 1.02rem; line-height: 1.4; overflow-wrap: anywhere; }
+/* an Asana task's parent ("Foundational Research ›") before its own name; the title links to Asana */
+.text .parent { color: var(--muted); font-weight: 500; }
+.title-link { color: inherit; text-decoration: none; }
+.title-link:hover { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; }
+.title-link .arrow { color: var(--faint); font-weight: 400; margin-left: 4px; font-size: 0.9em; }
+/* the pencil that opens the title and description for editing */
+button.edit { display: inline-grid; place-content: center; vertical-align: -4px; margin-left: 6px; width: 26px; height: 26px; padding: 0; border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--faint); cursor: pointer; }
+button.edit:hover, button.edit:focus-visible { color: var(--accent); border-color: var(--line-strong); background: var(--surface); }
+button.edit svg { width: 14px; height: 14px; }
+.edit-form { display: flex; flex-direction: column; gap: 6px; }
+.edit-form input.edit-title { width: 100%; box-sizing: border-box; font-weight: 600; font-size: 1rem; padding: 8px 12px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); }
+.edit-form input.edit-title:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.edit-form .row { margin-top: 4px; }
 
 .tick { appearance: none; -webkit-appearance: none; margin: 0; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line-strong); background: var(--surface); display: grid; place-content: center; cursor: pointer; flex: none; }
 .tick::after { content: ""; width: 9px; height: 5px; border: solid var(--accent-ink); border-width: 0 0 2px 2px; transform: translateY(-1px) rotate(-45deg) scale(0); }
@@ -231,12 +244,13 @@ select.snooze:hover { border-color: var(--accent); color: var(--accent); }
 .notice { margin: 0; padding: 13px 18px; border-radius: var(--radius-sm); background: var(--amber-soft); border: 1px solid var(--amber-line); color: var(--ink); box-shadow: var(--shadow-callout); }
 
 /* recent calls: one white card, a row per call */
-.calls { gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 2px 18px; box-shadow: var(--shadow-sm); }
+ul.list.calls { gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 2px 18px; box-shadow: var(--shadow-sm); }
 .calls:empty { display: none; }
-.calls li { display: grid; grid-template-columns: 7.4rem minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.calls li { display: grid; grid-template-columns: 7rem minmax(0, 1fr) auto; gap: 14px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .calls li:last-child { border-bottom: 0; }
 .calls .date { font: 500 0.75rem/1.4 var(--font-mono); color: var(--faint); }
-.calls a { color: var(--ink); text-decoration: none; font-weight: 600; overflow-wrap: anywhere; }
+.calls li > :nth-child(2) { color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }  /* the call's title, linked or not */
+.calls a { text-decoration: none; }
 .calls a:hover { color: var(--accent); }
 .calls .count { font-size: 0.82rem; color: var(--muted); white-space: nowrap; display: inline-flex; gap: 8px; align-items: center; }
 
@@ -328,8 +342,8 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     <div class="sec-head">
       <h2>To do <span class="n" id="n-todo"></span></h2>
       <div class="seg" role="group" aria-label="Arrange to-dos">
-        <button type="button" id="view-priority" data-view="priority" aria-pressed="true">By priority</button>
-        <button type="button" id="view-call" data-view="call" aria-pressed="false">By call</button>
+        <button type="button" id="view-call" data-view="call" aria-pressed="true">By call</button>
+        <button type="button" id="view-priority" data-view="priority" aria-pressed="false">By priority</button>
       </div>
     </div>
     <div id="list-todo"></div>
@@ -370,7 +384,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   "use strict";
   const DAY = 86400000;
   const $ = (id) => document.getElementById(id);
-  const S = { actions: new Map(), calls: [], feedback: [], got: new Set(), prevSeen: null, run: null };
+  const S = { actions: new Map(), calls: [], feedback: [], got: new Set(), prevSeen: null, run: null, editing: null };
   let db = null;
 
   // ---------- small helpers ----------
@@ -460,8 +474,9 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
              : h("span", { class: "chip" }, a.callTitle);
   }
 
-  let view = "priority";
-  try { if (localStorage.getItem("callActions.view") === "call") view = "call"; } catch (e) {}
+  // "By call" is the first view (since 2026-11-05); the page remembers the last view picked.
+  let view = "call";
+  try { if (localStorage.getItem("callActions.view") === "priority") view = "priority"; } catch (e) {}
 
   function dueChip(due) {
     const d = parseDay(due);
@@ -531,6 +546,26 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     else if (what === "go" || what === "ask") fields = withNote({ state: "queued", queuedAt: now, prevState: a.state });
     // Asking Claude to change what it drafted or did needs a note saying what to change.
     else if (what === "change") { if (!note) { box && box.focus(); return; } fields = withNote({ state: "queued", queuedAt: now, prevState: a.state }); }
+    else if (what === "edit") {
+      S.editing = id;
+      render();
+      const t = $("edit-title-" + id);
+      if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); }
+      return;
+    }
+    else if (what === "cancel-edit") { S.editing = null; render(); return; }
+    else if (what === "save-edit") {
+      // Your corrections: the title, and the description (Claude's text, or a new one).
+      const title = ($("edit-title-" + id) || {}).value;
+      const desc = ($("edit-desc-" + id) || {}).value;
+      const edits = {};
+      if (title != null && title.trim() && title.trim() !== a.text) Object.assign(edits, { text: title.trim(), titleEdited: true });
+      if (desc != null && desc.trim() !== (a.claude || "").trim()) Object.assign(edits, { claude: desc.trim() || null, claudeEdited: true });
+      S.editing = null;
+      if (Object.keys(edits).length) update(id, Object.assign(edits, { editedAt: now }));
+      render();
+      return;
+    }
     else if (what === "change-open") { const d = $("more-" + id); if (d) { d.open = !d.open; if (d.open && box) box.focus(); } return; }
     else if (what === "cancel") fields = { state: ["open", "needs_ok"].includes(a.prevState) ? a.prevState : "open", queuedAt: null };
     else if (what === "note") { if (!note) { box && box.focus(); return; } fields = withNote({}); }
@@ -546,6 +581,12 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     if (!b) return;
     const host = b.closest("[data-id]");
     if (host) act(host.getAttribute("data-id"), b.getAttribute("data-act"));
+  });
+  document.addEventListener("keydown", (e) => {
+    const host = e.target.closest && e.target.closest(".edit-form") && e.target.closest("[data-id]");
+    if (!host) return;
+    if (e.key === "Escape") { e.preventDefault(); act(host.getAttribute("data-id"), "cancel-edit"); }
+    else if (e.key === "Enter" && e.target.matches("input.edit-title")) { e.preventDefault(); act(host.getAttribute("data-id"), "save-edit"); }
   });
   document.addEventListener("change", (e) => {
     const t = e.target;
@@ -641,13 +682,41 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       h("div", { class: "row" }, btns(buttons), extra));
   }
 
+  // The title: an Asana task's name links to Asana, after its parent task's name, so a bare
+  // "Review" says what it's part of. The pencil opens the title and description for editing.
+  const PENCIL = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11.2 2.3a1.6 1.6 0 0 1 2.3 2.3L5.2 12.9 2 14l1.1-3.2z"/><path d="M10 3.5l2.5 2.5"/></svg>';
+  function titleEl(a) {
+    const words = [a.asanaParent ? h("span", { class: "parent" }, a.asanaParent + " › ") : null, a.text];
+    const u = isAsana(a) && safeUrl(a.asanaUrl);
+    const pencil = h("button", { class: "edit", type: "button", "data-act": "edit", title: "Edit the title and description",
+      "aria-label": "Edit: " + a.text });
+    pencil.innerHTML = PENCIL;
+    return h("div", { class: "text" },
+      u ? h("a", { class: "title-link", href: u, target: "_blank", rel: "noopener", title: "Open in Asana" },
+            words, h("span", { class: "arrow", "aria-hidden": "true" }, "↗"))
+        : h("span", null, words),
+      pencil);
+  }
+  function editForm(a) {
+    return h("div", { class: "edit-form" },
+      h("label", { class: "label", for: "edit-title-" + a.id }, "Title"),
+      h("input", { type: "text", class: "edit-title", id: "edit-title-" + a.id, maxlength: "500", value: a.text }),
+      h("label", { class: "label", for: "edit-desc-" + a.id }, "Description"),
+      h("textarea", { id: "edit-desc-" + a.id, rows: "3", maxlength: "3000",
+        placeholder: "Context, links, anything Claude missed" }, a.claude || ""),
+      h("div", { class: "row" }, btns([["save-edit", "Save", "primary"], ["cancel-edit", "Cancel"]])));
+  }
+  // An item's top: the title, its chips and Claude's lines; or, while you edit it, the edit form.
+  function head(a, label, withCall) {
+    if (S.editing === a.id) return [editForm(a), metaRow(a, withCall)];
+    return [titleEl(a), metaRow(a, withCall), ...claudeLines(a, a.claudeEdited ? "Description, edited by you" : label)];
+  }
+
   // Something Claude did itself (a calendar hold, an agenda point): thank it, ask for a change, or drop it.
   function didItem(a, withCall) {
     return h("li", { class: "item did", "data-id": a.id, "data-prio": prio(a) },
       h("div", { class: "body" },
-        h("div", { class: "text" }, a.text),
-        metaRow(a, withCall),
-        claudeLines(a, "What Claude did"),
+        head(a, "What Claude did", withCall),
         h("div", { class: "row" }, btns([["thanks", "Thanks Claude!", "primary"], ["change-open", "Change something"], ["drop", "Drop", "danger"]])),
         h("details", { class: "more change", id: "more-" + a.id },
           h("summary", null, "Change something"),
@@ -668,9 +737,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     return h("li", { class: "item", "data-id": a.id, "data-prio": prio(a) },
       h("input", { type: "checkbox", class: "tick", id: "tick-" + a.id, "aria-label": "Done: " + a.text }),
       h("div", { class: "body" },
-        h("div", { class: "text" }, a.text),
-        metaRow(a, withCall),
-        claudeLines(a, drafted ? "What Claude drafted" : "Claude"),
+        head(a, drafted ? "What Claude drafted" : isAsana(a) ? "From Asana" : "Claude", withCall),
         fu ? h("div", { class: "row" }, snoozeSelect(a), h("button", { class: "btn small danger", type: "button", "data-act": "drop" }, "Dismiss")) : null,
         fu ? noteBox(a, "Ask Claude", hint, [first, ["note", "Ask a question"]])
            : noteBox(a, "Ask Claude, snooze or drop", hint, [first, ["note", "Ask a question"], ["drop", "Drop", "danger"]], snoozeSelect(a))),
@@ -679,9 +746,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   function planItem(a) {
     return h("li", { class: "item plan", "data-id": a.id, "data-prio": prio(a) },
       h("div", { class: "body" },
-        h("div", { class: "text" }, a.text),
-        metaRow(a, true),
-        claudeLines(a, "Claude's plan"),
+        head(a, "Claude's plan", true),
         h("label", { class: "label", for: "note-" + a.id }, "Anything to change first? (optional)"),
         h("textarea", { id: "note-" + a.id, rows: "2", maxlength: "1000" }),
         h("div", { class: "row" },
@@ -701,7 +766,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
         working ? null : h("div", { class: "row" }, h("button", { class: "btn small", type: "button", "data-act": "cancel" }, "Cancel"))));
   }
 
-  // "By call": one group per call, newest first, with your own items, follow-ups and Asana tasks on top; priority order inside each.
+  // "By call": your own items and follow-ups on top, then one group per call, newest first, then Asana tasks; priority order inside each.
   function groupsByCall(items) {
     const map = new Map();
     for (const a of items) {
@@ -711,7 +776,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       map.get(key).items.push(a);
     }
     const groups = [...map.values()];
-    const rank = (g) => ({ _mine: 0, _followups: 1, _asana: 2 }[g.key] ?? 3);
+    const rank = (g) => ({ _mine: 0, _followups: 1, _asana: 3 }[g.key] ?? 2);
     groups.sort((x, y) => rank(x) - rank(y) || (y.date || "").localeCompare(x.date || ""));
     return groups.map((g) => ({
       head: h("div", { class: "group-head" },
@@ -736,10 +801,10 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
 
   function capture() {
     const values = {};
-    document.querySelectorAll("#app textarea[id^='note-']").forEach((t) => { if (t.value) values[t.id] = t.value; });
+    document.querySelectorAll("#app textarea[id^='note-'], #app [id^='edit-']").forEach((t) => { if (t.value) values[t.id] = t.value; });
     const open = [...document.querySelectorAll("details.more[open]")].map((d) => d.id);
     const f = document.activeElement;
-    const focus = f && f.id && (f.id.startsWith("note-") || f.id.startsWith("prio-")) ? { id: f.id, s: f.selectionStart, e: f.selectionEnd } : null;
+    const focus = f && f.id && (f.id.startsWith("note-") || f.id.startsWith("prio-") || f.id.startsWith("edit-")) ? { id: f.id, s: f.selectionStart, e: f.selectionEnd } : null;
     return { values, open, focus };
   }
   function restore(k) {

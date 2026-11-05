@@ -693,13 +693,22 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     p0: { name: "P0", test: (a) => prio(a) === "P0" },
     overdue: { name: "overdue", test: (a) => !!a.due && a.due < localDay(new Date()) },
   };
+  // The other tallies take you to their section (and open Snoozed).
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-jump]");
+    if (!b) return;
+    const target = $(b.getAttribute("data-jump"));
+    if (!target) return;
+    if (target.tagName === "DETAILS") target.open = true;
+    target.scrollIntoView({ block: "start" });
+  });
   document.addEventListener("click", (e) => {
     const b = e.target.closest("[data-filter]");
     if (!b) return;
     const key = b.getAttribute("data-filter");
     S.filter = key && S.filter !== key ? key : null;
     render();
-    if (S.filter) $("sec-todo").scrollIntoView({ behavior: "smooth", block: "start" });
+    if (S.filter) $("sec-todo").scrollIntoView({ block: "start" });
   });
 
   // ---------- rendering ----------
@@ -925,10 +934,11 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       filterStat("drafted", "drafted", counts.drafted + (counts.drafted === 1 ? " draft" : " drafts") + " waiting for you"),
       filterStat("did", "did", counts.did + " done by Claude"),
       filterStat("p0", "p0", counts.p0 + " P0"),
-      ok.length ? h("span", { class: "stat warn" }, ok.length + " need" + (ok.length === 1 ? "s" : "") + " your OK") : null,
-      turn.length ? h("span", { class: "stat claude" }, turn.length + " with Claude") : null,
+      ok.length ? h("button", { class: "stat warn", type: "button", "data-jump": "sec-ok", title: "Go to them" },
+        ok.length + " need" + (ok.length === 1 ? "s" : "") + " your OK") : null,
+      turn.length ? h("button", { class: "stat claude", type: "button", "data-jump": "sec-claude", title: "Go to them" }, turn.length + " with Claude") : null,
       filterStat("overdue", "bad", counts.overdue + " overdue"),
-      sleeping.length ? h("span", { class: "stat" }, sleeping.length + " snoozed") : null,
+      sleeping.length ? h("button", { class: "stat", type: "button", "data-jump": "sec-snoozed", title: "Go to them" }, sleeping.length + " snoozed") : null,
     ].filter(Boolean));
 
     $("sec-ok").hidden = !ok.length;

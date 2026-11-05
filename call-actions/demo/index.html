@@ -107,6 +107,12 @@ h1 { margin: 0; font: 790 clamp(2.4rem, 1.7rem + 2.6vw, 3.4rem)/1 var(--font-dis
 .stat.claude::before { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .stat.bad { color: var(--red); border-color: color-mix(in oklab, var(--red) 35%, var(--line)); }
 .stat.bad::before { background: var(--red); }
+.stat.drafted::before { background: var(--accent); }
+.stat.did::before { background: var(--sky); }
+button.stat { cursor: pointer; font: 500 0.78rem/1 var(--font-mono); transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease; }
+button.stat:hover { border-color: var(--accent); }
+button.stat[aria-pressed="true"]:not(.todo) { background: var(--ink); border-color: var(--ink); color: var(--accent-ink); }
+.filter-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 9px 10px 9px 16px; border-radius: var(--radius-sm); background: var(--raised); border: 1px solid var(--line); font-size: 0.9rem; color: var(--muted); }
 
 /* composer: a white card with a mint top edge, like the website's tool cards */
 .add { position: relative; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 11px 9px 7px 16px; box-shadow: var(--shadow); transition: border-color 150ms ease, box-shadow 150ms ease; }
@@ -157,13 +163,17 @@ ul.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction
 [data-prio="P1"] { --prio: var(--p1); --prio-ink: var(--p1-ink); }
 [data-prio="P2"] { --prio: var(--p2); --prio-ink: var(--p2-ink); }
 [data-prio="P3"] { --prio: var(--p3); --prio-ink: var(--p3-ink); }
-.item { position: relative; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 14px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 16px 16px 18px; box-shadow: var(--shadow-sm); }
+.item { position: relative; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 16px 16px 18px; box-shadow: var(--shadow-sm); }
 .item:hover { border-color: var(--line-strong); }
 .item[data-prio]::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--prio); }
-.item.plan { background: color-mix(in oklab, var(--amber-soft) 55%, var(--surface)); border-color: var(--amber-line); box-shadow: var(--shadow-callout); grid-template-columns: minmax(0, 1fr) auto; }
+.item.plan { background: color-mix(in oklab, var(--amber-soft) 55%, var(--surface)); border-color: var(--amber-line); box-shadow: var(--shadow-callout); grid-template-columns: minmax(0, 1fr); }
 .item.quiet { background: transparent; box-shadow: none; border: 1px dashed var(--line-strong); grid-template-columns: minmax(0, 1fr); }
 /* something Claude did itself: no tick, its own Thanks / Change / Drop buttons */
-.item.did { grid-template-columns: minmax(0, 1fr) auto; }
+.item.did { grid-template-columns: minmax(0, 1fr); }
+/* The priority pill floats top right, so everything below the title (notes, your messages) can use the card's full width. */
+.item > .prio-wrap { position: absolute; top: 14px; right: 14px; }
+.item:has(> .prio-wrap) > .body > .text, .item:has(> .prio-wrap) .edit-form > label:first-child { padding-right: 118px; }
+.item:has(> .prio-wrap) .edit-form > .edit-title { width: calc(100% - 118px); }
 details.more.change > summary { display: none; }
 details.more.change[open] { display: flex; flex-direction: column; gap: 8px; }
 details.more.change .row { margin-top: 0; }
@@ -213,8 +223,9 @@ a.chip:hover { border-color: var(--accent); color: var(--accent); }
 .thread { display: flex; flex-direction: column; gap: 6px; }
 .bubble { margin: 0; max-width: 85%; padding: 8px 13px 9px; border-radius: 16px; font-size: 0.92rem; line-height: 1.5; overflow-wrap: anywhere; }
 .bubble .who { display: block; font: 600 0.62rem/1.2 var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 3px; }
-.bubble.me { align-self: flex-end; background: var(--accent); color: var(--accent-ink); border-bottom-right-radius: 5px; }
-.bubble.me .who, .bubble.me .pending { color: color-mix(in oklab, var(--accent-ink) 78%, transparent); }
+.bubble.me { align-self: flex-end; background: var(--accent-soft); color: var(--ink); border: 1px solid var(--accent-line); border-bottom-right-radius: 5px; }
+.bubble.me .who { color: var(--accent); }
+.bubble.me .pending { color: var(--muted); }
 .bubble.me .pending { font-size: 0.8rem; }
 .bubble.claude { align-self: flex-start; background: var(--code-bg); border: 1px solid var(--line); border-bottom-left-radius: 5px; }
 .item.plan .bubble.claude { background: var(--surface); }
@@ -292,11 +303,9 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   .calls li { grid-template-columns: 1fr; gap: 3px; }
   .add-opts { padding-left: 4px; }
   .item { padding: 14px 12px 12px; gap: 4px 12px; }
-  /* On a phone the priority pill floats top right, so it doesn't take a whole column from the text. */
-  .item { grid-template-columns: auto minmax(0, 1fr); }
-  .item.plan, .item.did { grid-template-columns: minmax(0, 1fr); }
-  .item > .prio-wrap { position: absolute; top: 12px; right: 10px; }
-  .item:has(> .prio-wrap) > .body > .text { padding-right: 112px; }
+  .item > .prio-wrap { top: 12px; right: 10px; }
+  .item:has(> .prio-wrap) > .body > .text, .item:has(> .prio-wrap) .edit-form > label:first-child { padding-right: 112px; }
+  .item:has(> .prio-wrap) .edit-form > .edit-title { width: calc(100% - 112px); }
 }
 @media (prefers-reduced-motion: no-preference) {
   .item { transition: border-color 150ms ease, background-color 150ms ease, opacity 220ms ease, transform 220ms ease; }
@@ -357,6 +366,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
         <button type="button" id="view-priority" data-view="priority" aria-pressed="false">By priority</button>
       </div>
     </div>
+    <div class="filter-bar" id="filter-bar" hidden></div>
     <div id="list-todo"></div>
     <p class="empty" id="empty-todo">Loading your actions…</p>
   </section>
@@ -395,7 +405,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   "use strict";
   const DAY = 86400000;
   const $ = (id) => document.getElementById(id);
-  const S = { actions: new Map(), calls: [], feedback: [], got: new Set(), prevSeen: null, run: null, editing: null };
+  const S = { actions: new Map(), calls: [], feedback: [], got: new Set(), prevSeen: null, run: null, editing: null, filter: null };
   let db = null;
 
   // ---------- small helpers ----------
@@ -591,8 +601,12 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       const d = $("fbbox-" + id);
       if (d) d.open = false;
       touch();
+      // Sending feedback also closes the item, like "Thanks Claude!"; the lesson goes to Tell Claude.
       db.collection("feedback").add({ text: text, createdAt: now, itemId: id, itemText: a.text })
-        .then(() => notice("Sent to Claude as feedback. Its reply shows under Tell Claude."))
+        .then(() => {
+          notice("Sent to Claude as feedback. Its reply shows under Tell Claude.");
+          update(id, { state: "done", doneAt: now, prevState: a.state, feedbackAt: now });
+        })
         .catch((err) => { if (t) t.value = text; saveFailed(err); });
       return;
     }
@@ -670,6 +684,22 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     touch();
     db.collection("feedback").add({ text: text, createdAt: new Date().toISOString() })
       .catch((err) => { $("fb-text").value = text; saveFailed(err); });
+  });
+
+  // ---------- filters (the clickable tallies at the top) ----------
+  const FILTERS = {
+    drafted: { name: "drafts waiting for you to check and send", test: (a) => a.kind === "drafted" },
+    did: { name: "things Claude did, to review or undo", test: (a) => a.kind === "did" },
+    p0: { name: "P0", test: (a) => prio(a) === "P0" },
+    overdue: { name: "overdue", test: (a) => !!a.due && a.due < localDay(new Date()) },
+  };
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-filter]");
+    if (!b) return;
+    const key = b.getAttribute("data-filter");
+    S.filter = key && S.filter !== key ? key : null;
+    render();
+    if (S.filter) $("sec-todo").scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   // ---------- rendering ----------
@@ -758,7 +788,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       h("div", { class: "body" },
         head(a, "What Claude did", withCall),
         h("div", { class: "row" }, btns([["thanks", "Thanks Claude!", "primary"], ["change-open", "Change something"],
-          ["feedback-open", "Give feedback"], ["drop", "Drop", "danger"]])),
+          ["feedback-open", "Give feedback"], ["revert", "Undo", "danger"]])),
         h("details", { class: "more change", id: "more-" + a.id },
           h("summary", null, "Change something"),
           h("label", { class: "label", for: "note-" + a.id }, "What should Claude change about it?"),
@@ -767,9 +797,9 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
         // Feedback changes nothing here: it's a lesson for next time, filed like the "Tell Claude" box.
         h("details", { class: "more change", id: "fbbox-" + a.id },
           h("summary", null, "Give feedback"),
-          h("label", { class: "label", for: "fbnote-" + a.id }, "What should Claude do differently next time? This one stays as it is."),
+          h("label", { class: "label", for: "fbnote-" + a.id }, "What should Claude do differently next time? Sending it ticks this one off, as it is."),
           h("textarea", { id: "fbnote-" + a.id, rows: "2", maxlength: "2000", placeholder: "e.g. for 1:1 reminders, put them on the morning of the 1:1" }),
-          h("div", { class: "row" }, btns([["feedback", "Send feedback", "primary"]])))),
+          h("div", { class: "row" }, btns([["feedback", "Send feedback and tick off", "primary"]])))),
       prioSelect(a));
   }
 
@@ -882,12 +912,22 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     const today = localDay(new Date());
     const overdue = todo.filter((a) => a.due && a.due < today).length;
     const p0 = todo.concat(ok).filter((a) => prio(a) === "P0").length;
+    // The tallies. The ones that pick out to-dos are buttons that filter the list to them (click again for all).
+    const counts = Object.fromEntries(Object.entries(FILTERS).map(([k, f]) => [k, todo.filter(f.test).length]));
+    if (S.filter && !counts[S.filter]) S.filter = null;
+    const filterStat = (key, cls, text) => counts[key]
+      ? h("button", { class: "stat " + cls, type: "button", "data-filter": key, "aria-pressed": String(S.filter === key),
+          title: S.filter === key ? "Show all your to-dos" : "Show only these" }, text)
+      : null;
     $("stats").replaceChildren(...[
-      h("span", { class: "stat todo" }, todo.length + " to do"),
-      p0 ? h("span", { class: "stat p0" }, p0 + " P0") : null,
+      h("button", { class: "stat todo", type: "button", "data-filter": "", "aria-pressed": String(!S.filter), title: "Show all your to-dos" },
+        todo.length + " to do"),
+      filterStat("drafted", "drafted", counts.drafted + (counts.drafted === 1 ? " draft" : " drafts") + " waiting for you"),
+      filterStat("did", "did", counts.did + " done by Claude"),
+      filterStat("p0", "p0", counts.p0 + " P0"),
       ok.length ? h("span", { class: "stat warn" }, ok.length + " need" + (ok.length === 1 ? "s" : "") + " your OK") : null,
       turn.length ? h("span", { class: "stat claude" }, turn.length + " with Claude") : null,
-      overdue ? h("span", { class: "stat bad" }, overdue + " overdue") : null,
+      filterStat("overdue", "bad", counts.overdue + " overdue"),
       sleeping.length ? h("span", { class: "stat" }, sleeping.length + " snoozed") : null,
     ].filter(Boolean));
 
@@ -903,7 +943,12 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     const byPriority = view === "priority";
     $("view-priority").setAttribute("aria-pressed", String(byPriority));
     $("view-call").setAttribute("aria-pressed", String(!byPriority));
-    $("list-todo").replaceChildren(...(byPriority ? groupsByPriority(todo) : groupsByCall(todo)).map((g) =>
+    const shown = S.filter ? todo.filter(FILTERS[S.filter].test) : todo;
+    $("filter-bar").hidden = !S.filter;
+    if (S.filter) $("filter-bar").replaceChildren(
+      h("span", null, "Showing " + shown.length + " of " + todo.length + ": " + FILTERS[S.filter].name),
+      h("button", { class: "btn small", type: "button", "data-filter": "" }, "Show all"));
+    $("list-todo").replaceChildren(...(byPriority ? groupsByPriority(shown) : groupsByCall(shown)).map((g) =>
       h("div", { class: "group" }, g.head, h("ul", { class: "list" }, g.items.map((a) => todoItem(a, byPriority))))));
     const loaded = S.got.has("actions");
     $("empty-todo").hidden = loaded && todo.length > 0;
@@ -927,7 +972,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
         h("span", { class: "t" }, a.text),
         a.note && a.noteAt === a.doneAt ? h("span", { class: "why" }, a.note) : null),
       h("span", { class: "row" },
-        h("span", { class: "when" }, (a.undone ? "undone " : a.state === "dropped" ? (isFollowup(a) ? "dismissed " : "dropped ") : a.approved ? "approved " : "done ") + fmtDay(a.doneAt)),
+        h("span", { class: "when" }, (a.undone ? "undone " : a.state === "dropped" ? (isFollowup(a) ? "dismissed " : "dropped ") : a.approved ? "approved " : a.feedbackAt ? "feedback sent " : "done ") + fmtDay(a.doneAt)),
         h("button", { class: "btn small", type: "button", "data-act": "undo" }, "Undo")))));
 
     const calls = S.calls.filter((c) => c.addedAt).slice(0, 12);

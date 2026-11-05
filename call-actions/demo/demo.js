@@ -143,7 +143,11 @@
   };
   function claudesTurn(coll, id) {
     const doc = store[coll][id];
-    if (coll === "actions" && doc.state === "queued") {
+    if (coll === "actions" && doc.state === "queued" && doc.request === "undo") {
+      later(2500, "actions", id, { state: "working" });
+      later(6000, "actions", id, { state: "dropped", undone: true, request: null, doneAt: new Date().toISOString(),
+        reply: "Done: deleted the hold. (In this demo nothing was really there to delete.)" });
+    } else if (coll === "actions" && doc.state === "queued") {
       later(2500, "actions", id, { state: "working" });
       const did = doc.kind === "did";
       later(6500, "actions", id, { state: "open", kind: did ? "did" : "drafted", noteUnread: false,

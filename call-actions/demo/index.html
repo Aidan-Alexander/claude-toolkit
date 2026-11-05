@@ -134,6 +134,14 @@ h1 { margin: 0; font: 790 clamp(2.4rem, 1.7rem + 2.6vw, 3.4rem)/1 var(--font-dis
 button.stat { cursor: pointer; font: 500 0.78rem/1 var(--font-mono); transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease; }
 button.stat:hover { border-color: var(--accent); }
 button.stat[aria-pressed="true"]:not(.todo) { background: var(--ink); border-color: var(--ink); color: var(--accent-ink); }
+.search { display: flex; align-items: center; gap: 10px; padding: 0 8px 0 14px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); color: var(--faint); }
+.search:focus-within { border-color: color-mix(in oklab, var(--accent) 55%, var(--line)); box-shadow: 0 0 0 4px var(--accent-soft); color: var(--accent); }
+.search svg { width: 17px; height: 17px; flex: none; }
+.search input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 10px 2px; font-size: 0.98rem; color: var(--ink); }
+.search input:focus-visible { outline: none; }
+.search input::placeholder { color: var(--faint); }
+.search kbd { font: 500 0.72rem/1 var(--font-mono); color: var(--faint); border: 1px solid var(--line-strong); border-radius: 6px; padding: 3px 6px; }
+.search:focus-within kbd { display: none; }
 .filter-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 9px 10px 9px 16px; border-radius: var(--radius-sm); background: var(--raised); border: 1px solid var(--line); font-size: 0.9rem; color: var(--muted); }
 
 /* composer: a white card with a mint top edge, like the website's tool cards */
@@ -395,6 +403,12 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
         <button type="button" id="view-priority" data-view="priority" aria-pressed="false">By priority</button>
       </div>
     </div>
+    <label class="search" for="search">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5"/></svg>
+      <span class="visually-hidden">Search your actions</span>
+      <input type="search" id="search" placeholder="Search your actions" autocomplete="off">
+      <kbd aria-hidden="true">/</kbd>
+    </label>
     <div class="filter-bar" id="filter-bar" hidden></div>
     <div id="list-todo"></div>
     <p class="empty" id="empty-todo">Loading your actions…</p>
@@ -434,7 +448,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   "use strict";
   const DAY = 86400000;
   const $ = (id) => document.getElementById(id);
-  const S = { actions: new Map(), calls: [], feedback: [], got: new Set(), prevSeen: null, run: null, editing: null, filter: null, settings: null };
+  const S = { actions: new Map(), calls: [], feedback: [], got: new Set(), prevSeen: null, run: null, editing: null, filter: null, settings: null, query: "" };
   let db = null;
 
   // ---------- small helpers ----------
@@ -736,8 +750,17 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     if (!b) return;
     const key = b.getAttribute("data-filter");
     S.filter = key && S.filter !== key ? key : null;
+    if (!key) { S.query = ""; $("search").value = ""; }
     render();
     if (S.filter) $("sec-todo").scrollIntoView({ block: "start" });
+  });
+
+  // ---------- search ----------
+  $("search").addEventListener("input", (e) => { S.query = e.target.value; render(); });
+  document.addEventListener("keydown", (e) => {
+    const typing = e.target.closest && e.target.closest("input, textarea, select, [contenteditable]");
+    if (e.key === "/" && !typing) { e.preventDefault(); $("search").focus(); }
+    else if (e.key === "Escape" && e.target.id === "search" && S.query) { S.query = ""; e.target.value = ""; render(); }
   });
 
   // ---------- rendering ----------
@@ -941,9 +964,9 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     const ok = byState(["needs_ok"]).sort((p, q) => prioRank(p) - prioRank(q) || (p.createdAt || "").localeCompare(q.createdAt || ""));
     const turn = byState(["queued", "working"]).sort((p, q) => (p.queuedAt || "").localeCompare(q.queuedAt || ""));
     const todo = all.filter((a) => a.state === "open" || (a.state === "snoozed" && !asleep(a)));
-    const sleeping = all.filter(asleep).sort((p, q) => (p.snoozeUntil || "").localeCompare(q.snoozeUntil || ""));
+    let sleeping = all.filter(asleep).sort((p, q) => (p.snoozeUntil || "").localeCompare(q.snoozeUntil || ""));
     const cutoff = new Date(Date.now() - 30 * DAY).toISOString();
-    const done = byState(["done", "dropped"]).filter((a) => (a.doneAt || "") >= cutoff)
+    let done = byState(["done", "dropped"]).filter((a) => (a.doneAt || "") >= cutoff)
       .sort((p, q) => (q.doneAt || "").localeCompare(p.doneAt || ""));
 
     // summary
@@ -982,20 +1005,31 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     const byPriority = view === "priority";
     $("view-priority").setAttribute("aria-pressed", String(byPriority));
     $("view-call").setAttribute("aria-pressed", String(!byPriority));
-    const shown = S.filter ? todo.filter(FILTERS[S.filter].test) : todo;
-    $("filter-bar").hidden = !S.filter;
-    if (S.filter) $("filter-bar").replaceChildren(
-      h("span", null, "Showing " + shown.length + " of " + todo.length + ": " + FILTERS[S.filter].name),
+    const q = S.query.trim().toLowerCase();
+    const found = (a) => !q || [a.text, a.claude, a.who, a.callTitle, a.asanaParent, a.asanaProject, a.note, a.reply]
+      .some((v) => v && String(v).toLowerCase().includes(q));
+    const shown = (S.filter ? todo.filter(FILTERS[S.filter].test) : todo).filter(found);
+    $("filter-bar").hidden = !S.filter && !q;
+    if (S.filter || q) $("filter-bar").replaceChildren(
+      h("span", null, "Showing " + shown.length + " of " + todo.length
+        + (S.filter ? ": " + FILTERS[S.filter].name : "") + (q ? (S.filter ? ", " : ": ") + "matching “" + S.query.trim() + "”" : "")),
       h("button", { class: "btn small", type: "button", "data-filter": "" }, "Show all"));
     $("list-todo").replaceChildren(...(byPriority ? groupsByPriority(shown) : groupsByCall(shown)).map((g) =>
       h("div", { class: "group" }, g.head, h("ul", { class: "list" }, g.items.map((a) => todoItem(a, byPriority))))));
     const loaded = S.got.has("actions");
-    $("empty-todo").hidden = loaded && todo.length > 0;
-    $("empty-todo").textContent = loaded
-      ? "Nothing to do. Claude adds what you take on in calls here after each one, and you can add your own above."
-      : "Loading your actions…";
+    $("empty-todo").hidden = loaded && shown.length > 0;
+    $("empty-todo").textContent = !loaded ? "Loading your actions…"
+      : q && todo.length ? "No to-dos match “" + S.query.trim() + "”. Snoozed and done ones are below, if any match."
+      : S.filter && todo.length ? "Nothing here."
+      : "Nothing to do. Claude adds what you take on in calls here after each one, and you can add your own above.";
 
-    $("sec-snoozed").hidden = !sleeping.length;
+    // A search narrows Snoozed and Done too, and opens them when they have a match.
+    const sleepingAll = sleeping.length;
+    sleeping = sleeping.filter(found);
+    done = done.filter(found);
+    if (q && sleeping.length) $("sec-snoozed").open = true;
+    if (q && done.length) $("sec-done").open = true;
+    $("sec-snoozed").hidden = !sleeping.length && !(sleepingAll && !q);
     $("n-snoozed").textContent = sleeping.length ? "(" + sleeping.length + ")" : "";
     $("list-snoozed").replaceChildren(...sleeping.map((a) => h("div", { class: "done-item snz", "data-id": a.id },
       h("span", { class: "t-wrap" },
@@ -1113,9 +1147,10 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       group("What Claude covers", radios("covers", s.covers, [["both", "Calls and follow-ups"], ["calls", "Calls only"], ["followups", "Follow-ups only"]])),
       group("Call summaries",
         h("p", { class: "set-label" }, "Length"), radios("summaryLength", s.summaryLength, [["detailed", "Detailed"], ["onepage", "One page"]]),
-        h("p", { class: "set-label" }, "Tidied transcript at the bottom"), radios("tidiedTranscript", s.tidiedTranscript, [["always", "Always"], ["asked", "Only when I ask"]]),
-        h("p", { class: "set-label" }, "Spelling"), radios("spelling", s.spelling, [["british", "British"], ["american", "American"]])),
-      group("Emails Claude drafts", check("coWritten", s.coWritten, "End with an italic \"Co-written with Claude\"")),
+        h("p", { class: "set-label" }, "Tidied transcript at the bottom"), radios("tidiedTranscript", s.tidiedTranscript, [["always", "Always"], ["asked", "Only when I ask"]])),
+      group("Writing",
+        h("p", { class: "set-label" }, "Spelling, for summaries and everything Claude drafts"), radios("spelling", s.spelling, [["british", "British"], ["american", "American"]]),
+        h("p", { class: "set-label" }, "Emails Claude drafts"), check("coWritten", s.coWritten, "End with an italic \"Co-written with Claude\"")),
       group("Follow-up check",
         h("div", { class: "choices" },
           check("fuEmail", (s.followupChannels || []).includes("email"), "Emails"),

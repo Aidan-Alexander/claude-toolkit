@@ -94,3 +94,4 @@ Claude asks you the questions above, makes your private tracker page, sets up th
 - 2026-11-05: Things Claude did now have Undo instead of Drop: Claude deletes what it made for that item (the hold, the agenda point, the doc or the draft) on its next check, and nothing else. Sending feedback ticks the item off, like Thanks Claude!
 - 2026-11-05: The tallies at the top are filters: click "drafts waiting for you" or "done by Claude" (or P0, or overdue) to see just those, and again for everything.
 - 2026-11-05: A settings gear at the top right of the page: change what it covers, summary length and spelling, the follow-up day, agenda points, calendar holds, doc edits, your 1:1 docs, Asana, the Monday digest and the start date, any time. Claude reads them at the start of every check.
+- 2026-11-05: A search box above your to-dos (press / to jump to it). It also narrows Snoozed and Done, and opens them when they have a match.

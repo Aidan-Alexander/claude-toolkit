@@ -85,6 +85,17 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .eyebrow:empty { display: none; }
 h1 { margin: 0; font: 790 clamp(2.4rem, 1.7rem + 2.6vw, 3.4rem)/1 var(--font-display); letter-spacing: -0.035em; text-wrap: balance; }
 .lede { margin: 0; color: var(--muted); font-size: 1.06rem; max-width: 60ch; }
+/* when Claude last checked for calls, and which calls aren't in yet */
+.checked { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; align-items: baseline; padding: 10px 16px 11px 14px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); font-size: 0.93rem; color: var(--muted); max-width: 100%; }
+.checked::before { content: ""; grid-row: 1; width: 9px; height: 9px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 3px var(--accent-soft); align-self: center; }
+.checked.stale { background: var(--amber-soft); border-color: var(--amber-line); }
+.checked.stale::before { background: var(--sun); box-shadow: none; }
+.checked.failed { background: var(--red-soft); border-color: color-mix(in oklab, var(--red) 25%, var(--red-soft)); }
+.checked.failed::before { background: var(--red); box-shadow: none; }
+.checked .main { grid-column: 2; color: var(--ink); overflow-wrap: anywhere; }
+.checked .main b { font-weight: 600; }
+.checked .ago { font: 500 0.78rem/1 var(--font-mono); color: var(--faint); margin-left: 4px; white-space: nowrap; }
+.checked .sub { grid-column: 2; font-size: 0.86rem; overflow-wrap: anywhere; }
 .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 .stat { display: inline-flex; align-items: center; gap: 8px; font: 500 0.78rem/1 var(--font-mono); padding: 8px 13px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); font-variant-numeric: tabular-nums; }
 .stat::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
@@ -280,6 +291,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   <header class="top">
     <div class="eyebrow" id="today"></div>
     <h1>Call actions</h1>
+    <div class="checked" id="checked" role="status" hidden></div>
     <p class="lede">What you took on in your calls, your Asana tasks, threads still waiting on a reply, what Claude has done about them, and anything you add yourself. Claude checks your calls and this page every hour on weekdays, 9–6, and looks for emails and Slack messages still waiting on a reply every Thursday.</p>
     <div class="stats" id="stats"></div>
   </header>
@@ -358,7 +370,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   "use strict";
   const DAY = 86400000;
   const $ = (id) => document.getElementById(id);
-  const S = { actions: new Map(), calls: [], feedback: [], got: new Set(), prevSeen: null };
+  const S = { actions: new Map(), calls: [], feedback: [], got: new Set(), prevSeen: null, run: null };
   let db = null;
 
   // ---------- small helpers ----------
@@ -824,6 +836,52 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     restore(kept);
   }
 
+  // ---------- when Claude last checked for calls ----------
+  // Each run records itself in meta/run: when it last listed Granola's calls (callsCheckedAt), which
+  // calls weren't in yet (waiting), and whether its latest look failed. Calls that had ended by then
+  // are on the page; the waiting ones come on a later run.
+  const STALE_MINUTES = 150;  // during working hours, a gap this long means runs have stopped (hourly runs)
+  function clock(d) {
+    const time = d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+    if (localDay(d) === localDay(new Date())) return time;
+    if (localDay(d) === localDay(new Date(Date.now() - DAY))) return "yesterday " + time;
+    return d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) + " " + time;
+  }
+  function ago(d) {
+    const mins = Math.max(0, Math.floor((Date.now() - d) / 60000));
+    if (mins < 1) return "just now";
+    if (mins < 60) return mins + " min ago";
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return hours + (hours === 1 ? " hour ago" : " hours ago");
+    const days = Math.floor(hours / 24);
+    return days + (days === 1 ? " day ago" : " days ago");
+  }
+  function renderChecked() {
+    const box = $("checked");
+    const r = S.run;
+    const ran = r && parseDay(r.lastRunAt);
+    if (!ran) { box.hidden = true; return; }
+    const checked = parseDay(r.callsCheckedAt);
+    const now = new Date();
+    const working = now.getDay() >= 1 && now.getDay() <= 5 && now.getHours() >= 9 && now.getHours() < 18;
+    const failed = !!r.checkError && (!checked || checked < ran);
+    const stale = working && (now - ran) / 60000 > STALE_MINUTES;
+    const waiting = (Array.isArray(r.waiting) ? r.waiting : []).filter((w) => w && w.title);
+    let sub;
+    if (failed) sub = "Claude's look at " + clock(ran) + " couldn't reach Granola, so calls since " + (checked ? clock(checked) : "then") + " may be missing for now.";
+    else if (stale) sub = "Claude hasn't checked since then, so its scheduled run may have stopped. Is the Claude app open, and the computer awake?";
+    else if (waiting.length) sub = "Not in yet: " + waiting.map((w) => w.title + (w.why ? " (" + w.why + ")" : "")).join(" · ");
+    else sub = "Every call that had ended by then is on this page.";
+    box.className = "checked" + (failed ? " failed" : stale ? " stale" : "");
+    box.replaceChildren(
+      h("span", { class: "main" }, checked ? h("b", null, "Calls last checked " + clock(checked)) : h("b", null, "No calls checked yet"),
+        checked ? h("span", { class: "ago" }, ago(checked)) : null),
+      h("span", { class: "sub" }, sub,
+        (failed || stale) && waiting.length ? " Not in yet: " + waiting.map((w) => w.title).join(" · ") + "." : ""));
+    box.hidden = false;
+  }
+  setInterval(renderChecked, 60000);
+
   // ---------- start ----------
   function stop(message) {
     $("add-form").hidden = true;
@@ -873,6 +931,11 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     db.collection("feedback").orderBy("createdAt", "desc").limit(8).onSnapshot((snap) => {
       S.feedback = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
       loaded("feedback", snap);
+    }, failed);
+    db.collection("meta").onSnapshot((snap) => {
+      const run = snap.docs.find((d) => d.id === "run");
+      S.run = run ? run.data() : null;
+      renderChecked();
     }, failed);
   }
   boot();

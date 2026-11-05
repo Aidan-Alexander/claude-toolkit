@@ -65,7 +65,10 @@
       reply: "Noted: I'll leave emails to your manager with you, and list them as yours instead. I'll apply it from the next call.", repliedAt: ago(71 * HOUR) },
   };
 
-  const store = { actions, calls, feedback, meta: { activity: { lastActiveAt: ago(20 * HOUR) } } };
+  // When Claude last checked for calls, as each run records it, with one call not in yet.
+  const run = { lastRunAt: ago(4 * 60000), callsCheckedAt: ago(4 * 60000), checkError: null,
+    waiting: [{ title: "Team stand-up", why: "still going" }] };
+  const store = { actions, calls, feedback, meta: { activity: { lastActiveAt: ago(20 * HOUR) }, run } };
   const listeners = [];
 
   function snapshot(coll, opts) {

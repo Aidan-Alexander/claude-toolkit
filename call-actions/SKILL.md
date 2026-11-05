@@ -51,7 +51,7 @@ The page reads and writes these collections. Write times as UTC ISO strings with
 
 **`feedback`**: messages from the page's "Tell Claude" box, with `text` and `createdAt`, plus Claude's `reply` and `repliedAt`. Together they're the user's standing preferences.
 
-**`meta`**: `meta/activity` (`lastActiveAt`, which the page writes), `meta/followups` (`lastRun`: the date of the last follow-up check), `meta/asana` (`lastSync`: the time of the last Asana sync) and `meta/digest` (`lastSent`: the date of the last Monday digest).
+**`meta`**: `meta/activity` (`lastActiveAt`, which the page writes), `meta/followups` (`lastRun`: the date of the last follow-up check), `meta/asana` (`lastSync`: the time of the last Asana sync), `meta/digest` (`lastSent`: the date of the last Monday digest) and `meta/run`, which the page shows at the top: `lastRunAt` (when the run finished), `callsCheckedAt` (when it last listed Granola's calls successfully), `waiting` (`[{"title", "why"}]`: calls that weren't in yet, with "still going", "transcript not ready yet" or "summarised, actions still to come") and `checkError` (why the latest listing failed, or null).
 
 ## Step 1: what the user asked for on the tracker
 
@@ -136,7 +136,9 @@ On the first run on a Monday, if `meta/digest.lastSent` isn't today's date and t
 
 ## Finish
 
-End with a short report: one line per call (its title, then the summary link and number of actions, or the error), one line per tracker request handled, how many snoozed items came back, the follow-up check's count if it ran, the Asana sync's count if it ran, and whether a digest went out. If nothing happened, say "Nothing new".
+Record the run on the tracker, so the page's top line says when Claude last checked for calls and which aren't in yet. Do this on every run, even when nothing happened: `get` `meta/run` for its version, then `set` it (pinned with that `if_version`, or without one if it doesn't exist yet) with `lastRunAt` (now), `callsCheckedAt` (when step 2 listed the calls, or the old value if the listing failed), `waiting` (each call step 2 left for a later run because it was still going or its transcript wasn't ready, plus any call whose actions step failed and will be retried) and `checkError` (the listing's error, or null).
+
+Then end with a short report: one line per call (its title, then the summary link and number of actions, or the error), one line per tracker request handled, how many snoozed items came back, the follow-up check's count if it ran, the Asana sync's count if it ran, and whether a digest went out. If nothing happened, say "Nothing new".
 
 ---
 

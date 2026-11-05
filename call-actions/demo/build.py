@@ -1,6 +1,6 @@
 """Builds demo/index.html, the live demo on GitHub Pages, from ../tracker.html.
 
-The demo is the real page plus demo.js, which fakes the claude.ai data layer with made-up
+The demo is the real page plus demo.js, which fakes the claude.ai data layer with real (renamed)
 calls. Run it after any change to tracker.html: python3 call-actions/demo/build.py
 """
 from pathlib import Path
@@ -14,8 +14,8 @@ BASE = ("<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;pad
         "font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}"
         "img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>\n")
 BANNER = """
-  <p class="notice" style="margin:0">This is a demo with made-up calls and emails. Click around: nothing is saved or sent,
-  and Claude's side is faked. <a href="../">How it works and how to set it up</a></p>
+  <p class="notice" style="margin:0">This demo shows real items from my own tracker, with people's names changed. Click around:
+  nothing is saved or sent, and Claude's side is faked. <a href="../">How it works and how to set it up</a></p>
 """
 
 

@@ -86,9 +86,10 @@ h1 { margin: 0; font: 790 clamp(2.4rem, 1.7rem + 2.6vw, 3.4rem)/1 var(--font-dis
 .checked.stale::before { background: var(--sun); box-shadow: none; }
 .checked.failed { background: var(--red-soft); border-color: color-mix(in oklab, var(--red) 25%, var(--red-soft)); }
 .checked.failed::before { background: var(--red); box-shadow: none; }
-.checked .main { grid-column: 2; color: var(--ink); overflow-wrap: anywhere; }
+.checked { align-self: stretch; }
+.checked .main { grid-column: 2; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; color: var(--ink); overflow-wrap: anywhere; }
 .checked .main b { font-weight: 600; }
-.checked .ago { font: 500 0.78rem/1 var(--font-mono); color: var(--faint); margin-left: 4px; white-space: nowrap; }
+.checked .ago { font: 500 0.78rem/1 var(--font-mono); color: var(--faint); margin-left: auto; white-space: nowrap; }
 .checked .sub { grid-column: 2; font-size: 0.86rem; overflow-wrap: anywhere; }
 .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 .stat { display: inline-flex; align-items: center; gap: 8px; font: 500 0.78rem/1 var(--font-mono); padding: 8px 13px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); font-variant-numeric: tabular-nums; }

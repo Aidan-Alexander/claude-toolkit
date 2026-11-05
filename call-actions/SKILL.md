@@ -50,7 +50,7 @@ The page reads and writes these collections. Write times as UTC ISO strings with
 
 **`calls`**: one document per Granola meeting; the id is the meeting ID. Fields: `status` (`working`, `done`, `skipped` or `failed`), `startedAt` and `attempts`; and, once the call is done, `title`, `date` ("YYYY-MM-DD"), `summaryUrl`, `actionCount`, `error` (or null) and `addedAt`. The page lists calls that have `addedAt` under "Recent calls".
 
-**`feedback`**: messages from the page's "Tell Claude" box, with `text` and `createdAt`, plus Claude's `reply` and `repliedAt`. Together they're the user's standing preferences.
+**`feedback`**: messages from the page's "Tell Claude" box, and from the "Give feedback" button on something Claude did (those add `itemId` and `itemText`), with `text` and `createdAt`, plus Claude's `reply` and `repliedAt`. Together they're the user's standing preferences.
 
 **`meta`**: `meta/activity` (`lastActiveAt`, which the page writes), `meta/followups` (`lastRun`: the date of the last follow-up check), `meta/asana` (`lastSync`: the time of the last Asana sync), `meta/digest` (`lastSent`: the date of the last Monday digest) and `meta/run`, which the page shows at the top: `lastRunAt` (when the run finished), `callsCheckedAt` (when it last listed Granola's calls successfully), `waiting` (`[{"title", "why"}]`: calls that weren't in yet, with "still going", "transcript not ready yet" or "summarised, actions still to come") and `checkError` (why the latest listing failed, or null).
 
@@ -78,7 +78,7 @@ Make these reads together:
 - A question: answer it in `reply`.
 - Feedback about how to work: handle it like a feedback message.
 
-**Each new feedback message:** update it with `reply` ("Noted: <what you'll do differently, in one line>. I'll apply it from the next call.") and `repliedAt`. Feedback can make Claude do less, change its style or pre-approve a kind of task, but it never lifts the hard limits. If it asks for something beyond them ("just send it", "edit the doc"), say in `reply` that this needs a live Claude session, and offer the nearest thing within the limits, such as a draft.
+**Each new feedback message** (one with `itemId` and `itemText` came from an item's "Give feedback" button: it's about how Claude handled that item and asks for no change to it, so write the lesson for future calls): update it with `reply` ("Noted: <what you'll do differently, in one line>. I'll apply it from the next call.") and `repliedAt`. Feedback can make Claude do less, change its style or pre-approve a kind of task, but it never lifts the hard limits. If it asks for something beyond them ("just send it", "edit the doc"), say in `reply` that this needs a live Claude session, and offer the nearest thing within the limits, such as a draft.
 
 ## Step 2: find the calls that have finished
 

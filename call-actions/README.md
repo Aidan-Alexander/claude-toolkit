@@ -48,7 +48,8 @@ I keep it open all day. I have a lot of calls, and most end with a handful of sm
 | Calendar holds | When you ask for time to be blocked, Claude adds a hold to your own calendar, never with guests | On |
 | Editing your existing docs | When you ask on the tracker, Claude changes an existing Google Doc instead of only making new ones.
 - 2026-11-05: A pencil by each to-do lets you fix its title and description; Claude treats your edits as corrections. Asana tasks now say what they're part of: a subtask shows its parent ("Volunteer impact report › Review"), the title links to Asana, and Claude adds a line of context.
-- 2026-11-05: "By call" is now the first view, with Asana tasks below your calls. Docs other people work in only after your go-ahead, and it never deletes their text, touches comments or changes sharing | On |
+- 2026-11-05: "By call" is now the first view, with Asana tasks below your calls.
+- 2026-11-05: Things Claude did now have a "Give feedback" button: a lesson for next time that doesn't change the item. Your notes and Claude's replies show as a short chat, yours on the right. Docs other people work in only after your go-ahead, and it never deletes their text, touches comments or changes sharing | On |
 | Monday digest | A Slack message to yourself on Monday morning listing what's open | I use a Slack bot that also nudges me when I haven't opened the page for a day; this is the simpler version |
 | Asana tasks | Leave them out, show them on the tracker, or show them and tick them off in Asana when you tick them here | Show them, and tick them off in Asana too |
 

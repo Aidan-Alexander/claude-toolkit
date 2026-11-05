@@ -209,6 +209,17 @@ a.chip:hover { border-color: var(--accent); color: var(--accent); }
 .note.mine .who { color: var(--faint); }
 .note a { color: var(--accent); font-weight: 600; }
 .note a + a { margin-left: 10px; }
+/* your notes and Claude's replies, like text messages: yours on the right, Claude's on the left */
+.thread { display: flex; flex-direction: column; gap: 6px; }
+.bubble { margin: 0; max-width: 85%; padding: 8px 13px 9px; border-radius: 16px; font-size: 0.92rem; line-height: 1.5; overflow-wrap: anywhere; }
+.bubble .who { display: block; font: 600 0.62rem/1.2 var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 3px; }
+.bubble.me { align-self: flex-end; background: var(--accent); color: var(--accent-ink); border-bottom-right-radius: 5px; }
+.bubble.me .who, .bubble.me .pending { color: color-mix(in oklab, var(--accent-ink) 78%, transparent); }
+.bubble.me .pending { font-size: 0.8rem; }
+.bubble.claude { align-self: flex-start; background: var(--code-bg); border: 1px solid var(--line); border-bottom-left-radius: 5px; }
+.item.plan .bubble.claude { background: var(--surface); }
+.bubble.claude .who { color: var(--accent); }
+.pending-line { margin: 0; align-self: flex-start; font-size: 0.82rem; color: var(--faint); }
 
 details.more > summary { list-style: none; cursor: pointer; font-size: 0.82rem; font-weight: 500; color: var(--faint); width: fit-content; display: inline-flex; align-items: center; gap: 7px; }
 details.more > summary::-webkit-details-marker { display: none; }
@@ -566,8 +577,28 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       render();
       return;
     }
-    else if (what === "change-open") { const d = $("more-" + id); if (d) { d.open = !d.open; if (d.open && box) box.focus(); } return; }
-    else if (what === "cancel") fields = { state: ["open", "needs_ok"].includes(a.prevState) ? a.prevState : "open", queuedAt: null };
+    else if (what === "change-open" || what === "feedback-open") {
+      const mine = $((what === "change-open" ? "more-" : "fbbox-") + id), other = $((what === "change-open" ? "fbbox-" : "more-") + id);
+      if (other) other.open = false;
+      if (mine) { mine.open = !mine.open; const t = $((what === "change-open" ? "note-" : "fbnote-") + id); if (mine.open && t) t.focus(); }
+      return;
+    }
+    else if (what === "feedback") {
+      const t = $("fbnote-" + id);
+      const text = t ? t.value.trim() : "";
+      if (!text) { t && t.focus(); return; }
+      t.value = "";
+      const d = $("fbbox-" + id);
+      if (d) d.open = false;
+      touch();
+      db.collection("feedback").add({ text: text, createdAt: now, itemId: id, itemText: a.text })
+        .then(() => notice("Sent to Claude as feedback. Its reply shows under Tell Claude."))
+        .catch((err) => { if (t) t.value = text; saveFailed(err); });
+      return;
+    }
+    // Undo: Claude reverses what it did (deletes the hold, removes the agenda point) on its next check.
+    else if (what === "revert") fields = { state: "queued", queuedAt: now, prevState: a.state, request: "undo" };
+    else if (what === "cancel") fields = { state: ["open", "needs_ok"].includes(a.prevState) ? a.prevState : "open", queuedAt: null, request: null };
     else if (what === "note") { if (!note) { box && box.focus(); return; } fields = withNote({}); }
     else if (what === "snooze") fields = withNote({ state: "snoozed", snoozeUntil: localDay(new Date(Date.now() + days * DAY)), snoozedAt: now, wokeAt: null, prevState: a.state === "snoozed" ? "open" : a.state });
     else if (what === "wake") fields = { state: "open", snoozeUntil: null, wokeAt: null };
@@ -642,12 +673,21 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   });
 
   // ---------- rendering ----------
+  function bubble(who, label, text, extra) {
+    return h("p", { class: "bubble " + who }, h("span", { class: "who" }, label), text, extra);
+  }
   function claudeLines(a, label) {
     const out = [];
     const links = linkEls(a.links);
     if (a.claude || links.length) out.push(h("p", { class: "note" }, h("span", { class: "who" }, label), a.claude || "", links.length ? " " : "", links));
-    if (a.reply) out.push(h("p", { class: "note" }, h("span", { class: "who" }, "Claude replied"), a.reply));
-    if (noteUnread(a)) out.push(h("p", { class: "note mine" }, h("span", { class: "who" }, "Your note"), a.note, " (Claude reads it on its next check)"));
+    // Your note and Claude's reply as a short chat: yours on the right, Claude's on the left, oldest first.
+    // Only the latest of each is kept, so a note Claude hasn't read yet comes after its last reply.
+    const mine = a.note && (noteUnread(a) || a.reply)
+      ? bubble("me", "You" + (a.noteAt ? ", " + fmtDay(a.noteAt) : ""), a.note,
+               noteUnread(a) ? h("span", { class: "pending" }, " (Claude reads it on its next check)") : null)
+      : null;
+    const theirs = a.reply ? bubble("claude", "Claude", a.reply) : null;
+    if (mine || theirs) out.push(h("div", { class: "thread" }, noteUnread(a) ? [theirs, mine] : [mine, theirs]));
     return out;
   }
   function metaRow(a, withCall) {
@@ -717,12 +757,19 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     return h("li", { class: "item did", "data-id": a.id, "data-prio": prio(a) },
       h("div", { class: "body" },
         head(a, "What Claude did", withCall),
-        h("div", { class: "row" }, btns([["thanks", "Thanks Claude!", "primary"], ["change-open", "Change something"], ["drop", "Drop", "danger"]])),
+        h("div", { class: "row" }, btns([["thanks", "Thanks Claude!", "primary"], ["change-open", "Change something"],
+          ["feedback-open", "Give feedback"], ["drop", "Drop", "danger"]])),
         h("details", { class: "more change", id: "more-" + a.id },
           h("summary", null, "Change something"),
-          h("label", { class: "label", for: "note-" + a.id }, "What should Claude do differently?"),
+          h("label", { class: "label", for: "note-" + a.id }, "What should Claude change about it?"),
           h("textarea", { id: "note-" + a.id, rows: "2", maxlength: "1000", placeholder: "e.g. make it 30 minutes, or put it on the Tuesday instead" }),
-          h("div", { class: "row" }, btns([["change", "Ask Claude to change it", "primary"]])))),
+          h("div", { class: "row" }, btns([["change", "Ask Claude to change it", "primary"]]))),
+        // Feedback changes nothing here: it's a lesson for next time, filed like the "Tell Claude" box.
+        h("details", { class: "more change", id: "fbbox-" + a.id },
+          h("summary", null, "Give feedback"),
+          h("label", { class: "label", for: "fbnote-" + a.id }, "What should Claude do differently next time? This one stays as it is."),
+          h("textarea", { id: "fbnote-" + a.id, rows: "2", maxlength: "2000", placeholder: "e.g. for 1:1 reminders, put them on the morning of the 1:1" }),
+          h("div", { class: "row" }, btns([["feedback", "Send feedback", "primary"]])))),
       prioSelect(a));
   }
 
@@ -760,9 +807,11 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       h("div", { class: "body" },
         h("div", { class: "text" }, a.text),
         h("div", { class: "meta" },
-          h("span", { class: "chip claude" }, working ? "Claude is working on it" : "Queued: Claude picks it up on its next check"),
+          a.request === "undo"
+            ? h("span", { class: "chip claude" }, working ? "Claude is undoing it" : "Undo queued: Claude reverses it on its next check")
+            : h("span", { class: "chip claude" }, working ? "Claude is working on it" : "Queued: Claude picks it up on its next check"),
           a.callTitle ? h("span", { class: "chip" }, a.callTitle) : null),
-        a.note ? h("p", { class: "note mine" }, h("span", { class: "who" }, "Your note"), a.note) : null,
+        a.note ? h("div", { class: "thread" }, bubble("me", "Your note", a.note)) : null,
         working ? null : h("div", { class: "row" }, h("button", { class: "btn small", type: "button", "data-act": "cancel" }, "Cancel"))));
   }
 
@@ -801,10 +850,10 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
 
   function capture() {
     const values = {};
-    document.querySelectorAll("#app textarea[id^='note-'], #app [id^='edit-']").forEach((t) => { if (t.value) values[t.id] = t.value; });
+    document.querySelectorAll("#app textarea[id^='note-'], #app textarea[id^='fbnote-'], #app [id^='edit-']").forEach((t) => { if (t.value) values[t.id] = t.value; });
     const open = [...document.querySelectorAll("details.more[open]")].map((d) => d.id);
     const f = document.activeElement;
-    const focus = f && f.id && (f.id.startsWith("note-") || f.id.startsWith("prio-") || f.id.startsWith("edit-")) ? { id: f.id, s: f.selectionStart, e: f.selectionEnd } : null;
+    const focus = f && f.id && (f.id.startsWith("note-") || f.id.startsWith("fbnote-") || f.id.startsWith("prio-") || f.id.startsWith("edit-")) ? { id: f.id, s: f.selectionStart, e: f.selectionEnd } : null;
     return { values, open, focus };
   }
   function restore(k) {
@@ -878,7 +927,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
         h("span", { class: "t" }, a.text),
         a.note && a.noteAt === a.doneAt ? h("span", { class: "why" }, a.note) : null),
       h("span", { class: "row" },
-        h("span", { class: "when" }, (a.state === "dropped" ? (isFollowup(a) ? "dismissed " : "dropped ") : a.approved ? "approved " : "done ") + fmtDay(a.doneAt)),
+        h("span", { class: "when" }, (a.undone ? "undone " : a.state === "dropped" ? (isFollowup(a) ? "dismissed " : "dropped ") : a.approved ? "approved " : "done ") + fmtDay(a.doneAt)),
         h("button", { class: "btn small", type: "button", "data-act": "undo" }, "Undo")))));
 
     const calls = S.calls.filter((c) => c.addedAt).slice(0, 12);
@@ -893,10 +942,10 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
           S.prevSeen && c.addedAt && c.addedAt > S.prevSeen ? h("span", { class: "chip new" }, "New") : null));
     }));
 
-    $("list-fb").replaceChildren(...S.feedback.map((f) => h("li", null,
-      h("p", { class: "note mine" }, h("span", { class: "who" }, "You, " + fmtDay(f.createdAt)), f.text),
-      f.reply ? h("p", { class: "note" }, h("span", { class: "who" }, "Claude"), f.reply)
-              : h("p", { class: "note mine" }, "Claude reads this on its next check."))));
+    $("list-fb").replaceChildren(...S.feedback.map((f) => h("li", { class: "thread" },
+      bubble("me", "You, " + fmtDay(f.createdAt) + (f.itemText ? ", on “" + f.itemText + "”" : ""), f.text),
+      f.reply ? bubble("claude", "Claude", f.reply)
+              : h("p", { class: "pending-line" }, "Claude reads this on its next check."))));
 
     restore(kept);
   }

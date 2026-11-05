@@ -113,11 +113,14 @@ Tell them the task only runs while the Claude desktop app is open; if the app wa
 
 Offer to do a first run now, here in this session, so they can watch it and approve each tool once: follow SKILL.md. With follow-ups on, run the follow-up check now (and set `meta/followups.lastRun`), so the page starts with something useful on it. With calls on, offer to include their most recent call as an example (set "Start from" to just before it).
 
+Then save the same choices to the page, so its settings gear (top right) opens with them: ArtifactData `set` on the tracker URL, collection `meta`, doc_id `settings`, with `covers`, `summaryLength` ("detailed"), `tidiedTranscript` ("always"), `spelling` ("british" unless they asked for American), `coWritten`, `followupChannels`, `followupDay` (0 = Monday) and `followupHour`, `agendaPoints`, `calendarHolds`, `editDocs`, `oneOnOneDocs` (`[{"name", "url"}]` from their 1:1 docs), `asana`, `digest` and `startFrom`, plus `updatedAt`.
+
 ## 9. Tell them how to use it
 
 In a few lines:
 - The tracker link (pinned, if they said yes). On the page they can tick items off, set priorities, snooze, drop or dismiss with a reason, add their own items, give Claude the go-ahead on a plan, ask Claude to do something, and leave notes. The "Tell Claude" box changes how it works from then on.
 - It never sends anything: Claude drafts, and they do the sending.
+- The gear at the top right of the page holds their settings: what it covers, summary length and spelling, the follow-up day, agenda points, calendar holds, doc edits, their 1:1 docs, Asana, the Monday digest and the start date. Claude reads them at the start of every check.
 - "Check my calls" in Claude Code runs it now. To pause it: Scheduled in the Claude app's sidebar → Call actions → switch it off.
 - To change how it works, they can just ask, in Claude Code or in the page's "Tell Claude" box. To update later, they paste the same setup line again: their settings, their own rules and their tracker are kept.
 - If they keep a list of their automations (the toolkit's automations-page package), add this task to it.

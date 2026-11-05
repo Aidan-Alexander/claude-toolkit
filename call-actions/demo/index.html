@@ -79,7 +79,28 @@ button, input, textarea, select { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* header */
-.top { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.top { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+/* the settings gear, top right, and its panel */
+.gear { position: absolute; top: 0; right: 0; width: 40px; height: 40px; display: grid; place-content: center; padding: 0; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; box-shadow: var(--shadow-sm); }
+.gear:hover, .gear[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
+.gear svg { width: 19px; height: 19px; }
+.settings { display: flex; flex-direction: column; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 18px 18px; box-shadow: var(--shadow); }
+.settings-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.settings .hint { margin: 0; font-size: 0.84rem; color: var(--muted); }
+#settings-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 14px; }
+.set-group { margin: 0; min-width: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+.set-group legend { padding: 0 6px; margin-left: -6px; font: 600 0.68rem/1.4 var(--font-mono); letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+.set-label { margin: 4px 0 -2px; font-size: 0.82rem; color: var(--muted); }
+.choices { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.choice { display: inline-flex; align-items: flex-start; gap: 8px; font-size: 0.92rem; cursor: pointer; }
+.choice.wide { display: flex; }
+.choice input { accent-color: var(--accent); margin: 3px 0 0; width: 16px; height: 16px; flex: none; }
+.choice .hint { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 1px; }
+.set-inline { display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.set-inline select, .set-inline input, .doc-row input { font: 500 0.82rem/1.2 var(--font-body); padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); }
+.docs { display: flex; flex-direction: column; gap: 6px; }
+.doc-row { display: grid; grid-template-columns: minmax(0, 7rem) minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.doc-row input { min-width: 0; border-radius: 10px; }
 .eyebrow { display: inline-flex; align-items: center; gap: 9px; padding: 6px 12px 6px 9px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font: 600 0.72rem/1 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
 .eyebrow::before { content: ""; flex: none; width: 12px; height: 12px; border-radius: 4px; background: conic-gradient(from 200deg, var(--mint), var(--sky), var(--coral), var(--sun), var(--mint)); }
 .eyebrow:empty { display: none; }
@@ -324,12 +345,19 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   nothing is saved or sent, and Claude's side is faked. <a href="../">How it works and how to set it up</a></p>
 
   <header class="top">
+    <button class="gear" id="gear" type="button" data-set="toggle" aria-expanded="false" aria-controls="settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="visually-hidden">Settings</span></button>
     <div class="eyebrow" id="today"></div>
     <h1>Call actions</h1>
     <div class="checked" id="checked" role="status" hidden></div>
     <p class="lede">What you took on in your calls, your Asana tasks, threads still waiting on a reply, what Claude has done about them, and anything you add yourself. Claude checks your calls and this page every hour on weekdays, 9–6, and looks for emails and Slack messages still waiting on a reply every Thursday.</p>
     <div class="stats" id="stats"></div>
   </header>
+
+  <section class="settings" id="settings" hidden aria-label="Settings">
+    <div class="settings-head"><h2>Settings</h2><p class="hint">Claude reads these at the start of every check.</p></div>
+    <div id="settings-body"></div>
+    <div class="row"><button class="btn primary" type="button" data-set="save">Save</button><button class="btn" type="button" data-set="cancel">Cancel</button></div>
+  </section>
 
   <form class="add" id="add-form" autocomplete="off">
     <div class="add-row">
@@ -406,7 +434,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   "use strict";
   const DAY = 86400000;
   const $ = (id) => document.getElementById(id);
-  const S = { actions: new Map(), calls: [], feedback: [], got: new Set(), prevSeen: null, run: null, editing: null, filter: null };
+  const S = { actions: new Map(), calls: [], feedback: [], got: new Set(), prevSeen: null, run: null, editing: null, filter: null, settings: null };
   let db = null;
 
   // ---------- small helpers ----------
@@ -1052,6 +1080,107 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   }
   setInterval(renderChecked, 60000);
 
+  // ---------- settings (the gear at the top right) ----------
+  // Choices Claude reads at the start of every check, saved in meta/settings. Setup asks only what has no
+  // sensible default; everything else lives here, with the defaults below already on.
+  const SETTING_DEFAULTS = {
+    covers: "both", summaryLength: "detailed", tidiedTranscript: "always", spelling: "british", coWritten: true,
+    followupChannels: ["email", "slack"], followupDay: 3, followupHour: 14,
+    agendaPoints: true, calendarHolds: true, editDocs: false, oneOnOneDocs: [],
+    asana: false, digest: true, startFrom: null,
+  };
+  const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  function settingsNow() { return Object.assign({}, SETTING_DEFAULTS, S.settings || {}); }
+  function radios(name, value, options) {
+    return h("div", { class: "choices", role: "radiogroup" }, options.map(([v, label]) =>
+      h("label", { class: "choice" }, h("input", { type: "radio", name: "set-" + name, value: v, checked: v === value }), label)));
+  }
+  function check(id, on, label, hint) {
+    return h("label", { class: "choice wide" }, h("input", { type: "checkbox", id: "set-" + id, checked: !!on }),
+      h("span", null, label, hint ? h("span", { class: "hint" }, hint) : null));
+  }
+  function docRow(d) {
+    return h("div", { class: "doc-row" },
+      h("input", { type: "text", class: "doc-name", placeholder: "Name", value: d.name || "", "aria-label": "Their name" }),
+      h("input", { type: "url", class: "doc-url", placeholder: "Link to your 1:1 doc", value: d.url || "", "aria-label": "Link to the 1:1 doc" }),
+      h("button", { class: "btn small", type: "button", "data-set": "remove-doc", "aria-label": "Remove" }, "Remove"));
+  }
+  function group(title, ...kids) { return h("fieldset", { class: "set-group" }, h("legend", null, title), kids); }
+  function buildSettings() {
+    const s = settingsNow();
+    const docs = (Array.isArray(s.oneOnOneDocs) ? s.oneOnOneDocs : []);
+    $("settings-body").replaceChildren(
+      group("What Claude covers", radios("covers", s.covers, [["both", "Calls and follow-ups"], ["calls", "Calls only"], ["followups", "Follow-ups only"]])),
+      group("Call summaries",
+        h("p", { class: "set-label" }, "Length"), radios("summaryLength", s.summaryLength, [["detailed", "Detailed"], ["onepage", "One page"]]),
+        h("p", { class: "set-label" }, "Tidied transcript at the bottom"), radios("tidiedTranscript", s.tidiedTranscript, [["always", "Always"], ["asked", "Only when I ask"]]),
+        h("p", { class: "set-label" }, "Spelling"), radios("spelling", s.spelling, [["british", "British"], ["american", "American"]])),
+      group("Emails Claude drafts", check("coWritten", s.coWritten, "End with an italic \"Co-written with Claude\"")),
+      group("Follow-up check",
+        h("div", { class: "choices" },
+          check("fuEmail", (s.followupChannels || []).includes("email"), "Emails"),
+          check("fuSlack", (s.followupChannels || []).includes("slack"), "Slack messages")),
+        h("div", { class: "row" },
+          h("label", { class: "set-inline", for: "set-fuDay" }, "Every",
+            h("select", { id: "set-fuDay" }, DAYS.map((d, i) => h("option", { value: String(i), selected: i === Number(s.followupDay) }, d)))),
+          h("label", { class: "set-inline", for: "set-fuHour" }, "from",
+            h("select", { id: "set-fuHour" }, [9, 10, 11, 12, 13, 14, 15, 16, 17].map((hr) =>
+              h("option", { value: String(hr), selected: hr === Number(s.followupHour) }, String(hr).padStart(2, "0") + ":00")))))),
+      group("What Claude may do",
+        check("agendaPoints", s.agendaPoints, "Add agenda points to my 1:1 docs", "\"I'll raise that with Nina\" becomes a line on your side of the next meeting's agenda."),
+        check("calendarHolds", s.calendarHolds, "Add holds to my calendar when I ask", "Never with guests, only in free time."),
+        check("editDocs", s.editDocs, "Change my existing Google Docs when I ask", "Never other people's text, comments or sharing.")),
+      group("My 1:1 docs",
+        h("div", { id: "set-docs", class: "docs" }, docs.map(docRow)),
+        h("div", { class: "row" }, h("button", { class: "btn small", type: "button", "data-set": "add-doc" }, "Add a 1:1 doc"))),
+      group("Asana",
+        check("asana", s.asana, "Show my Asana tasks here",
+          "Useful if you rarely open Asana. Ticking a task here completes it in Asana. Dropping one removes it from this page for good, without completing it in Asana. Editing one here doesn't change it in Asana.")),
+      group("Reminders", check("digest", s.digest, "Monday digest: a Slack message to yourself on Monday morning, listing what's open")),
+      group("Start from",
+        h("label", { class: "set-inline", for: "set-startFrom" }, "Calls from",
+          h("input", { type: "date", id: "set-startFrom", value: s.startFrom || "" })),
+        h("p", { class: "hint" }, "Earlier calls are left alone. Claude looks back a week at most.")));
+  }
+  function readSettings() {
+    const pick = (name) => (document.querySelector("input[name='set-" + name + "']:checked") || {}).value;
+    const on = (id) => !!($("set-" + id) || {}).checked;
+    const docs = [...document.querySelectorAll("#set-docs .doc-row")].map((r) => ({
+      name: r.querySelector(".doc-name").value.trim(), url: r.querySelector(".doc-url").value.trim() }))
+      .filter((d) => d.name && safeUrl(d.url));
+    return {
+      covers: pick("covers"), summaryLength: pick("summaryLength"), tidiedTranscript: pick("tidiedTranscript"), spelling: pick("spelling"),
+      coWritten: on("coWritten"),
+      followupChannels: [on("fuEmail") ? "email" : null, on("fuSlack") ? "slack" : null].filter(Boolean),
+      followupDay: Number($("set-fuDay").value), followupHour: Number($("set-fuHour").value),
+      agendaPoints: on("agendaPoints"), calendarHolds: on("calendarHolds"), editDocs: on("editDocs"), oneOnOneDocs: docs,
+      asana: on("asana"), digest: on("digest"), startFrom: $("set-startFrom").value || null,
+    };
+  }
+  function openSettings(open) {
+    $("settings").hidden = !open;
+    $("gear").setAttribute("aria-expanded", String(open));
+    if (open) { buildSettings(); $("settings").scrollIntoView({ block: "start" }); }
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-set]");
+    if (!b) return;
+    const what = b.getAttribute("data-set");
+    if (what === "toggle") openSettings($("settings").hidden);
+    else if (what === "cancel") openSettings(false);
+    else if (what === "add-doc") { $("set-docs").append(docRow({})); $("set-docs").lastChild.querySelector("input").focus(); }
+    else if (what === "remove-doc") b.closest(".doc-row").remove();
+    else if (what === "save") {
+      if (!db) { notice("Open this page in claude.ai, signed in, to change settings."); return; }
+      if (!S.got.has("meta")) { notice("Still loading your settings. Try again in a moment."); return; }
+      const values = Object.assign(readSettings(), { updatedAt: new Date().toISOString() });
+      touch();
+      db.doc("meta/settings").set(values)
+        .then(() => { openSettings(false); notice("Saved. Claude uses your new settings from its next check."); })
+        .catch(saveFailed);
+    }
+  });
+
   // ---------- start ----------
   function stop(message) {
     $("add-form").hidden = true;
@@ -1105,6 +1234,9 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     db.collection("meta").onSnapshot((snap) => {
       const run = snap.docs.find((d) => d.id === "run");
       S.run = run ? run.data() : null;
+      const settings = snap.docs.find((d) => d.id === "settings");
+      S.settings = settings ? settings.data() : null;
+      S.got.add("meta");
       renderChecked();
     }, failed);
   }

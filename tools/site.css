@@ -46,8 +46,8 @@ img { max-width: 100%; height: auto; }
 .trail .home:hover { color: var(--accent); }
 .trail .sep { color: var(--faint); font-weight: 500; }
 .trail .brand { white-space: nowrap; }
-.bar nav { display: flex; gap: 22px; font-size: 0.95rem; font-weight: 500; }
-.bar nav a { color: var(--muted); text-decoration: none; }
+.bar nav { display: flex; align-items: center; gap: 22px; font-size: 0.95rem; font-weight: 500; line-height: 1.25; }
+.bar nav a { color: var(--muted); text-decoration: none; text-align: center; }
 .bar nav a:hover { color: var(--accent); }
 
 /* home: the intro sits on a soft colour wash */

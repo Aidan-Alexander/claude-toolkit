@@ -16,7 +16,7 @@ Each run does these things, in this order:
 4. Once a week, finds emails and Slack messages still waiting on a reply (ones the user sent that never got one, and ones sent to them that they haven't answered), and adds the ones worth acting on as follow-ups.
 5. About once an hour, keeps the user's Asana tasks and the tracker in step.
 
-Skip steps 2 and 3 if settings.md turns calls off, step 4 if it turns follow-ups off, and step 5 if it leaves Asana out.
+Skip steps 2 and 3 if settings.md turns calls off, step 4 if it turns follow-ups off, and step 5 if it leaves Asana out. Runs take turns (Step 0).
 
 **When this runs on a schedule, nobody is watching.** Never ask a question: make a sensible call and say what you assumed in what you write. Take only the write actions this file allows (see "Hard limits").
 
@@ -53,7 +53,11 @@ The page reads and writes these collections. Write times as UTC ISO strings with
 
 **`feedback`**: messages from the page's "Tell Claude" box, and from the "Give feedback" button on something Claude did (those add `itemId` and `itemText`), with `text` and `createdAt`, plus Claude's `reply` and `repliedAt`. Together they're the user's standing preferences.
 
-**`meta`**: `meta/activity` (`lastActiveAt`, which the page writes), `meta/followups` (`lastRun`: the date of the last follow-up check), `meta/asana` (`lastSync`: the time of the last Asana sync), `meta/schedule` (`cron`: the schedule the task was last set to) and `meta/run`, which the page shows at the top: `lastRunAt` (when the run finished), `callsCheckedAt` (when it last listed Granola's calls successfully), `waiting` (`[{"title", "why"}]`: calls that weren't in yet, with "still going", "transcript not ready yet" or "summarised, actions still to come") and `checkError` (why the latest listing failed, or null).
+**`meta`**: `meta/activity` (`lastActiveAt`, which the page writes), `meta/followups` (`lastRun`: the date of the last follow-up check), `meta/asana` (`lastSync`: the time of the last Asana sync), `meta/schedule` (`cron`: the schedule the task was last set to), `meta/lock` (`startedAt`: the run that's going now, so runs take turns) and `meta/run`, which the page shows at the top: `lastRunAt` (when the run finished), `callsCheckedAt` (when it last listed Granola's calls successfully), `waiting` (`[{"title", "why"}]`: calls that weren't in yet, with "still going", "transcript not ready yet" or "summarised, actions still to come") and `checkError` (why the latest listing failed, or null).
+
+## Step 0: one run at a time
+
+A scheduled run can start while an earlier one is still going, so runs take turns with `meta/lock`. `get` it. If it exists and its `startedAt` is less than 45 minutes ago, another run is going: stop here, and end with "Another run is still going". Otherwise take it: `set` `meta/lock` with `startedAt` (now), pinned with its `if_version` (or with none, if it didn't exist). If that write is refused, another run took it first: stop the same way. Keep this run's `startedAt` for step 2, and the version your `set` returned for Finish.
 
 ## Step 1: what the user asked for on the tracker
 
@@ -87,7 +91,7 @@ Make these reads together:
 
 1. Granola `search_meetings` with no keywords, `from_date` set to 7 days ago, `include_shared: false` (only calls the user recorded themselves) and `limit: 100`; follow `next_cursor` if there is one. Keep the calls that started after "Start from" in settings.md, oldest first.
 2. Drop any call that already has a document in `calls` (`list` the collection once).
-   - Exception: a `working` call whose `startedAt` is more than 2 hours ago belongs to a run that stopped. Retry it (update `attempts` up by one and `startedAt` to now), unless it has had 3 attempts: then mark it `failed`, with a `title`, `date`, `error` and `addedAt` so it shows on the page, and move on.
+   - Exception: a `working` call whose `startedAt` is before this run's lock time was claimed by an earlier run, and that run has stopped (runs take turns, so it isn't still going). Take it over now, rather than leaving it to sit: if it has had 3 attempts, mark it `failed`, with a `title`, `date`, `error` and `addedAt` so it shows on the page, and move on; otherwise update `attempts` up by one and `startedAt` to now, and keep it for step 3. If its document already has a `summaryUrl`, the summary exists: step 3 reuses it.
 3. Check each remaining call is over. Call `get_meeting_transcript` with `max_chars: 1000` and `include_timestamps: true`:
    - No transcript: if the reason is `no_transcript` or `transcript_deleted`, `set` a `calls` document for it with `status: "skipped"` and the reason. Otherwise leave it for the next run.
    - Note `total_chars`. Under 2,000 characters is a false start: record it as `skipped`.
@@ -100,7 +104,9 @@ Take at most 4 calls per run, and leave the rest for the next one.
 
 If you have the Agent tool, launch one agent per claimed call, all in one message, in the background, and wait for them all to report back. Give each one this brief, filled in:
 
-> Summarise a call, then work out the user's actions from it. First read ~/.claude/skills/summarise-granola/SKILL.md and follow it in Unattended mode for Granola meeting <ID> ("<title>", <date>). Then read ~/.claude/skills/call-actions/SKILL.md and settings.md in the same folder, and follow its "Working out the actions" section and its hard limits, using the transcript and your summary. The tracker URL is <url>. Nobody is watching: never ask questions, and don't write to the tracker. Reply with only a JSON object, {"summaryUrl": "...", "items": [...]}, as that section describes.
+> Summarise a call, then work out the user's actions from it. First read ~/.claude/skills/summarise-granola/SKILL.md and follow it in Unattended mode for Granola meeting <ID> ("<title>", <date>). As soon as the summary doc exists, record its link on the tracker (<url>): `get` the `calls` document <ID> and `update` it with `summaryUrl`, pinned with its `if_version`. That's the only tracker write you make: if this run stops later, the next one picks the call up from there instead of summarising it again. Then read ~/.claude/skills/call-actions/SKILL.md and settings.md in the same folder, and follow its "Working out the actions" section and its hard limits, using the transcript and your summary. Nobody is watching: never ask questions. Reply with only a JSON object, {"summaryUrl": "...", "items": [...]}, as that section describes.
+
+For a call taken over from a stopped run whose `calls` document already has a `summaryUrl`, add to the brief: "The summary already exists at <summaryUrl>: don't write another. Read it with Google Drive `read_file_content` and use it. An earlier run may have made drafts for this call: check Gmail `list_drafts` (and Slack, if connected) before making new ones."
 
 Without the Agent tool, do the same yourself, one call at a time.
 
@@ -108,7 +114,7 @@ Then, for each call, write to the tracker with one ArtifactData `batch`:
 - `set` one `actions` document per item, with the fields under "The tracker's data". Map each item's `kind`: "drafted" (or the older "done") becomes `kind: "drafted"` with `state: "open"`; "did" becomes `kind: "did"` with `state: "open"`; "plan" becomes `kind: "plan"` with `state: "needs_ok"`; "yours" becomes `kind: "yours"` with `state: "open"`. An item with `alreadyDone: true` gets `state: "done"` and `doneAt`. Add `source: "call"`, the call fields, `createdAt` and `updatedAt`.
 - `update` the call's `calls` document, pinned with its `if_version`: `status: "done"`, `title`, `date`, `summaryUrl`, `actionCount`, `error: null` and `addedAt`.
 
-If the summary failed, put the call back for the next run (`status` stays `working`; the 2-hour rule retries it), or mark it `failed` after 3 attempts. If the summary worked but the actions step failed, still add the call, with `actionCount: 0` and the `error`, so the user can see it.
+If the summary failed, put the call back for the next run (`status` stays `working`, and the next run takes it over), or mark it `failed` after 3 attempts. If the summary worked but the actions step failed, still add the call, with `actionCount: 0` and the `error`, so the user can see it.
 
 ## Step 4: the weekly follow-up check
 
@@ -138,6 +144,8 @@ Some people have lots of calls with lots of small actions and only a few Asana t
 ## Finish
 
 Record the run on the tracker, so the page's top line says when Claude last checked for calls and which aren't in yet. Do this on every run, even when nothing happened: `get` `meta/run` for its version, then `set` it (pinned with that `if_version`, or without one if it doesn't exist yet) with `lastRunAt` (now), `callsCheckedAt` (when step 2 listed the calls, or the old value if the listing failed), `waiting` (each call step 2 left for a later run because it was still going or its transcript wasn't ready, plus any call whose actions step failed and will be retried) and `checkError` (the listing's error, or null).
+
+Then let the next run in: `delete` `meta/lock`, pinned with the version your Step 0 `set` returned. Do this even if something failed along the way.
 
 Then end with a short report: one line per call (its title, then the summary link and number of actions, or the error), one line per tracker request handled, how many snoozed items came back, the follow-up check's count if it ran, and the Asana sync's count if it ran. If nothing happened, say "Nothing new".
 

@@ -137,7 +137,13 @@ h1 { margin: 0; font: 790 clamp(2.4rem, 1.7rem + 2.6vw, 3.4rem)/1 var(--font-dis
 .checked { align-self: stretch; }
 .checked .main { grid-column: 2; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; color: var(--ink); overflow-wrap: anywhere; }
 .checked .main b { font-weight: 600; }
-.checked .ago { font: 500 0.78rem/1 var(--font-mono); color: var(--faint); margin-left: auto; white-space: nowrap; }
+.checked .ago { font: 500 0.78rem/1 var(--font-mono); color: var(--faint); white-space: nowrap; }
+.checked .right { margin-left: auto; display: inline-flex; align-items: center; gap: 10px; }
+/* check now: opens the scheduled check in the Claude app, where Run now is one click */
+.run-now { display: inline-grid; place-content: center; width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); text-decoration: none; font-size: 17px; line-height: 1; box-shadow: var(--shadow-sm); }
+.run-now:hover, .run-now:focus-visible { color: var(--accent); border-color: var(--accent); }
+.run-now span { display: inline-block; transition: transform 300ms ease; }
+.run-now:hover span { transform: rotate(180deg); }
 .checked .sub { grid-column: 2; font-size: 0.86rem; overflow-wrap: anywhere; }
 .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 .stat { display: inline-flex; align-items: center; gap: 8px; font: 500 0.78rem/1 var(--font-mono); padding: 8px 13px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); font-variant-numeric: tabular-nums; }
@@ -1129,6 +1135,8 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     const firstName = String((S.settings && S.settings.name) || "").trim();
     $("title").textContent = firstName ? firstName + "'s call actions" : "Call actions";
   }
+  // The scheduled check's page in the Claude app (Scheduled → this task), where Run now starts a check.
+  const RUN_LINK = "claude://claude.ai/epitaxy/scheduled/call-actions";
   function renderChecked() {
     const box = $("checked");
     const r = S.run;
@@ -1150,7 +1158,10 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     box.className = "checked" + (failed ? " failed" : stale ? " stale" : "");
     box.replaceChildren(
       h("span", { class: "main" }, checked ? h("b", null, "Calls last checked " + clock(checked)) : h("b", null, "No calls checked yet"),
-        checked ? h("span", { class: "ago" }, ago(checked)) : null),
+        h("span", { class: "right" }, checked ? h("span", { class: "ago" }, ago(checked)) : null,
+          h("a", { class: "run-now", href: RUN_LINK, target: "_blank", rel: "noopener",
+            title: "Check now: opens this check in the Claude app, where you click Run now", "aria-label": "Check now (opens the Claude app)" },
+            h("span", { "aria-hidden": "true" }, "↻")))),
       h("span", { class: "sub" }, sub,
         (failed || stale) && waiting.length ? " Not in yet: " + waiting.map((w) => w.title).join(" · ") + "." : ""));
     box.hidden = false;

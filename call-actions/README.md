@@ -104,6 +104,8 @@ Claude checks your connectors, installs the skills, and makes your private track
 - 2026-11-05: Setup now pins the tracker page to your claude.ai sidebar, instead of offering to. Updating pins it too, if it isn't already.
 - 2026-11-06: A shorter setup screen: only what matters on day one, with recommended defaults pre-selected. Writing style, summaries, the follow-up day and your name are under the settings gear, which shows during setup so you know where to find it; the start date is only on the setup screen. Working hours fold away under "Choose working hours".
 - 2026-11-06: New choices under the gear: which Claude model does the work, and its effort (how much it thinks before each step). Opus is the most careful; Sonnet and lower effort use less of your Claude allowance.
+- 2026-11-06: A ↻ button by "Calls last checked" opens your scheduled check in the Claude app, where "Run now" starts one straight away.
+- 2026-11-06: Checks take turns, and a call that a stopped check left half-done is taken over at the next one instead of after 2 hours. Each summary's link is saved the moment the doc exists, so a taken-over call isn't summarised twice.
 - 2026-11-06: The weekly check also finds messages sent to you that you haven't answered (after three days), not just yours that never got a reply. They show as "waiting on you".
 - 2026-11-06: "What Claude does with your actions" has three options: Claude does things for you and you can undo them (as before), asks before doing anything (every agenda point, calendar block and doc edit becomes a plan to approve), or just lists them.
 - 2026-11-06: The Monday digest is gone: the page itself is the list. When agenda points, calendar holds or doc edits are off, Claude now suggests them for you to do instead.

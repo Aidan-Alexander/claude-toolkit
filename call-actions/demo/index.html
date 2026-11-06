@@ -733,7 +733,8 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   const FILTERS = {
     drafted: { name: "drafts waiting for you to check and send", test: (a) => a.kind === "drafted" },
     did: { name: "things Claude did, to review or undo", test: (a) => a.kind === "did" },
-    p0: { name: "P0", test: (a) => prio(a) === "P0" },
+    // One high-priority flag: P0, or due by tomorrow (overdue included), whatever priority it has.
+    urgent: { name: "urgent (P0, or due by tomorrow)", test: (a) => prio(a) === "P0" || dueSoon(a) },
     overdue: { name: "overdue", test: (a) => !!a.due && a.due < localDay(new Date()) },
   };
   // The other tallies take you to their section (and open Snoozed).
@@ -972,7 +973,6 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     // summary
     const today = localDay(new Date());
     const overdue = todo.filter((a) => a.due && a.due < today).length;
-    const p0 = todo.concat(ok).filter((a) => prio(a) === "P0").length;
     // The tallies. The ones that pick out to-dos are buttons that filter the list to them (click again for all).
     const counts = Object.fromEntries(Object.entries(FILTERS).map(([k, f]) => [k, todo.filter(f.test).length]));
     if (S.filter && !counts[S.filter]) S.filter = null;
@@ -985,7 +985,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
         todo.length + " to do"),
       filterStat("drafted", "drafted", counts.drafted + (counts.drafted === 1 ? " draft" : " drafts") + " waiting for you"),
       filterStat("did", "did", counts.did + " done by Claude"),
-      filterStat("p0", "p0", counts.p0 + " P0"),
+      filterStat("urgent", "p0", counts.urgent + " urgent"),
       ok.length ? h("button", { class: "stat warn", type: "button", "data-jump": "sec-ok", title: "Go to them" },
         ok.length + " need" + (ok.length === 1 ? "s" : "") + " your OK") : null,
       turn.length ? h("button", { class: "stat claude", type: "button", "data-jump": "sec-claude", title: "Go to them" }, turn.length + " with Claude") : null,

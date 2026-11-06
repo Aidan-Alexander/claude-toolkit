@@ -136,7 +136,10 @@
   // When Claude last checked for calls, as each run records it, with one call not in yet.
   const run = { lastRunAt: ago(4 * 60000), callsCheckedAt: ago(4 * 60000), checkError: null,
     waiting: [{ title: "Team stand-up", why: "still going" }] };
-  const store = { actions, calls, feedback, meta: { activity: { lastActiveAt: ago(20 * HOUR) }, run, settings: { name: "Aidan" } } };
+  // Add ?setup to the address to see the setup screen a new page opens on, or ?settings to open the gear.
+  if (/[?&]settings\b/.test(location.search)) addEventListener("load", () => setTimeout(() => document.getElementById("gear").click(), 400));
+  const settings = /[?&]setup\b/.test(location.search) ? { name: "Aidan", setupDone: false } : { name: "Aidan" };
+  const store = { actions, calls, feedback, meta: { activity: { lastActiveAt: ago(20 * HOUR) }, run, settings } };
   const listeners = [];
 
   function snapshot(coll, opts) {

@@ -82,9 +82,10 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .top { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
 /* the settings gear, top right, and its panel */
 .gear { position: absolute; top: 0; right: 0; width: 40px; height: 40px; display: grid; place-content: center; padding: 0; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; box-shadow: var(--shadow-sm); }
-.gear:hover, .gear[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
+.gear:not(:disabled):hover, .gear[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
 .gear span[aria-hidden] { font-size: 20px; line-height: 1; transition: transform 300ms ease; }
-.gear:hover span[aria-hidden], .gear[aria-expanded="true"] span[aria-hidden] { transform: rotate(60deg); }
+.gear:not(:disabled):hover span[aria-hidden], .gear[aria-expanded="true"] span[aria-hidden] { transform: rotate(60deg); }
+.gear:disabled { cursor: default; }  /* during setup it's there to point at, not to press */
 .settings { display: flex; flex-direction: column; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 18px 18px; box-shadow: var(--shadow); }
 .settings-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
 .settings .hint { margin: 0; font-size: 0.84rem; color: var(--muted); }
@@ -99,12 +100,18 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .choice.off { color: var(--muted); cursor: default; }
 .set-inline.wide { display: flex; }
 .set-inline.wide input { flex: 1; min-width: 0; }
+.settings .hint.fine { font-size: 0.76rem; }
+.hours summary { cursor: pointer; font-size: 0.92rem; color: var(--accent); }
+.hours[open] summary { margin-bottom: 8px; }
+.hours > .row { margin-top: 8px; }
+.hours-now { color: var(--muted); margin-left: 0.4em; }
+.set-group.dim .choice { opacity: 0.5; }
 .welcome { display: flex; flex-direction: column; gap: 10px; background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: var(--radius); padding: 16px 18px; }
 .welcome h2 { color: var(--accent); }
 .welcome-next { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--accent-line); font-weight: 600; }
 .welcome ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
 .setup-mode #add-form, .setup-mode #notice:empty, .setup-mode #sec-ok, .setup-mode #sec-claude, .setup-mode #sec-todo, .setup-mode #sec-calls,
-.setup-mode details.done, .setup-mode #sec-fb, .setup-mode .foot, .setup-mode #stats, .setup-mode #checked, .setup-mode .lede, .setup-mode .gear { display: none !important; }
+.setup-mode details.done, .setup-mode #sec-fb, .setup-mode .foot, .setup-mode #stats, .setup-mode #checked, .setup-mode .lede { display: none !important; }
 .setup-mode #settings-title { font: 720 1.45rem/1.2 var(--font-display); letter-spacing: -0.01em; text-transform: none; color: var(--ink); }
 .setup-mode .settings-head { flex-direction: column; align-items: flex-start; }
 .setup-mode .settings-head .hint { font-size: 0.95rem; }
@@ -816,7 +823,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       a.kind === "drafted" ? h("span", { class: "chip claude" }, "Claude drafted") : null,
       a.kind === "did" ? h("span", { class: "chip claude" }, "Claude did it") : null,
       woke(a) ? h("span", { class: "chip soon" }, "Back from snooze") : null,
-      isFollowup(a) ? h("span", { class: "chip" }, (a.channel === "slack" ? "Slack" : "Email") + " · no reply since " + fmtDay(a.sentAt)) : null,
+      isFollowup(a) ? h("span", { class: "chip" }, (a.channel === "slack" ? "Slack" : "Email") + (a.direction === "received" ? " · waiting on you since " : " · no reply since ") + fmtDay(a.sentAt)) : null,
       isAsana(a) ? asanaChip(a) : null,
       withCall && a.callTitle ? callChip(a) : null,
       a.who ? h("span", { class: "chip" }, a.who) : null,
@@ -1152,16 +1159,17 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
 
   // ---------- settings (the gear at the top right), and the setup screen ----------
   // Choices Claude reads at the start of every check, saved in meta/settings. At setup, Claude publishes this
-  // page with { name, setupDone: false }, and the same panel opens as the setup screen, with the choices below
-  // (Aidan's) already picked. Options whose connector is missing (meta/connectors) are greyed out.
+  // page with { name, setupDone: false }, and the same panel opens as the setup screen, with the recommended
+  // defaults below already picked. Setup shows the choices that matter on day one, plus the start date (only
+  // ever set there); the rest wait behind the gear, and saving setup stores the defaults for them. Options
+  // whose connector is missing (meta/connectors) are greyed out.
   const SETTING_DEFAULTS = {
-    name: "", covers: "both", cadence: "hourly", days: [0, 1, 2, 3, 4], hoursFrom: 9, hoursUntil: 19,
+    name: "", covers: "both", cadence: "hourly", days: [0, 1, 2, 3, 4], hoursFrom: 9, hoursUntil: 19, model: "app", effort: "app",
     mode: "draft", signoff: "none", coWritten: true,
     summaryLength: "detailed", tidiedTranscript: "always", spelling: "british",
-    followupChannels: ["email", "slack"], followupDay: 3, followupHour: 14, followupDrafts: true,
-    followupSkip: "freelancers (they often wrap up on a separate thread)",
+    followupChannels: ["email", "slack"], followupDay: 3, followupHour: 14, followupDrafts: true, followupSkip: "",
     agendaPoints: true, calendarHolds: true, editDocs: true, oneOnOneDocs: [],
-    asana: true, asanaComplete: true, digest: true, startFrom: null,
+    asana: true, asanaComplete: true, startFrom: null,
   };
   const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const HOUR = (hr) => String(hr % 24).padStart(2, "0") + ":00";
@@ -1185,10 +1193,28 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     for (let hr = from; hr <= to; hr++) opts.push(h("option", { value: String(hr), selected: hr === Number(value) }, HOUR(hr)));
     return h("select", { id: "set-" + id }, opts);
   }
+  // "Mon–Fri, 09:00–19:00": the working hours, for the line that opens them.
+  function hoursText(days, from, until) {
+    const picked = [...new Set(days)].sort((a, b) => a - b);
+    const short = (i) => DAYS[i].slice(0, 3);
+    const runs = [];
+    for (const d of picked) {
+      const last = runs[runs.length - 1];
+      if (last && d === last[1] + 1) last[1] = d; else runs.push([d, d]);
+    }
+    const dayText = runs.map(([a, b]) => a === b ? short(a) : b === a + 1 ? short(a) + ", " + short(b) : short(a) + "–" + short(b)).join(", ");
+    return (dayText || "No days") + ", " + HOUR(from) + "–" + HOUR(until);
+  }
+  function showHours() {
+    const now = $("hours-now");
+    if (!now) return;
+    now.textContent = "· " + hoursText([...document.querySelectorAll(".set-day:checked")].map((x) => Number(x.value)),
+      Number($("set-hoursFrom").value), Number($("set-hoursUntil").value));
+  }
   function docRow(d) {
     return h("div", { class: "doc-row" },
       h("input", { type: "text", class: "doc-name", placeholder: "Who you meet with", value: d.name || "", "aria-label": "The person you have 1:1s with",
-        title: "The person you have 1:1s with. When you say in a call you'll raise something with them, Claude adds it to this doc." }),
+        title: "The person you have 1:1s with. When you have an action to discuss something with them, Claude adds it to this doc." }),
       h("input", { type: "url", class: "doc-url", placeholder: "Link to your 1:1 doc", value: d.url || "", "aria-label": "Link to the 1:1 doc" }),
       h("button", { class: "btn small", type: "button", "data-set": "remove-doc", "aria-label": "Remove" }, "Remove"));
   }
@@ -1196,93 +1222,137 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   function buildSettings() {
     const s = settingsNow();
     const setup = inSetup();
+    // Setup and the gear share most choices. Some only matter later, so setup stays short; and the start
+    // date only matters once, so the gear never shows it.
+    const later = (part) => setup ? null : part;
+    const setupOnly = (part) => setup ? part : null;
+    // A section that only matters for calls, or only for the follow-up check: hidden when "What Claude covers" leaves it out.
+    const only = (kind, part) => { if (part) part.dataset.for = kind; return part; };
     let docs = Array.isArray(s.oneOnOneDocs) ? s.oneOnOneDocs : [];
     if (setup && !docs.length) docs = [{}, {}];  // at setup, room to paste a couple straight away
     $("settings-title").textContent = setup ? "Set up your call actions" : "Settings";
     $("settings-hint").textContent = setup
-      ? "Aidan's choices are already picked. Change anything you like, then save. You can change all of it later with the gear at the top right."
+      ? "Recommended defaults are pre-selected. You can edit settings later using the gear at the top right."
       : "Claude reads these at the start of every check.";
     $("settings-save").textContent = setup ? "Save and finish setup" : "Save";
     $("settings-cancel").hidden = setup;
-    $("settings-body").replaceChildren(
-      group("What Claude covers", radios("covers", s.covers, [["both", "Calls and follow-ups", "Actions from your calls, and a weekly check for emails and Slack messages that never got a reply."], ["calls", "Calls only"], ["followups", "Follow-ups only"]])),
-      group("How often Claude checks",
+    $("settings-body").replaceChildren(...[
+      group("What Claude covers", radios("covers", s.covers, [["both", "Calls and follow-ups", "Actions from your calls, and a weekly check for emails and Slack messages still waiting on a reply, from you or from others."], ["calls", "Calls only"], ["followups", "Follow-ups only"]])),
+      only("calls", group("How often Claude checks",
         radios("cadence", s.cadence, [
           ["hourly", "Every hour (recommended for Claude Pro)"],
-          ["10min", "Every 10 minutes", "Burns through your Claude allowance faster. Aidan has Claude Max and uses this."],
+          ["10min", "Every 10 minutes (recommended for Claude Max)"],
           ["twice", "Twice a day", "Around midday and at the end of your day."]]),
-        h("p", { class: "set-label" }, "On these days"),
-        h("div", { class: "choices" }, DAYS.map((d, i) => h("label", { class: "choice" },
-          h("input", { type: "checkbox", class: "set-day", value: String(i), checked: (s.days || []).includes(i) }), d.slice(0, 3)))),
-        h("div", { class: "row" },
-          h("label", { class: "set-inline", for: "set-hoursFrom" }, "Between", hourSelect("hoursFrom", s.hoursFrom, 0, 23)),
-          h("label", { class: "set-inline", for: "set-hoursUntil" }, "and", hourSelect("hoursUntil", s.hoursUntil, 1, 24))),
-        h("p", { class: "hint" }, "It only runs while the Claude app is open on your computer.")),
+        h("details", { class: "hours" },
+          h("summary", null, "Choose working hours", h("span", { id: "hours-now", class: "hours-now" }, "· " + hoursText(s.days || [], s.hoursFrom, s.hoursUntil))),
+          h("div", { class: "choices" }, DAYS.map((d, i) => h("label", { class: "choice" },
+            h("input", { type: "checkbox", class: "set-day", value: String(i), checked: (s.days || []).includes(i) }), d.slice(0, 3)))),
+          h("div", { class: "row" },
+            h("label", { class: "set-inline", for: "set-hoursFrom" }, "Between", hourSelect("hoursFrom", s.hoursFrom, 0, 23)),
+            h("label", { class: "set-inline", for: "set-hoursUntil" }, "and", hourSelect("hoursUntil", s.hoursUntil, 1, 24)))),
+        h("p", { class: "hint" }, "It only runs while the Claude app is open on your computer."))),
+      later(group("Claude model and effort",
+        h("p", { class: "set-label" }, "Model"),
+        radios("model", s.model, [
+          ["app", "Same as my Claude app"],
+          ["opus", "Opus (recommended for Claude Max)", "The most careful. Uses your Claude allowance fastest."],
+          ["sonnet", "Sonnet (recommended for Claude Pro)", "Nearly as good, at about half the usage."]]),
+        h("p", { class: "set-label" }, "Effort: how much Claude thinks before each step"),
+        radios("effort", s.effort, [
+          ["app", "Same as my Claude app"],
+          ["low", "Low", "Uses the least, and is likelier to miss an action."],
+          ["medium", "Medium (recommended)"],
+          ["high", "High", "More thorough, and uses more."]]))),
       group("What Claude does with your actions",
-        radios("mode", s.mode, [["draft", "Drafts emails, Slack messages and short docs, and asks before bigger jobs", "It never sends anything: you do the sending."], ["list", "Only lists them"]])),
-      group("Writing",
+        radios("mode", s.mode, [
+          ["draft", "Does things for you, and you can undo them", "Drafts emails and Slack messages, and when it's sure, makes the changes you allow straight away. Each one shows on this page with an Undo button. Bigger jobs come as plans for you to approve."],
+          ["ask", "Asks before doing anything", "Drafts emails and Slack messages, and turns everything else into a plan for you to approve. Nothing in your docs or calendar changes until you say yes."],
+          ["list", "Just lists them", "No drafts or plans."]]),
+        h("p", { class: "hint fine" }, "Claude never sends anything for you: you need to review and click send.")),
+      h("fieldset", { class: "set-group" + (s.mode === "list" ? " dim" : ""), id: "may-do" }, h("legend", null, "What Claude may change"),
+        check("agendaPoints", s.agendaPoints, "Add agenda points to my 1:1 docs", "\"I'll raise that with Nina\" becomes a line on your side of the next meeting's agenda.", NEEDS("docs", "Google Docs")),
+        check("calendarHolds", s.calendarHolds, "Block time in my calendar when I ask", "Never with guests, only in free time.", NEEDS("calendar", "Google Calendar")),
+        check("editDocs", s.editDocs, "Change my existing Google Docs when I ask", "Never other people's text, comments or sharing.", NEEDS("docs", "Google Docs")),
+        h("p", { class: "hint" }, "Untick one and Claude never makes that change: it suggests it for you to make yourself.")),
+      only("calls", group("My 1:1 docs",
+        h("p", { class: "hint" }, "Each person you have 1:1s with, and your shared doc with them. When you have an action to discuss something with one of them, this is how Claude knows which doc to add it to." +
+          (setup ? " You can finish adding these later in Settings." : "")),
+        h("div", { id: "set-docs", class: "docs" }, docs.map(docRow)),
+        h("div", { class: "row" }, h("button", { class: "btn small", type: "button", "data-set": "add-doc" }, "Add a 1:1 doc")))),
+      only("followups", group("Checking for messages waiting on a reply",
+        h("div", { class: "choices" },
+          check("fuEmail", (s.followupChannels || []).includes("email"), "Emails"),
+          check("fuSlack", (s.followupChannels || []).includes("slack"), "Slack messages", null, NEEDS("slack", "Slack"))),
+        later(h("div", { class: "row" },
+          h("label", { class: "set-inline", for: "set-fuDay" }, "Every",
+            h("select", { id: "set-fuDay" }, DAYS.map((d, i) => h("option", { value: String(i), selected: i === Number(s.followupDay) }, d)))),
+          h("label", { class: "set-inline", for: "set-fuHour" }, "at", hourSelect("fuHour", s.followupHour, 6, 21)))),
+        check("followupDrafts", s.followupDrafts, "Draft follow-up and reply emails where Claude can"),
+        later(h("label", { class: "set-inline wide", for: "set-followupSkip" }, "Leave out",
+          h("input", { type: "text", id: "set-followupSkip", value: s.followupSkip || "", placeholder: "e.g. freelancers" }))))),
+      group("Asana",
+        check("asana", s.asana, "Include my Asana tasks here",
+          "Useful if you rarely open Asana and don't have too many tasks. Dropping one removes it from this page for good, without completing it in Asana. Editing one here doesn't change it in Asana.", NEEDS("asana", "Asana")),
+        later(check("asanaComplete", s.asanaComplete, "When I tick one off here, complete it in Asana too", null, NEEDS("asana", "Asana")))),
+      later(group("Writing",
         h("p", { class: "set-label" }, "Spelling, for summaries and everything Claude drafts"),
         radios("spelling", s.spelling, [["british", "British"], ["american", "American"]]),
         h("p", { class: "set-label" }, "Email drafts end with"),
         radios("signoff", s.signoff, [["none", "No sign-off or name (my email signature covers it)"], ["name", "My usual sign-off and name"]]),
-        check("coWritten", s.coWritten, "An italic \"Co-written with Claude\" at the bottom")),
-      group("Call summaries",
+        check("coWritten", s.coWritten, "An italic \"Co-written with Claude\" at the bottom"))),
+      later(only("calls", group("Call summaries",
         h("p", { class: "set-label" }, "Length"),
         radios("summaryLength", s.summaryLength, [["detailed", "Detailed", "The call's story in order, with the reasoning, quotes and open questions."], ["onepage", "One page", "Summary, decisions, actions and open questions."]]),
         h("p", { class: "set-label" }, "Tidied transcript at the bottom"),
-        radios("tidiedTranscript", s.tidiedTranscript, [["always", "Always"], ["asked", "Only when I ask"]])),
-      group("My 1:1 docs",
-        h("p", { class: "hint" }, "Each person you have 1:1s with, and your shared doc with them. When you say in a call you'll raise something with one of them, this is how Claude knows which doc to add it to. Each call's summary also gets a link in that doc."),
-        h("div", { id: "set-docs", class: "docs" }, docs.map(docRow)),
-        h("div", { class: "row" }, h("button", { class: "btn small", type: "button", "data-set": "add-doc" }, "Add a 1:1 doc"))),
-      group("What Claude may do",
-        check("agendaPoints", s.agendaPoints, "Add agenda points to my 1:1 docs", "\"I'll raise that with Nina\" becomes a line on your side of the next meeting's agenda.", NEEDS("docs", "Google Docs")),
-        check("calendarHolds", s.calendarHolds, "Add holds to my calendar when I ask", "Never with guests, only in free time.", NEEDS("calendar", "Google Calendar")),
-        check("editDocs", s.editDocs, "Change my existing Google Docs when I ask", "Never other people's text, comments or sharing.", NEEDS("docs", "Google Docs"))),
-      group("Follow-up check",
-        h("div", { class: "choices" },
-          check("fuEmail", (s.followupChannels || []).includes("email"), "Emails"),
-          check("fuSlack", (s.followupChannels || []).includes("slack"), "Slack messages", null, NEEDS("slack", "Slack"))),
-        h("div", { class: "row" },
-          h("label", { class: "set-inline", for: "set-fuDay" }, "Every",
-            h("select", { id: "set-fuDay" }, DAYS.map((d, i) => h("option", { value: String(i), selected: i === Number(s.followupDay) }, d)))),
-          h("label", { class: "set-inline", for: "set-fuHour" }, "at", hourSelect("fuHour", s.followupHour, 6, 21))),
-        check("followupDrafts", s.followupDrafts, "Draft a short follow-up email for each"),
-        h("label", { class: "set-inline wide", for: "set-followupSkip" }, "Leave out",
-          h("input", { type: "text", id: "set-followupSkip", value: s.followupSkip || "", placeholder: "e.g. freelancers" }))),
-      group("Asana",
-        check("asana", s.asana, "Show my Asana tasks here",
-          "Useful if you rarely open Asana and don't have too many tasks. Dropping one removes it from this page for good, without completing it in Asana. Editing one here doesn't change it in Asana.", NEEDS("asana", "Asana")),
-        check("asanaComplete", s.asanaComplete, "When I tick one off here, complete it in Asana too", null, NEEDS("asana", "Asana"))),
-      group("Reminders", check("digest", s.digest, "Monday digest: a Slack message to yourself on Monday morning, listing what's open", null, NEEDS("slack", "Slack"))),
-      group("You",
+        radios("tidiedTranscript", s.tidiedTranscript, [["always", "Always"], ["asked", "Only when I ask"]])))),
+      later(group("You",
         h("label", { class: "set-inline", for: "set-name" }, "First name",
           h("input", { type: "text", id: "set-name", maxlength: "40", value: s.name || "", placeholder: "e.g. Nina" })),
-        h("p", { class: "hint" }, "The page's title: \"Nina's call actions\".")),
-      group("Start from",
+        h("p", { class: "hint" }, "The page's title: \"Nina's call actions\"."))),
+      setupOnly(only("calls", group("Start from",
         h("label", { class: "set-inline", for: "set-startFrom" }, "Calls from",
           h("input", { type: "date", id: "set-startFrom", value: s.startFrom || localDay(new Date()) })),
-        h("p", { class: "hint" }, "Earlier calls are left alone. Claude looks back a week at most.")));
+        h("p", { class: "hint" }, "Earlier calls are left alone. Claude looks back a week at most.")))),
+    ].filter(Boolean));
+    showFor(s.covers);
   }
+  // Follow-ups only runs once a week, at its own day and time, so how often and the call choices drop out.
+  function showFor(covers) {
+    for (const part of document.querySelectorAll("#settings-body [data-for]")) part.hidden = covers !== "both" && part.dataset.for !== covers;
+  }
+  // What the panel shows. A choice that isn't on screen (setup keeps some behind the gear) is left out,
+  // so saving keeps its current or default value.
   function readSettings() {
-    const pick = (name) => (document.querySelector("input[name='set-" + name + "']:checked") || {}).value;
-    const on = (id) => { const el = $("set-" + id); return !!(el && el.checked && !el.disabled); };
-    const docs = [...document.querySelectorAll("#set-docs .doc-row")].map((r) => ({
-      name: r.querySelector(".doc-name").value.trim(), url: r.querySelector(".doc-url").value.trim() }))
-      .filter((d) => d.name && safeUrl(d.url));
-    return {
-      name: ($("set-name").value || "").trim(), covers: pick("covers"),
-      cadence: pick("cadence"), days: [...document.querySelectorAll(".set-day:checked")].map((x) => Number(x.value)),
-      hoursFrom: Number($("set-hoursFrom").value), hoursUntil: Number($("set-hoursUntil").value),
+    const el = (id) => $("set-" + id);
+    const pick = (name) => { const x = document.querySelector("input[name='set-" + name + "']:checked"); return x ? x.value : undefined; };
+    const on = (id) => el(id) ? !!(el(id).checked && !el(id).disabled) : undefined;
+    const num = (id) => el(id) ? Number(el(id).value) : undefined;
+    const text = (id) => el(id) ? (el(id).value || "").trim() : undefined;
+    const dayBoxes = [...document.querySelectorAll(".set-day")];
+    const docRows = $("set-docs") ? [...$("set-docs").querySelectorAll(".doc-row")] : null;
+    const values = {
+      name: text("name"), covers: pick("covers"), cadence: pick("cadence"), model: pick("model"), effort: pick("effort"),
+      days: dayBoxes.length ? dayBoxes.filter((x) => x.checked).map((x) => Number(x.value)) : undefined,
+      hoursFrom: num("hoursFrom"), hoursUntil: num("hoursUntil"),
       mode: pick("mode"), signoff: pick("signoff"), coWritten: on("coWritten"),
       summaryLength: pick("summaryLength"), tidiedTranscript: pick("tidiedTranscript"), spelling: pick("spelling"),
-      followupChannels: [on("fuEmail") ? "email" : null, on("fuSlack") ? "slack" : null].filter(Boolean),
-      followupDay: Number($("set-fuDay").value), followupHour: Number($("set-fuHour").value),
-      followupDrafts: on("followupDrafts"), followupSkip: ($("set-followupSkip").value || "").trim(),
-      agendaPoints: on("agendaPoints"), calendarHolds: on("calendarHolds"), editDocs: on("editDocs"), oneOnOneDocs: docs,
-      asana: on("asana"), asanaComplete: on("asanaComplete"), digest: on("digest"), startFrom: $("set-startFrom").value || null,
+      followupChannels: el("fuEmail") ? [on("fuEmail") ? "email" : null, on("fuSlack") ? "slack" : null].filter(Boolean) : undefined,
+      followupDay: num("fuDay"), followupHour: num("fuHour"), followupDrafts: on("followupDrafts"), followupSkip: text("followupSkip"),
+      agendaPoints: on("agendaPoints"), calendarHolds: on("calendarHolds"), editDocs: on("editDocs"),
+      oneOnOneDocs: docRows ? docRows.map((r) => ({ name: r.querySelector(".doc-name").value.trim(), url: r.querySelector(".doc-url").value.trim() }))
+        .filter((d) => d.name && safeUrl(d.url)) : undefined,
+      asana: on("asana"), asanaComplete: on("asanaComplete"), startFrom: el("startFrom") ? (el("startFrom").value || null) : undefined,
     };
+    for (const k of Object.keys(values)) if (values[k] === undefined) delete values[k];
+    return values;
   }
+  document.addEventListener("change", (e) => {
+    const t = e.target;
+    if (!t.closest || !t.closest("#settings")) return;
+    if (t.closest(".hours")) showHours();
+    if (t.name === "set-mode") $("may-do").classList.toggle("dim", t.value === "list");
+    if (t.name === "set-covers") showFor(t.value);
+  });
   function openSettings(open) {
     $("settings").hidden = !open;
     $("gear").setAttribute("aria-expanded", String(open));
@@ -1296,6 +1366,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   let setupShown = false;
   function renderSetup() {
     document.body.classList.toggle("setup-mode", inSetup());  // during setup, the setup screen is all there is
+    $("gear").disabled = inSetup();  // the gear shows where settings will live, but works only after setup
     if (inSetup() && !setupShown) { setupShown = true; openSettings(true); }
     renderWelcome();
   }
@@ -1315,10 +1386,12 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       if (!db) { notice("Open this page in claude.ai, signed in, to change settings."); return; }
       if (!S.got.has("meta")) { notice("Still loading your settings. Try again in a moment."); return; }
       const setup = inSetup();
-      const values = Object.assign({}, S.settings || {}, readSettings(), { updatedAt: new Date().toISOString() });
-      if (!values.days.length) { notice("Pick at least one day for Claude to check."); return; }
-      if (values.hoursUntil <= values.hoursFrom) { notice("The end of your checking hours needs to be after the start."); return; }
-      if (setup) Object.assign(values, { setupDone: true, setupAt: values.updatedAt });
+      // Every choice gets saved, including the ones setup keeps behind the gear (as their defaults).
+      const values = Object.assign({}, SETTING_DEFAULTS, S.settings || {}, readSettings(), { updatedAt: new Date().toISOString() });
+      const hoursProblem = !values.days.length ? "Pick at least one working day for Claude to check."
+        : values.hoursUntil <= values.hoursFrom ? "The end of your working hours needs to be after the start." : null;
+      if (hoursProblem) { document.querySelector("#settings .hours").open = true; notice(hoursProblem); return; }
+      if (setup) Object.assign(values, { setupDone: true, setupAt: values.updatedAt, startFrom: values.startFrom || localDay(new Date()) });
       touch();
       db.doc("meta/settings").set(values)
         .then(() => {

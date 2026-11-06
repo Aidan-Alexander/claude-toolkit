@@ -24,7 +24,7 @@ I keep it open all day. I have a lot of calls, and most end with a handful of sm
 4. Adds them to the tracker, linked to the call's summary.
 
 **Once a week** (Thursday afternoons, say):
-5. Finds emails and Slack messages you sent more than a week ago that never got a reply, checks they weren't settled somewhere else, and adds the ones worth chasing, with a short follow-up email drafted on the thread. If they reply later, the item ticks itself off.
+5. Finds emails and Slack messages you sent more than a week ago that never got a reply, and ones sent to you that you haven't answered after a few days. It checks they weren't settled somewhere else, and adds the ones worth acting on, with a short follow-up email drafted on the thread (or a reply, when the answer is clear). When the thread moves on, the item ticks itself off.
 
 **About once an hour, if you use Asana** (optional):
 6. Brings in your open Asana tasks, so the tracker is your one list. Tasks you finish in Asana tick themselves off here. If you choose, ticking one off here also completes it in Asana: the only thing it ever changes there.
@@ -37,22 +37,21 @@ I keep it open all day. I have a lot of calls, and most end with a handful of sm
 
 ## Choices on the setup screen
 
-Your page opens on a setup screen with my choices already picked. Change what you like, then save. Everything here is also in the settings gear at the top right of the page, so you can change it later.
+Your page opens on a short setup screen with recommended defaults pre-selected. The rest of the choices are under the settings gear at the top right of the page, where you can also change everything below later, apart from the start date. Choices that don't fit what you pick it to cover drop out: the follow-up check if you pick calls only, and how often it checks, your 1:1 docs, call summaries and the start date if you pick follow-ups only (that check runs once a week).
 
 | Choice | Options | What I use |
 |---|---|---|
 | What it covers | Calls and follow-ups, calls only, or follow-ups only (no Granola needed) | Both |
-| How often it checks for calls | Every hour (best for Claude Pro), every 10 minutes (uses your Claude allowance faster), or twice a day; on the days and between the hours you pick | Every 10 minutes, weekdays 09:00–19:00 (I have Claude Max) |
-| What Claude may do with actions | Draft emails, Slack messages and short docs, or only list the actions | Draft |
-| How email drafts end | Your usual sign-off and name, or nothing (your signature covers it); optionally "Co-written with Claude" | Nothing, plus "Co-written with Claude" |
-| Follow-up check | Which day and time; email only or email and Slack; draft follow-ups or not; who to leave out | Thursdays at 14:00, both, drafts on, freelancers left out |
-| Agenda points in 1:1 docs | "I'll raise that with Priya" becomes a line in your 1:1 doc with Priya, instead of a drafted message | On |
-| Calendar holds | When you ask for time to be blocked, Claude adds a hold to your own calendar, never with guests | On |
-| Editing your existing docs | When you ask on the tracker, Claude changes an existing Google Doc instead of only making new ones. Docs other people work in only after your go-ahead, and it never deletes their text, touches comments or changes sharing | On |
-| Monday digest | A Slack message to yourself on Monday morning listing what's open | I use a Slack bot that also nudges me when I haven't opened the page for a day; this is the simpler version |
-| Asana tasks | Leave them out, show them on the tracker, or show them and tick them off in Asana when you tick them here | Show them, and tick them off in Asana too |
-| Call summaries | Detailed or one page; a tidied transcript always or only when you ask; British or American spelling | Detailed, always, British |
+| How often it checks for calls | Every hour (recommended for Claude Pro), every 10 minutes (recommended for Claude Max), or twice a day, within the working hours you pick | Every 10 minutes, weekdays 09:00–19:00 (I have Claude Max) |
+| What Claude does with your actions | Does things for you and you can undo them; asks before doing anything (every change to your docs or calendar becomes a plan to approve); or just lists them. Either way it drafts, and never sends anything: you review and click send | Does things for me, and I undo the odd one |
+| What Claude may change | Add agenda points to your 1:1 docs ("I'll raise that with Priya" becomes a line in your 1:1 doc with Priya); block time in your calendar when you ask, never with guests; change your existing Google Docs when you ask, never other people's text, comments or sharing. Untick one and Claude never makes that change: it suggests it for you to make yourself | All three |
 | Your 1:1 docs | Each person you meet regularly and your shared doc with them, for agenda points and summary links | My direct reports' docs |
+| Checking for messages waiting on a reply | Email only, or email and Slack; draft follow-up and reply emails or not. Under the gear: which day and time, and who to leave out | Both, drafts on, Thursdays at 14:00, freelancers left out |
+| Asana tasks | Leave them out or include them. Under the gear: whether ticking one off here completes it in Asana too (on to start with) | Include them, and complete them in Asana too |
+| Claude model and effort (under the gear) | Model: same as your Claude app, Opus (recommended for Claude Max) or Sonnet (recommended for Claude Pro). Effort, how much it thinks before each step: same as your app, low, medium (recommended) or high | Opus, at my app's effort |
+| How email drafts end (under the gear) | Your usual sign-off and name, or nothing (your signature covers it); optionally "Co-written with Claude" | Nothing, plus "Co-written with Claude" |
+| Call summaries (under the gear) | Detailed or one page; a tidied transcript always or only when you ask; British or American spelling | Detailed, always, British |
+| Start from (setup only) | The first day whose calls Claude picks up; it looks back a week at most | The day I set it up |
 
 You can change any of these later in the settings gear, or anything else about how it works by asking Claude.
 
@@ -79,7 +78,7 @@ Claude checks your connectors, installs the skills, and makes your private track
 - **It never sends anything.** Emails become Gmail drafts and Slack messages become Slack drafts: you do the sending. It doesn't edit your existing files either, apart from the optional agenda points, calendar holds, doc changes you ask for, and ticking off Asana tasks.
 - **The page is private.** Only you can open it, and only you can ask Claude to do things through it.
 - **It runs while the Claude desktop app is open.** If your laptop was shut, it catches up when you next open the app.
-- **Usage:** each check is a short Claude session, and each call's summary and actions take more. Checking hourly is the lighter choice.
+- **Usage:** each check is a short Claude session, and each call's summary and actions take more. Checking hourly is the lighter choice, and so are Sonnet and a lower effort, under the settings gear.
 - **Accuracy:** it's built to under-claim. When it gets something wrong, drop the item with a reason, or say so in the "Tell Claude" box.
 - **No special setup:** no Python, no API keys, no Slack bots. Claude does all of the setting up.
 
@@ -103,3 +102,9 @@ Claude checks your connectors, installs the skills, and makes your private track
 - 2026-11-06: The page is titled with your first name ("Sam's call actions"), which you can change under the settings gear. "Needs your OK" is now "Plans to approve".
 - 2026-11-06: Setup happens on your page: it opens on a setup screen with every choice as a checkbox or radio button, my choices already picked. Your first name comes from Granola. The settings gear now also has how often and when Claude checks (days and hours), and changing them updates the schedule.
 - 2026-11-05: Setup now pins the tracker page to your claude.ai sidebar, instead of offering to. Updating pins it too, if it isn't already.
+- 2026-11-06: A shorter setup screen: only what matters on day one, with recommended defaults pre-selected. Writing style, summaries, the follow-up day and your name are under the settings gear, which shows during setup so you know where to find it; the start date is only on the setup screen. Working hours fold away under "Choose working hours".
+- 2026-11-06: New choices under the gear: which Claude model does the work, and its effort (how much it thinks before each step). Opus is the most careful; Sonnet and lower effort use less of your Claude allowance.
+- 2026-11-06: The weekly check also finds messages sent to you that you haven't answered (after three days), not just yours that never got a reply. They show as "waiting on you".
+- 2026-11-06: "What Claude does with your actions" has three options: Claude does things for you and you can undo them (as before), asks before doing anything (every agenda point, calendar block and doc edit becomes a plan to approve), or just lists them.
+- 2026-11-06: The Monday digest is gone: the page itself is the list. When agenda points, calendar holds or doc edits are off, Claude now suggests them for you to do instead.
+- 2026-11-06: Fixes from a test install: calls are listed with Granola's `search_meetings` (the connector no longer has `list_meetings`); setup falls back to Python when curl isn't allowed, takes your first name from your sent email, and records the schedule it sets; the follow-up check counts "7 days" by date, and searches Slack in smaller stretches (its search stops at about 180 results).

@@ -35,22 +35,26 @@ I keep it open all day. I have a lot of calls, and most end with a handful of sm
 - leave Claude a note on any item ("make the draft shorter");
 - tell Claude how to work in the "Tell Claude" box ("don't draft emails to my manager"). It applies that from then on, and learns from your reasons for dropping things.
 
-## Choices you'll be asked about at setup
+## Choices on the setup screen
+
+Your page opens on a setup screen with my choices already picked. Change what you like, then save. Everything here is also in the settings gear at the top right of the page, so you can change it later.
 
 | Choice | Options | What I use |
 |---|---|---|
 | What it covers | Calls and follow-ups, calls only, or follow-ups only (no Granola needed) | Both |
-| How often it checks for calls | Every hour, every 10 minutes, or twice a day, on weekdays | Every 10 minutes, 9–6 |
+| How often it checks for calls | Every hour (best for Claude Pro), every 10 minutes (uses your Claude allowance faster), or twice a day; on the days and between the hours you pick | Every 10 minutes, weekdays 09:00–19:00 (I have Claude Max) |
 | What Claude may do with actions | Draft emails, Slack messages and short docs, or only list the actions | Draft |
 | How email drafts end | Your usual sign-off and name, or nothing (your signature covers it); optionally "Co-written with Claude" | Nothing, plus "Co-written with Claude" |
-| Follow-up check | Which day and time; email only or email and Slack; draft follow-ups or not | Thursdays from 14:00, both, drafts on |
+| Follow-up check | Which day and time; email only or email and Slack; draft follow-ups or not; who to leave out | Thursdays at 14:00, both, drafts on, freelancers left out |
 | Agenda points in 1:1 docs | "I'll raise that with Priya" becomes a line in your 1:1 doc with Priya, instead of a drafted message | On |
 | Calendar holds | When you ask for time to be blocked, Claude adds a hold to your own calendar, never with guests | On |
 | Editing your existing docs | When you ask on the tracker, Claude changes an existing Google Doc instead of only making new ones. Docs other people work in only after your go-ahead, and it never deletes their text, touches comments or changes sharing | On |
 | Monday digest | A Slack message to yourself on Monday morning listing what's open | I use a Slack bot that also nudges me when I haven't opened the page for a day; this is the simpler version |
 | Asana tasks | Leave them out, show them on the tracker, or show them and tick them off in Asana when you tick them here | Show them, and tick them off in Asana too |
+| Call summaries | Detailed or one page; a tidied transcript always or only when you ask; British or American spelling | Detailed, always, British |
+| Your 1:1 docs | Each person you meet regularly and your shared doc with them, for agenda points and summary links | My direct reports' docs |
 
-You can change any of these later, or anything else about how it works, by asking Claude.
+You can change any of these later in the settings gear, or anything else about how it works by asking Claude.
 
 ## Set it up
 
@@ -62,7 +66,7 @@ You can change any of these later, or anything else about how it works, by askin
 Set up "call-actions" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/call-actions/SETUP.md exactly as written (e.g. with curl) and follow it.
 ```
 
-Claude asks you the questions above, makes your private tracker page and pins it to your claude.ai sidebar, sets up the Fancy call summaries skill if you need it, and schedules the checks. It then offers a first run, so your page starts with something on it.
+Claude checks your connectors, installs the skills, and makes your private tracker page, pinned to your claude.ai sidebar. The page opens on the setup screen above: pick your choices, paste your 1:1 doc links, click "Save and finish setup", and tell Claude "done". Claude then makes your summaries folder, schedules the checks, and offers a first run, so your page starts with something on it.
 
 ## Using it
 
@@ -97,4 +101,5 @@ Claude asks you the questions above, makes your private tracker page and pins it
 - 2026-11-05: A search box above your to-dos (press / to jump to it). It also narrows Snoozed and Done, and opens them when they have a match.
 - 2026-11-06: The P0 tally is now "urgent": anything that's P0 or due by tomorrow (overdue included), whatever priority you gave it.
 - 2026-11-06: The page is titled with your first name ("Sam's call actions"), which you can change under the settings gear. "Needs your OK" is now "Plans to approve".
+- 2026-11-06: Setup happens on your page: it opens on a setup screen with every choice as a checkbox or radio button, my choices already picked. Your first name comes from Granola. The settings gear now also has how often and when Claude checks (days and hours), and changing them updates the schedule.
 - 2026-11-05: Setup now pins the tracker page to your claude.ai sidebar, instead of offering to. Updating pins it too, if it isn't already.

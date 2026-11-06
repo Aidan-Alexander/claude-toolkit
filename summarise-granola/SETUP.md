@@ -4,7 +4,7 @@ You're installing the `summarise-granola` skill for the person you're working wi
 
 ## 1. Check the connectors
 
-The skill needs the **Granola** and **Google Drive** connectors (and **Google Docs**, only for the optional 1:1 doc links). Look for their tools, using tool search if your tools are deferred: Granola's `list_meetings` and `get_meeting_transcript`, and Google Drive's `create_file`.
+The skill needs the **Granola** and **Google Drive** connectors (and **Google Docs**, only for the optional 1:1 doc links). Look for their tools, using tool search if your tools are deferred: Granola's `search_meetings` and `get_meeting_transcript`, and Google Drive's `create_file`.
 
 If Granola or Google Drive is missing, stop and tell them:
 > In Claude, open Settings → Connectors and connect Granola and Google Drive (sign in when asked). Then start a new session here and paste the setup line again: a session only sees connectors that were connected when it started.

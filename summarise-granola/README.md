@@ -80,5 +80,6 @@ This grew out of [HartreeWorks' summarise-call skill](https://github.com/Hartree
 
 ## Changes
 
+- 2026-11-06: Lists recent calls with Granola's `search_meetings`: the connector no longer has `list_meetings`.
 - 2026-11-04: Spells out that it summarises calls other people recorded: a Granola note they share with you, or a transcript you paste in.
 - 2026-11-03: First version in the toolkit: connectors only, with setup questions, and an optional automatic mode.

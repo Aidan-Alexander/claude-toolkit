@@ -21,8 +21,8 @@ Connector tools are often deferred: load them with tool search before calling th
 
 - If the user pasted a transcript into the chat, use that: see "A pasted transcript" below, and skip steps 1 and 2.
 - A Granola note someone else shared with the user isn't in their own recent list: find it by title or person with `search_meetings`, which includes shared notes.
-- If the user named a call (a person, a title or a day), find it with Granola's `search_meetings` or `list_meetings`. If several match, ask which.
-- Otherwise call `list_meetings` with `time_range: "last_7_days"` and `involvement: {"captured_by_me": true}`. If one started in the last 2 hours, take it. If not, show the 5 most recent as a numbered list (title, day and time) and ask which.
+- If the user named a call (a person, a title or a day), find it with Granola's `search_meetings` (keywords, `participant` or dates). If several match, ask which.
+- Otherwise call `search_meetings` with no keywords, `from_date` set to 7 days ago, `include_shared: false` (only calls the user recorded themselves) and `limit: 100`. If one started in the last 2 hours, take it. If not, show the 5 most recent as a numbered list (title, day and time) and ask which.
 
 ## 2. Get the whole transcript
 
@@ -109,7 +109,7 @@ Reply with the doc link, where it was saved, whether a 1:1 doc link was added, a
 Only when settings.md says "Automatic: on". The skill's scheduled task starts it with `automatic`, about once an hour on weekdays. Nobody is watching: never ask questions.
 
 1. Read `summarised.json` in this skill's folder (an empty list if it doesn't exist yet).
-2. Granola `list_meetings` with `time_range: "last_7_days"` and `involvement: {"captured_by_me": true}`. Keep the calls that started after "Automatic since" in settings.md and aren't in summarised.json, oldest first.
+2. Granola `search_meetings` with no keywords, `from_date` set to 7 days ago, `include_shared: false` (only calls the user recorded themselves) and `limit: 100`; follow `next_cursor` if there is one. Keep the calls that started after "Automatic since" in settings.md and aren't in summarised.json, oldest first.
 3. Check each one is over. Call `get_meeting_transcript` with `max_chars: 1000` and `include_timestamps: true`.
    - No transcript yet: leave it for the next run.
    - Under 2,000 characters (`total_chars`) is a false start: add it to summarised.json with `"doc": null` and move on.

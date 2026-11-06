@@ -19,7 +19,7 @@ I keep it open all day. I have a lot of calls, and most end with a handful of sm
 2. Picks out your actions: only the clear ones, where you said you'd do something or agreed to. Not what other people took on, and not "we should…". It leans towards leaving things out, because a false to-do costs you more than a miss.
 3. Decides, for each one, whether Claude's help would save you time:
    - **Drafted:** Claude did its part (say, drafted the email you promised) and you check it and send it.
-   - **Needs your OK:** a bigger job. Claude says what it would do and how long your review would take, and waits for your go-ahead.
+   - **Plans to approve:** a bigger job. Claude says what it would do and how long your review would take, and waits for your go-ahead.
    - **Yours:** it needs you: a decision, a conversation, feedback to someone. Claude adds a useful link if there is one.
 4. Adds them to the tracker, linked to the call's summary.
 
@@ -96,4 +96,5 @@ Claude asks you the questions above, makes your private tracker page and pins it
 - 2026-11-05: A settings gear at the top right of the page: change what it covers, summary length and spelling, the follow-up day, agenda points, calendar holds, doc edits, your 1:1 docs, Asana, the Monday digest and the start date, any time. Claude reads them at the start of every check.
 - 2026-11-05: A search box above your to-dos (press / to jump to it). It also narrows Snoozed and Done, and opens them when they have a match.
 - 2026-11-06: The P0 tally is now "urgent": anything that's P0 or due by tomorrow (overdue included), whatever priority you gave it.
+- 2026-11-06: The page is titled with your first name ("Sam's call actions"), which you can change under the settings gear. "Needs your OK" is now "Plans to approve".
 - 2026-11-05: Setup now pins the tracker page to your claude.ai sidebar, instead of offering to. Updating pins it too, if it isn't already.

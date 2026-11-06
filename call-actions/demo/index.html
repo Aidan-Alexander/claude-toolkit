@@ -355,7 +355,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   <header class="top">
     <button class="gear" id="gear" type="button" data-set="toggle" aria-expanded="false" aria-controls="settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="visually-hidden">Settings</span></button>
     <div class="eyebrow" id="today"></div>
-    <h1>Call actions</h1>
+    <h1 id="title">Call actions</h1>
     <div class="checked" id="checked" role="status" hidden></div>
     <p class="lede">What you took on in your calls, your Asana tasks, threads still waiting on a reply, what Claude has done about them, and anything you add yourself. Claude checks your calls and this page every hour on weekdays, 9–6, and looks for emails and Slack messages still waiting on a reply every Thursday.</p>
     <div class="stats" id="stats"></div>
@@ -386,7 +386,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   <p class="notice" id="notice" hidden></p>
 
   <section id="sec-ok" hidden>
-    <h2>Needs your OK <span class="n" id="n-ok"></span></h2>
+    <h2>Plans to approve <span class="n" id="n-ok"></span></h2>
     <ul class="list" id="list-ok"></ul>
   </section>
 
@@ -960,6 +960,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   function render() {
     const kept = capture();
     $("today").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+    renderTitle();
     const all = [...S.actions.values()];
     const byState = (st) => all.filter((a) => st.includes(a.state));
     const ok = byState(["needs_ok"]).sort((p, q) => prioRank(p) - prioRank(q) || (p.createdAt || "").localeCompare(q.createdAt || ""));
@@ -987,7 +988,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       filterStat("did", "did", counts.did + " done by Claude"),
       filterStat("urgent", "p0", counts.urgent + " urgent"),
       ok.length ? h("button", { class: "stat warn", type: "button", "data-jump": "sec-ok", title: "Go to them" },
-        ok.length + " need" + (ok.length === 1 ? "s" : "") + " your OK") : null,
+        ok.length + (ok.length === 1 ? " plan" : " plans") + " to approve") : null,
       turn.length ? h("button", { class: "stat claude", type: "button", "data-jump": "sec-claude", title: "Go to them" }, turn.length + " with Claude") : null,
       filterStat("overdue", "bad", counts.overdue + " overdue"),
       sleeping.length ? h("button", { class: "stat", type: "button", "data-jump": "sec-snoozed", title: "Go to them" }, sleeping.length + " snoozed") : null,
@@ -1088,6 +1089,11 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     const days = Math.floor(hours / 24);
     return days + (days === 1 ? " day ago" : " days ago");
   }
+  // The page's title, from the first name in settings: "Nina's call actions".
+  function renderTitle() {
+    const firstName = String((S.settings && S.settings.name) || "").trim();
+    $("title").textContent = firstName ? firstName + "'s call actions" : "Call actions";
+  }
   function renderChecked() {
     const box = $("checked");
     const r = S.run;
@@ -1118,7 +1124,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   // Choices Claude reads at the start of every check, saved in meta/settings. Setup asks only what has no
   // sensible default; everything else lives here, with the defaults below already on.
   const SETTING_DEFAULTS = {
-    covers: "both", summaryLength: "detailed", tidiedTranscript: "always", spelling: "british", coWritten: true,
+    name: "", covers: "both", summaryLength: "detailed", tidiedTranscript: "always", spelling: "british", coWritten: true,
     followupChannels: ["email", "slack"], followupDay: 3, followupHour: 14,
     agendaPoints: true, calendarHolds: true, editDocs: false, oneOnOneDocs: [],
     asana: false, digest: true, startFrom: null,
@@ -1144,6 +1150,10 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     const s = settingsNow();
     const docs = (Array.isArray(s.oneOnOneDocs) ? s.oneOnOneDocs : []);
     $("settings-body").replaceChildren(
+      group("You",
+        h("label", { class: "set-inline", for: "set-name" }, "First name",
+          h("input", { type: "text", id: "set-name", maxlength: "40", value: s.name || "", placeholder: "e.g. Nina" })),
+        h("p", { class: "hint" }, "The page's title: \"Nina's call actions\".")),
       group("What Claude covers", radios("covers", s.covers, [["both", "Calls and follow-ups"], ["calls", "Calls only"], ["followups", "Follow-ups only"]])),
       group("Call summaries",
         h("p", { class: "set-label" }, "Length"), radios("summaryLength", s.summaryLength, [["detailed", "Detailed"], ["onepage", "One page"]]),
@@ -1158,7 +1168,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
         h("div", { class: "row" },
           h("label", { class: "set-inline", for: "set-fuDay" }, "Every",
             h("select", { id: "set-fuDay" }, DAYS.map((d, i) => h("option", { value: String(i), selected: i === Number(s.followupDay) }, d)))),
-          h("label", { class: "set-inline", for: "set-fuHour" }, "from",
+          h("label", { class: "set-inline", for: "set-fuHour" }, "at",
             h("select", { id: "set-fuHour" }, [9, 10, 11, 12, 13, 14, 15, 16, 17].map((hr) =>
               h("option", { value: String(hr), selected: hr === Number(s.followupHour) }, String(hr).padStart(2, "0") + ":00")))))),
       group("What Claude may do",
@@ -1184,7 +1194,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       name: r.querySelector(".doc-name").value.trim(), url: r.querySelector(".doc-url").value.trim() }))
       .filter((d) => d.name && safeUrl(d.url));
     return {
-      covers: pick("covers"), summaryLength: pick("summaryLength"), tidiedTranscript: pick("tidiedTranscript"), spelling: pick("spelling"),
+      name: ($("set-name").value || "").trim(), covers: pick("covers"), summaryLength: pick("summaryLength"), tidiedTranscript: pick("tidiedTranscript"), spelling: pick("spelling"),
       coWritten: on("coWritten"),
       followupChannels: [on("fuEmail") ? "email" : null, on("fuSlack") ? "slack" : null].filter(Boolean),
       followupDay: Number($("set-fuDay").value), followupHour: Number($("set-fuHour").value),
@@ -1272,6 +1282,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
       const settings = snap.docs.find((d) => d.id === "settings");
       S.settings = settings ? settings.data() : null;
       S.got.add("meta");
+      renderTitle();
       renderChecked();
     }, failed);
   }

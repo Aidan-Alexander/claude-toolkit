@@ -136,7 +136,7 @@
   // When Claude last checked for calls, as each run records it, with one call not in yet.
   const run = { lastRunAt: ago(4 * 60000), callsCheckedAt: ago(4 * 60000), checkError: null,
     waiting: [{ title: "Team stand-up", why: "still going" }] };
-  const store = { actions, calls, feedback, meta: { activity: { lastActiveAt: ago(20 * HOUR) }, run } };
+  const store = { actions, calls, feedback, meta: { activity: { lastActiveAt: ago(20 * HOUR) }, run, settings: { name: "Aidan" } } };
   const listeners = [];
 
   function snapshot(coll, opts) {

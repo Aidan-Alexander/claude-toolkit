@@ -83,7 +83,8 @@ button, input, textarea, select { font: inherit; color: inherit; }
 /* the settings gear, top right, and its panel */
 .gear { position: absolute; top: 0; right: 0; width: 40px; height: 40px; display: grid; place-content: center; padding: 0; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; box-shadow: var(--shadow-sm); }
 .gear:hover, .gear[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
-.gear svg { width: 19px; height: 19px; }
+.gear span[aria-hidden] { font-size: 20px; line-height: 1; transition: transform 300ms ease; }
+.gear:hover span[aria-hidden], .gear[aria-expanded="true"] span[aria-hidden] { transform: rotate(60deg); }
 .settings { display: flex; flex-direction: column; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 18px 18px; box-shadow: var(--shadow); }
 .settings-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
 .settings .hint { margin: 0; font-size: 0.84rem; color: var(--muted); }
@@ -368,7 +369,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   nothing is saved or sent, and Claude's side is faked. <a href="../">How it works and how to set it up</a></p>
 
   <header class="top">
-    <button class="gear" id="gear" type="button" data-set="toggle" aria-expanded="false" aria-controls="settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="visually-hidden">Settings</span></button>
+    <button class="gear" id="gear" type="button" data-set="toggle" aria-expanded="false" aria-controls="settings" title="Settings"><span aria-hidden="true">⚙️</span><span class="visually-hidden">Settings</span></button>
     <div class="eyebrow" id="today"></div>
     <h1 id="title">Call actions</h1>
     <div class="checked" id="checked" role="status" hidden></div>

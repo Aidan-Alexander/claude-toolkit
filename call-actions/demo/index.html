@@ -99,7 +99,7 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .set-inline { display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
 .set-inline select, .set-inline input, .doc-row input { font: 500 0.82rem/1.2 var(--font-body); padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); }
 .docs { display: flex; flex-direction: column; gap: 6px; }
-.doc-row { display: grid; grid-template-columns: minmax(0, 7rem) minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.doc-row { display: grid; grid-template-columns: minmax(0, 10rem) minmax(0, 1fr) auto; gap: 6px; align-items: center; }
 .doc-row input { min-width: 0; border-radius: 10px; }
 .eyebrow { display: inline-flex; align-items: center; gap: 9px; padding: 6px 12px 6px 9px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font: 600 0.72rem/1 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
 .eyebrow::before { content: ""; flex: none; width: 12px; height: 12px; border-radius: 4px; background: conic-gradient(from 200deg, var(--mint), var(--sky), var(--coral), var(--sun), var(--mint)); }
@@ -330,6 +330,8 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 @media (max-width: 560px) {
+  .doc-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .doc-row .doc-url { grid-column: 1 / -1; grid-row: 2; }
   .calls li { grid-template-columns: 1fr; gap: 3px; }
   .add-opts { padding-left: 4px; }
   .item { padding: 14px 12px 12px; gap: 4px 12px; }
@@ -1141,7 +1143,8 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
   }
   function docRow(d) {
     return h("div", { class: "doc-row" },
-      h("input", { type: "text", class: "doc-name", placeholder: "Name", value: d.name || "", "aria-label": "Their name" }),
+      h("input", { type: "text", class: "doc-name", placeholder: "Who you meet with", value: d.name || "", "aria-label": "The person you have 1:1s with",
+        title: "The person you have 1:1s with. When you say in a call you'll raise something with them, Claude adds it to this doc." }),
       h("input", { type: "url", class: "doc-url", placeholder: "Link to your 1:1 doc", value: d.url || "", "aria-label": "Link to the 1:1 doc" }),
       h("button", { class: "btn small", type: "button", "data-set": "remove-doc", "aria-label": "Remove" }, "Remove"));
   }
@@ -1176,11 +1179,12 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
         check("calendarHolds", s.calendarHolds, "Add holds to my calendar when I ask", "Never with guests, only in free time."),
         check("editDocs", s.editDocs, "Change my existing Google Docs when I ask", "Never other people's text, comments or sharing.")),
       group("My 1:1 docs",
+        h("p", { class: "hint" }, "Each person you have 1:1s with, and your shared doc with them. When you say in a call you'll raise something with one of them, this is how Claude knows which doc to add it to."),
         h("div", { id: "set-docs", class: "docs" }, docs.map(docRow)),
         h("div", { class: "row" }, h("button", { class: "btn small", type: "button", "data-set": "add-doc" }, "Add a 1:1 doc"))),
       group("Asana",
         check("asana", s.asana, "Show my Asana tasks here",
-          "Useful if you rarely open Asana. Ticking a task here completes it in Asana. Dropping one removes it from this page for good, without completing it in Asana. Editing one here doesn't change it in Asana.")),
+          "Useful if you rarely open Asana and don't have too many tasks. Ticking a task here completes it in Asana. Dropping one removes it from this page for good, without completing it in Asana. Editing one here doesn't change it in Asana.")),
       group("Reminders", check("digest", s.digest, "Monday digest: a Slack message to yourself on Monday morning, listing what's open")),
       group("Start from",
         h("label", { class: "set-inline", for: "set-startFrom" }, "Calls from",

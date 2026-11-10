@@ -33,10 +33,9 @@ Copy the one-line setup instruction from the package's page and paste it into Cl
 
 If you're not in Auto mode, Claude asks your permission before running commands or using a connector for the first time. Read what it says it's about to do, and click Allow. If you're unsure, ask it to explain first.
 
-**If Claude can't install the plugin** (some organisations' settings stop it running the install command), install it yourself, then paste the setup line again:
-1. In the Code tab, type this into the message box and press Enter: `/plugin install aidan-toolkit --marketplace Aidan-Alexander/claude-toolkit`
-2. Confirm adding Aidan's marketplace, and choose **Install for you**.
-3. Start a new session.
+**If Claude can't install the plugin** (some organisations' settings stop it running the install command), add it yourself, then start a new session and paste the setup line again:
+- **AIM staff:** it's in AIM's plugin library. In the Claude app, open **Settings → Customize → Plugins**, search for "Aidan's Claude toolkit" and click **Add**.
+- **Everyone else:** if you have Claude Code in a terminal, run `claude plugin install aidan-toolkit --marketplace Aidan-Alexander/claude-toolkit` there. Otherwise, ask Claude to talk you through it.
 
 ## 5. Scheduled packages
 

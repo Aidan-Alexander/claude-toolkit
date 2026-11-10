@@ -2,8 +2,9 @@
 """Builds the toolkit's website, site/, from the write-ups in this repo.
 
 The website is a friendlier front end for the same files: a home page made from README.md, a page
-per package made from its README.md, the getting-started guide, the example summary, and the live
-demos. Markdown goes through GitHub's own renderer (via the gh command-line tool), so pages say
+per package made from its README.md, a page for each tool that lives in its own repo (MailSmüsh,
+Calendfree) made from that repo's README, the getting-started guide, the example summary, and the
+live demos. Markdown goes through GitHub's own renderer (via the gh command-line tool), so pages say
 exactly what the repo says. Run tools/publish.sh after changing a write-up or demo: it calls this,
 then deploys site/ to Netlify. site/ is a build output and isn't kept in git.
 
@@ -49,9 +50,9 @@ STOP_WORK_MOCK = """<div class="mock" role="img" aria-label="The stop-work warni
 </div>"""
 
 
-def render(md: str) -> str:
+def render(md: str, context: str = REPO) -> str:
     """Markdown to HTML with GitHub's renderer."""
-    out = subprocess.run(["gh", "api", "markdown", "-f", f"text={md}", "-f", "mode=gfm", "-f", f"context={REPO}"],
+    out = subprocess.run(["gh", "api", "markdown", "-f", f"text={md}", "-f", "mode=gfm", "-f", f"context={context}"],
                          capture_output=True, text=True, check=True)
     return out.stdout
 
@@ -90,19 +91,35 @@ def fix_url(url: str, src_dir: str) -> str:
     return target + (f"#{frag}" if frag else "")
 
 
+def fix_external_url(url: str, repo: str) -> str:
+    """A link in another repo's README: to this site, to that repo on GitHub (images straight from it), or as is."""
+    for prefix in (CANONICAL, NETLIFY + BASE, NETLIFY):
+        if url.startswith(prefix):
+            return BASE + (url[len(prefix):] or "/")
+    if re.match(r"^[a-z][a-z0-9+.-]*:", url) or url.startswith(("#", "//")):
+        return url
+    path, _, frag = url.partition("#")
+    resolved = posixpath.normpath(path.lstrip("/"))
+    if resolved.lower().endswith(IMAGES):
+        return f"https://raw.githubusercontent.com/{repo}/main/{resolved}"
+    return f"https://github.com/{repo}/blob/main/{resolved}" + (f"#{frag}" if frag else "")
+
+
 def copy_asset(rel: str) -> None:
     dest = OUT / rel
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / rel, dest)
 
 
-def tidy(fragment: str, src_dir: str) -> str:
-    """Tidy GitHub's HTML for the site: plain tables, bare images, ids on headings, fixed links."""
+def tidy(fragment: str, src_dir: str, repo: str | None = None) -> str:
+    """Tidy GitHub's HTML for the site: plain tables, bare images, ids on headings, fixed links.
+    `repo` is set for another repo's README, whose relative links point into that repo."""
+    fix = (lambda u: fix_external_url(u, repo)) if repo else (lambda u: fix_url(u, src_dir))
     fragment = fragment.replace("<markdown-accessiblity-table>", '<div class="table-wrap">').replace("</markdown-accessiblity-table>", "</div>")
     fragment = re.sub(r'<a target="_blank" rel="noopener noreferrer" href="[^"]*">(<img [^>]*>)</a>', r"\1", fragment)
     fragment = re.sub(r'<p(?: dir="auto")?>((?:\s*<img [^>]*>\s*){2,})</p>', r'<p class="img-row">\1</p>', fragment)
     fragment = re.sub(r'<(h[1-4])(?: [^>]*)?>(.*?)</\1>', lambda m: f'<{m.group(1)} id="{slug(m.group(2))}">{m.group(2)}</{m.group(1)}>', fragment)
-    fragment = re.sub(r'(href|src)="([^"]*)"', lambda m: f'{m.group(1)}="{html.escape(fix_url(html.unescape(m.group(2)), src_dir))}"', fragment)
+    fragment = re.sub(r'(href|src)="([^"]*)"', lambda m: f'{m.group(1)}="{html.escape(fix(html.unescape(m.group(2))))}"', fragment)
     fragment = re.sub(r'<a href="(https?://[^"]+)"', r'<a href="\1" target="_blank" rel="noopener"', fragment)
     fragment = re.sub(r'<pre class="notranslate"><code class="notranslate">(Set up &quot;)', r'<pre class="setup-line"><code>\1', fragment)
     return fragment
@@ -200,10 +217,10 @@ def build_home(readme: str) -> None:
     cards = []
     for row in package_rows(table):
         f = row["folder"]
-        external = f.startswith("http")  # a tool that lives in its own repo, like MailSmüsh
-        href = f if external else f"{BASE}/{f}/"
-        ext = ' target="_blank" rel="noopener"' if external else ""
-        thumb = THUMBS.get(f.rstrip("/").rsplit("/", 1)[-1] if external else f)
+        name = external_name(f) or f  # a tool that lives in its own repo, like MailSmüsh, has a page here too
+        href = f"{BASE}/{name}/"
+        ext = ""
+        thumb = THUMBS.get(name)
         if thumb:
             copy_asset(thumb)
             shot = f'<a class="pkg-shot" href="{href}"{ext} tabindex="-1" aria-hidden="true"><img src="{BASE}/{thumb}" alt="" loading="lazy"></a>'
@@ -278,6 +295,34 @@ def build_package(folder: str, setup_line: str, demo: str | None) -> None:
     write(f"{folder}/index.html", page(title, body, re.sub(r"[*_`\[\]]|\(.*?\)", "", first_para)))
 
 
+def external_name(folder: str) -> str | None:
+    """'https://github.com/Aidan-Alexander/mailsmush' gives 'mailsmush'; a folder in this repo gives None."""
+    m = re.match(r"https://github\.com/[^/]+/([^/]+)/?$", folder)
+    return m.group(1).lower() if m else None
+
+
+def build_external(url: str, name: str, setup_line: str, demo: str | None) -> None:
+    """A page for a tool that lives in its own repo, made from that repo's README (not GitHub's view of it)."""
+    repo = url.split("github.com/", 1)[1].strip("/")
+    md = subprocess.run(["gh", "api", "-H", "Accept: application/vnd.github.raw", f"repos/{repo}/readme"],
+                        capture_output=True, text=True, check=True).stdout
+    title = re.search(r"^# (.+)$", md, re.M).group(1)
+    body_md = "\n".join(l for l in md.splitlines() if not l.startswith("# "))
+    links = [f'<a href="{demo}">Try the demo</a>'] if demo else []
+    links.append(f'<a href="https://github.com/{repo}" target="_blank" rel="noopener">See the code on GitHub</a>')
+    body = f"""<nav class="crumb"><a href="{BASE}/">← All tools</a></nav>
+<header class="page-head">
+  <h1>{html.escape(title)}</h1>
+  {setup_box(setup_line)}
+  <p class="pkg-links">{" ".join(links)}</p>
+</header>
+<article class="prose">
+{tidy(render(body_md, repo), "", repo)}
+</article>"""
+    first_para = next((l for l in md.splitlines()[1:] if l and not l.startswith(("#", "**", "!", "|", "<"))), title)
+    write(f"{name}/index.html", page(title, body, re.sub(r"[*_`\[\]]|\(.*?\)", "", first_para)))
+
+
 def build_doc(src: str, dest: str, crumb_href: str, crumb_text: str) -> None:
     md = (ROOT / src).read_text(encoding="utf-8")
     title = re.search(r"^# (.+)$", md, re.M).group(1)
@@ -333,6 +378,9 @@ def main() -> None:
     rows = {r["folder"]: r for r in package_rows(sections[packaged_key(sections)])}
     for folder in PACKAGES:
         build_package(folder, rows[folder]["setup"], rows[folder]["demo"])
+    for folder, row in rows.items():
+        if external_name(folder):
+            build_external(folder, external_name(folder), row["setup"], row["demo"])
     build_doc("GETTING-STARTED.md", "getting-started/index.html", f"{BASE}/", "All tools")
     build_ask()
     build_doc("summarise-granola/example-summary.md", "summarise-granola/example/index.html", f"{BASE}/summarise-granola/", "Fancy call summaries")

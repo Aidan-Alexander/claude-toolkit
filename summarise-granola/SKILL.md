@@ -1,6 +1,6 @@
 ---
 name: summarise-granola
-description: Turns a Granola call, or a call transcript someone shares with you (a shared Granola note, or pasted in), into a detailed, chronological summary saved as a Google Doc. Use for "/summarise-granola", "summarise my call", "summarise my last call", "summarise my call with <name>", "summarise this transcript", "call summary" and similar requests.
+description: Turns a Granola call, or a call transcript someone shares with you (a shared Granola note, or pasted in), into a detailed, chronological summary saved as a Google Doc. Use for "/summarise-granola", "summarise my call", "summarise my last call", "summarise my call with Priya", "summarise this transcript", "call summary" and similar requests.
 ---
 
 # Summarise a Granola call

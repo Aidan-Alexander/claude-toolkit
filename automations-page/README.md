@@ -40,10 +40,10 @@ You can change any of these later by asking Claude ("add my Zapier zaps to my au
 2. Start a new session in Claude Code and paste this in:
 
 ```
-Set up "automations-page" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/automations-page/SETUP.md exactly as written (e.g. with curl) and follow it.
+Set up "automations-page" from Aidan's Claude toolkit. If the aidan-toolkit plugin isn't installed, install it from GitHub first (claude plugin install aidan-toolkit --marketplace Aidan-Alexander/claude-toolkit, using the Claude Code inside the Claude app if claude isn't on the PATH), then follow its automations-page/SETUP.md.
 ```
 
-Claude publishes your page, fills it in with what's already running, and asks you the questions above.
+Claude installs the toolkit plugin if you don't have it yet, publishes your page, fills it in with what's already running, and asks you the questions above.
 
 ## Using it
 
@@ -63,9 +63,10 @@ Open the page any time from your sidebar or its link. A check takes a minute or 
 - **No special setup:** no Python, no command-line tools, no API keys, no connectors. It works on Mac and Windows, wherever the Claude desktop app does.
 - **My version** also has a Refresh button on the page that checks jobs on my Mac and GitHub Actions directly. It needs Python and some hand-editing of the Claude app's settings, so this version leaves it out and Claude does the checking instead.
 - **With the rest of the toolkit:** [Automatic actions from calls](../call-actions/) runs as a scheduled task in the Claude app, so it shows up on your page.
-- **Updating:** paste the setup line again. Your page keeps its link and its list, and any changes you've asked for are kept: Claude records those in your settings file.
+- **Updating:** say "update Aidan's toolkit" in Claude Code. Your page keeps its link and its list, and any changes you've asked for are kept: Claude records those in your settings file.
 - **Removing:** ask Claude Code to "remove the automations-page skill and its rule in my CLAUDE.md". The page stays on claude.ai until you delete it there, or ask Claude to.
 
 ## Changes
 
+- 2026-11-10: The toolkit is now a Claude Code plugin, so setup no longer downloads anything with curl, which auto mode and some organisations' settings blocked. The setup line installs the plugin if you don't have it yet. Your settings now live in `~/.claude/toolkit/`; setting up or updating again moves an older install's settings there for you. To update, say "update Aidan's toolkit".
 - 2026-11-03: First version.

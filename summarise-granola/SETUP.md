@@ -7,27 +7,22 @@ You're installing the `summarise-granola` skill for the person you're working wi
 The skill needs the **Granola** and **Google Drive** connectors (and **Google Docs**, only for the optional 1:1 doc links). Look for their tools, using tool search if your tools are deferred: Granola's `search_meetings` and `get_meeting_transcript`, and Google Drive's `create_file`.
 
 If Granola or Google Drive is missing, stop and tell them:
-> In Claude, open Settings → Connectors and connect Granola and Google Drive (sign in when asked). Then start a new session here and paste the setup line again: a session only sees connectors that were connected when it started.
+> In Claude, open Settings → Connectors and connect Granola and Google Drive (sign in when asked). Then start a new session here and say "set up call summaries" again: a session only sees connectors that were connected when it started.
 
 Don't try to install command-line tools, Python packages or other MCP servers instead.
 
-## 2. Download the skill
+## 2. Find the skill and their settings folder
 
-The skill lives in the user's personal skills folder: `~/.claude/skills/summarise-granola/` (on Windows, `%USERPROFILE%\.claude\skills\summarise-granola\`). Create the folder if it doesn't exist.
+The skill came with Aidan's Claude toolkit plugin, so there's nothing to download: it's in `${CLAUDE_PLUGIN_ROOT}/summarise-granola/`. (If `${CLAUDE_PLUGIN_ROOT}` hasn't been filled in with a real path, it means the plugin's folder: the folder above the one this file is in.) Never change the plugin's own files: an update replaces them.
 
-Download each of these files from `https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/summarise-granola/` into that folder, byte for byte (for example `curl -fsSL <url> -o <file>`; on Windows, `curl.exe` works the same). Don't retype or summarise them.
-- `SKILL.md`
-- `summary-format.md`
-- `SETUP.md`
-- `README.md`
+What's this person's own lives in `~/.claude/toolkit/summarise-granola/` (on Windows, `%USERPROFILE%\.claude\toolkit\summarise-granola\`): settings.md, and summarised.json, the list of calls already summarised. Create the folder if it doesn't exist.
 
-Check that SKILL.md starts with `---` and contains `name: summarise-granola`. Then put an untouched copy of each downloaded file in a `.original` folder inside the skill's folder: that's how a later update can tell whether anyone has changed them.
+**An install from before the toolkit was a plugin.** If `~/.claude/skills/summarise-granola/` exists and came from the toolkit (it has a `.original` folder, or its README.md mentions Aidan's Claude toolkit), move it over first. A folder of the same name that didn't come from the toolkit is the person's own skill: leave it alone, and tell them its name clashes with the toolkit's.
+1. If it has a `.original` folder, compare each file with its copy there. If one differs, someone changed the package's own files, probably by asking Claude to. Tell the person in plain words what's different, and carry each change into settings.md as a line under "My own rules". If a change can't be put as a rule, keep their version as `<file name>.mine` in the new folder and tell them.
+2. Move settings.md, summarised.json and any `.mine` files into `~/.claude/toolkit/summarise-granola/`.
+3. Move the old folder to the Trash (on Windows, the Recycle Bin), and tell them why in a line: the plugin has the skill now, and two copies would clash.
 
-**If the folder already has a `settings.md`, this is an update.** Before you download anything:
-1. Compare each file in the folder with its copy in `.original/` (if there's no `.original` folder, skip this check).
-2. If a file differs, someone has changed the package's own files, probably by asking Claude to. Tell the person in plain words what's different, and carry each change into settings.md as a line under "My own rules", so it survives the update. If a change can't be put as a rule, keep their version as `<file name>.mine` and tell them.
-3. Then download the new files, refresh `.original/`, and keep settings.md as it is.
-4. Tell them the skill is updated, what's new (the "Changes" list at the end of README.md), and that their settings and own rules are unchanged. Stop here.
+**If `~/.claude/toolkit/summarise-granola/settings.md` exists now, this is an update.** If the scheduled task "summarise-new-calls" exists and its prompt isn't the one in step 4 below, replace the prompt with `update_scheduled_task`. Then tell them the skill is updated, what's new (the "Changes" list at the end of `${CLAUDE_PLUGIN_ROOT}/summarise-granola/README.md`), and that their settings and own rules are unchanged. Stop here.
 
 ## 3. Ask how they'd like it to work
 
@@ -45,11 +40,11 @@ Ask these together (with AskUserQuestion if you have it), each with its one-line
 
 - **Folder:** if they chose a "Call summaries" folder, search their Drive with `search_files` for a folder they own with exactly that name, not in the trash. If there isn't one, create it with Google Drive `create_file`, title "Call summaries" and `contentMimeType` `application/vnd.google-apps.folder`. Note its ID. Do the same lookup for a folder they named.
 - **1:1 docs:** for each doc, `read_doc` it once to check it opens. If they named a tab, check it exists and tell them if it doesn't.
-- **Automatic:** if they said yes, create a scheduled task with `create_scheduled_task`: `taskId` "summarise-new-calls", `title` "Summarise new calls", `cronExpression` `40 9-18 * * 1-5` (local time), and this `prompt`: "Use the summarise-granola skill in Automatic mode: read ~/.claude/skills/summarise-granola/SKILL.md and settings.md, and follow its Automatic mode. Nobody is watching: never ask questions. This task may only create Google Docs in the summaries folder, add one dated link at the top of the 1:1 docs listed in settings.md, and write summarised.json in the skill's folder. Nothing is sent or shared." The tool's result says whether it was saved in Auto mode; if not, tell them the first run will stop to ask permission for each tool, and to approve each with the option that remembers it. It only runs while the Claude app is open.
+- **Automatic:** if they said yes, create a scheduled task with `create_scheduled_task`: `taskId` "summarise-new-calls", `title` "Summarise new calls", `cronExpression` `40 9-18 * * 1-5` (local time), and this `prompt`: "Use the summarise-granola skill from Aidan's Claude toolkit in Automatic mode (load it with the Skill tool: `aidan-toolkit:summarise-granola`), with the settings in ~/.claude/toolkit/summarise-granola/settings.md, and follow its Automatic mode. Nobody is watching: never ask questions. This task may only create Google Docs in the summaries folder, add one dated link at the top of the 1:1 docs listed in settings.md, and write summarised.json in ~/.claude/toolkit/summarise-granola/. Nothing is sent or shared." The tool's result says whether it was saved in Auto mode; if not, tell them the first run will stop to ask permission for each tool, and to approve each with the option that remembers it. It only runs while the Claude app is open.
 
 ## 5. Write settings.md
 
-Write `settings.md` in the skill's folder, in this shape:
+Write `~/.claude/toolkit/summarise-granola/settings.md` in this shape:
 
 ```markdown
 # Call summaries settings
@@ -79,7 +74,7 @@ Anything you've asked Claude to do differently goes here, one line each. It's ke
 
 ## 6. Offer a test run
 
-Offer to summarise their most recent Granola call now, following SKILL.md. If they say yes, do it and give them the doc link.
+Offer to summarise their most recent Granola call now, following `${CLAUDE_PLUGIN_ROOT}/summarise-granola/SKILL.md`. If they say yes, do it and give them the doc link.
 
 ## 7. Tell them how to use it
 
@@ -87,5 +82,5 @@ In a few lines:
 - In any new Claude Code session, say "summarise my last call", "summarise my call with Priya", or type `/summarise-granola`. A session that was already open may not see the new skill until it's restarted.
 - If automatic is on, new calls get summarised by themselves, about an hour after they end, while the Claude app is open. To pause it: Scheduled in the Claude app's sidebar → Summarise new calls → switch it off.
 - It never sends or shares anything: the doc is private until they share it.
-- To change how it works, they can just ask ("stop adding transcripts"). To update the skill later, they paste the same setup line again: their settings, and any changes they've asked for, are kept.
+- To change how it works, they can just ask ("stop adding transcripts"). To get the latest version later, they say "update Aidan's toolkit": their settings, and any changes they've asked for, are kept.
 - If they'd like it to happen automatically after every call, plus a tracker of what they said they'd do, that's the call-actions package: https://aidan-alexander.com/claude-tooling/call-actions/

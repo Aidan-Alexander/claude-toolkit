@@ -62,16 +62,17 @@ You can change any of these later in the settings gear, or anything else about h
 3. Start a new session in Claude Code and paste this in:
 
 ```
-Set up "call-actions" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/call-actions/SETUP.md exactly as written (e.g. with curl) and follow it.
+Set up "call-actions" from Aidan's Claude toolkit. If the aidan-toolkit plugin isn't installed, install it from GitHub first (claude plugin install aidan-toolkit --marketplace Aidan-Alexander/claude-toolkit, using the Claude Code inside the Claude app if claude isn't on the PATH), then follow its call-actions/SETUP.md.
 ```
 
-Claude checks your connectors, installs the skills, and makes your private tracker page, pinned to your claude.ai sidebar. The page opens on the setup screen above: pick your choices, paste your 1:1 doc links, click "Save and finish setup", and tell Claude "done". Claude then makes your summaries folder, schedules the checks, and offers a first run, so your page starts with something on it.
+Claude installs the toolkit plugin if you don't have it yet, checks your connectors, and makes your private tracker page, pinned to your claude.ai sidebar. The page opens on the setup screen above: pick your choices, paste your 1:1 doc links, click "Save and finish setup", and tell Claude "done". Claude then makes your summaries folder, schedules the checks, and offers a first run, so your page starts with something on it.
 
 ## Using it
 
 - **The page:** it's pinned to your claude.ai sidebar. Keep it open: it updates live.
 - **Run it now:** say "check my calls" in Claude Code.
 - **Pause it:** in the Claude app's sidebar, open Scheduled → Call actions and switch it off.
+- **Update it:** say "update Aidan's toolkit". Your settings, your own rules and your tracker are kept.
 
 ## Good to know
 
@@ -111,3 +112,4 @@ Claude checks your connectors, installs the skills, and makes your private track
 - 2026-11-06: The Monday digest is gone: the page itself is the list. When agenda points, calendar holds or doc edits are off, Claude now suggests them for you to do instead.
 - 2026-11-06: Fixes from a test install: calls are listed with Granola's `search_meetings` (the connector no longer has `list_meetings`); setup falls back to Python when curl isn't allowed, takes your first name from your sent email, and records the schedule it sets; the follow-up check counts "7 days" by date, and searches Slack in smaller stretches (its search stops at about 180 results).
 - 2026-11-09: A due date removed in Asana is now removed from your page too, so the task stops showing as overdue.
+- 2026-11-10: The toolkit is now a Claude Code plugin, so setup no longer downloads anything with curl, which auto mode and some organisations' settings blocked. The setup line installs the plugin if you don't have it yet. Your settings now live in `~/.claude/toolkit/`; setting up or updating again moves an older install's settings there for you. To update, say "update Aidan's toolkit".

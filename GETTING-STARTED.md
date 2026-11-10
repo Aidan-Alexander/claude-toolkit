@@ -29,9 +29,14 @@ Each package's page lists the connectors it needs.
 
 ## 4. Install a package
 
-Copy the one-line setup instruction from the package's page and paste it into Claude Code. Claude downloads the files, asks you a few questions about how you'd like it to work, and sets it up.
+Copy the one-line setup instruction from the package's page and paste it into Claude Code. The first time, Claude installs the toolkit as a plugin: one install that brings every package, though none of them runs until you set it up. Then it asks you a few questions about how you'd like the package to work, and sets it up. For another package later, paste its line too: the plugin is already there, so Claude goes straight to setting it up.
 
 If you're not in Auto mode, Claude asks your permission before running commands or using a connector for the first time. Read what it says it's about to do, and click Allow. If you're unsure, ask it to explain first.
+
+**If Claude can't install the plugin** (some organisations' settings stop it running the install command), install it yourself, then paste the setup line again:
+1. In the Code tab, type this into the message box and press Enter: `/plugin install aidan-toolkit --marketplace Aidan-Alexander/claude-toolkit`
+2. Confirm adding Aidan's marketplace, and choose **Install for you**.
+3. Start a new session.
 
 ## 5. Scheduled packages
 
@@ -43,8 +48,9 @@ Some packages run on a schedule, for example every hour on weekdays. They live u
 ## 6. Changing, updating or removing things
 
 - **Change how something works:** just ask Claude Code, e.g. "make my call summaries shorter". Claude records the change in that package's settings file, so it's kept when you update.
-- **Update to the latest version:** paste the package's setup line again. Your settings, and any changes you've asked for, are kept. If anyone has edited a package's own files, Claude shows you what's different and carries it across first.
+- **Update to the latest version:** say "update Aidan's toolkit" in Claude Code. Claude gets the newest plugin and brings each package you use in step. Your settings, and any changes you've asked for, are kept: they live in `~/.claude/toolkit/`, outside the plugin.
 - **Remove a package:** ask Claude Code, e.g. "remove the call-actions package and its scheduled task".
+- **Remove the whole toolkit:** ask Claude Code to remove its packages first, then uninstall the aidan-toolkit plugin (type `/plugin` and open **Installed**, or ask Claude).
 
 ## Safety
 

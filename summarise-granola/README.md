@@ -47,10 +47,10 @@ You can change any of these later, or anything else about how it works, by askin
 3. Start a new session in Claude Code and paste this in:
 
 ```
-Set up "summarise-granola" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/summarise-granola/SETUP.md exactly as written (e.g. with curl) and follow it.
+Set up "summarise-granola" from Aidan's Claude toolkit. If the aidan-toolkit plugin isn't installed, install it from GitHub first (claude plugin install aidan-toolkit --marketplace Aidan-Alexander/claude-toolkit, using the Claude Code inside the Claude app if claude isn't on the PATH), then follow its summarise-granola/SETUP.md.
 ```
 
-Claude downloads the skill, asks you the questions above, and offers to summarise your last call as a test.
+Claude installs the toolkit plugin if you don't have it yet, asks you the questions above, and offers to summarise your last call as a test.
 
 ## Using it
 
@@ -71,7 +71,7 @@ A summary takes a few minutes. You can keep working in another session while it 
 - **Privacy:** the transcript is read by Claude under your account. The doc it creates is in your Drive and private to you.
 - **Usage:** a detailed summary of an hour-long call uses a fair amount of your Claude plan's usage, roughly what a long chat would.
 - **No special setup:** no Python, no command-line tools, no API keys. It works on Mac and Windows, wherever Claude Code and Granola do.
-- **Updating:** paste the setup line again. Your settings, and any changes you've asked for, are kept: Claude records those in your settings file. If anyone has edited the skill's own files, Claude shows you what's different and carries it across first.
+- **Updating:** say "update Aidan's toolkit" in Claude Code. Your settings, and any changes you've asked for, are kept: Claude records those in your settings file.
 - **Removing:** ask Claude Code to "remove the summarise-granola skill".
 
 ## Credits
@@ -80,6 +80,7 @@ This grew out of [HartreeWorks' summarise-call skill](https://github.com/Hartree
 
 ## Changes
 
+- 2026-11-10: The toolkit is now a Claude Code plugin, so setup no longer downloads anything with curl, which auto mode and some organisations' settings blocked. The setup line installs the plugin if you don't have it yet. Your settings now live in `~/.claude/toolkit/`; setting up or updating again moves an older install's settings there for you. To update, say "update Aidan's toolkit".
 - 2026-11-06: Lists recent calls with Granola's `search_meetings`: the connector no longer has `list_meetings`.
 - 2026-11-04: Spells out that it summarises calls other people recorded: a Granola note they share with you, or a transcript you paste in.
 - 2026-11-03: First version in the toolkit: connectors only, with setup questions, and an optional automatic mode.

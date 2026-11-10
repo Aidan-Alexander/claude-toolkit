@@ -1,0 +1,25 @@
+{
+  "name": "aidan-toolkit",
+  "displayName": "Aidan's Claude toolkit",
+  "description": "Automatic actions from calls, fancy call summaries, an automations page and a work hours enforcer. Nothing runs until you set a package up: say \"set up call actions\" (or another package) in Claude Code.",
+  "author": {
+    "name": "Aidan Alexander",
+    "url": "https://aidan-alexander.com/claude-tooling"
+  },
+  "homepage": "https://aidan-alexander.com/claude-tooling",
+  "repository": "https://github.com/Aidan-Alexander/claude-toolkit",
+  "license": "MIT",
+  "keywords": [
+    "granola",
+    "call summaries",
+    "to-do",
+    "automations",
+    "nonprofit"
+  ],
+  "skills": [
+    "./call-actions",
+    "./summarise-granola",
+    "./automations-page",
+    "./setup"
+  ]
+}

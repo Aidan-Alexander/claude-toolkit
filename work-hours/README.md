@@ -64,10 +64,10 @@ Actions people often use to end the workday:
 3. Start a new session in Claude Code and paste this in:
 
 ```
-Set up "work-hours" from Aidan's Claude toolkit. Fetch https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/work-hours/SETUP.md exactly as written (e.g. with curl) and follow it.
+Set up "work-hours" from Aidan's Claude toolkit. If the aidan-toolkit plugin isn't installed, install it from GitHub first (claude plugin install aidan-toolkit --marketplace Aidan-Alexander/claude-toolkit, using the Claude Code inside the Claude app if claude isn't on the PATH), then follow its work-hours/SETUP.md.
 ```
 
-Claude checks you're on a Mac, asks you the questions above, sets it up, and shows you the warning once as a test. The test counts down from 20 seconds and does nothing else: no Shortcut, no sleep.
+Claude installs the toolkit plugin if you don't have it yet, checks you're on a Mac, asks you the questions above, sets it up, and shows you the warning once as a test. The test counts down from 20 seconds and does nothing else: no Shortcut, no sleep.
 
 ## Using it
 
@@ -83,9 +83,10 @@ Claude checks you're on a Mac, asks you the questions above, sets it up, and sho
 - **Opening the Mac during the warning period,** say a few minutes before bedtime, brings up the warning with the time that's left.
 - **macOS may say "background items" were added.** That's these jobs. If you switch them off in System Settings → General → Login Items, they won't run.
 - **Older Macs:** the Shortcut needs macOS 12 (Monterey) or later. Bedtime and the plain reminder don't.
-- **Updating:** paste the setup line again. Your settings are kept, and if the scripts on your Mac were changed, Claude shows you what's different and asks before replacing them.
+- **Updating:** say "update Aidan's toolkit" in Claude Code. Your settings are kept, and if the scripts on your Mac were changed, Claude shows you what's different and asks before replacing them.
 - **Removing:** ask Claude Code to "remove work-hours". It switches both off and keeps your settings and log, in case you want them back.
 
 ## Changes
 
+- 2026-11-10: The toolkit is now a Claude Code plugin, so setup no longer downloads anything with curl, which auto mode and some organisations' settings blocked. The setup line installs the plugin if you don't have it yet. Your settings now live in `~/.claude/toolkit/`; setting up or updating again moves an older install's settings there for you. To update, say "update Aidan's toolkit".
 - 2026-11-03: First version.

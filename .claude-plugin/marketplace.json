@@ -1,0 +1,15 @@
+{
+  "name": "aidan-alexander",
+  "description": "Aidan Alexander's Claude toolkit: things he built with Claude, packaged so anyone can set them up.",
+  "owner": {
+    "name": "Aidan Alexander",
+    "url": "https://aidan-alexander.com/claude-tooling"
+  },
+  "plugins": [
+    {
+      "name": "aidan-toolkit",
+      "source": "./",
+      "description": "Automatic actions from calls, fancy call summaries, an automations page and a work hours enforcer. Nothing runs until you set a package up."
+    }
+  ]
+}

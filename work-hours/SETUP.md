@@ -14,22 +14,22 @@ Run `uname -s`. If it doesn't print `Darwin`, stop, and tell them kindly that th
 
 Also run `sw_vers -productVersion`. A Shortcut needs macOS 12 or later. On anything older, offer bedtime and a reminder-only stop work.
 
-## 2. Download the files
+## 2. Copy the files
 
 Everything goes in a hidden folder in their home folder, `~/.work-hours/`. Create it if it doesn't exist.
 
-Download each of these into that folder, byte for byte, for example with `curl -fsSL <url> -o ~/.work-hours/<file>`. Don't retype or summarise them.
-- https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/work-hours/work-hours.sh
-- https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/work-hours/install.sh
-- https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/work-hours/uninstall.sh
-- https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/work-hours/com.claude-toolkit.stop-work.plist
-- https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/work-hours/com.claude-toolkit.bedtime.plist
-- https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/work-hours/README.md
-- https://raw.githubusercontent.com/Aidan-Alexander/claude-toolkit/main/work-hours/SETUP.md
+The files came with Aidan's Claude toolkit plugin, in `${CLAUDE_PLUGIN_ROOT}/work-hours/`, so there's nothing to download. (If `${CLAUDE_PLUGIN_ROOT}` hasn't been filled in with a real path, it means the plugin's folder: the folder above the one this file is in.) Copy each of these from there into `~/.work-hours/` with `cp`, byte for byte. Don't retype or summarise them.
+- `work-hours.sh`
+- `install.sh`
+- `uninstall.sh`
+- `com.claude-toolkit.stop-work.plist`
+- `com.claude-toolkit.bedtime.plist`
+- `README.md`
+- `SETUP.md`
 
-Then run `chmod +x ~/.work-hours/*.sh`, and check that `work-hours.sh` starts with `#!/bin/bash`. Put an untouched copy of each downloaded file in `~/.work-hours/.original/`: that's how a later update can tell whether anyone has changed them.
+Then run `chmod +x ~/.work-hours/*.sh`, and check that `work-hours.sh` starts with `#!/bin/bash`. Put an untouched copy of each file in `~/.work-hours/.original/`: that's how a later update can tell whether anyone has changed them.
 
-If `~/.work-hours/settings.txt` already exists, this is an update. Before you download anything, compare each file in `~/.work-hours` with its copy in `~/.work-hours/.original/` (skip this if there's no `.original` folder). If one differs, someone has changed it on purpose: tell them in plain words what's different, keep their version as `<file name>.mine`, and ask whether to replace it with the new version. Then download what they agree to, refresh `.original/`, keep settings.txt as it is, run `bash ~/.work-hours/install.sh` so the jobs pick up the new files, tell them it's updated and their settings are unchanged, and stop here.
+If `~/.work-hours/settings.txt` already exists, this is an update. Before you copy anything, compare each file in `~/.work-hours` with its copy in `~/.work-hours/.original/` (skip this if there's no `.original` folder). If one differs, someone has changed it on purpose: tell them in plain words what's different, keep their version as `<file name>.mine`, and ask whether to replace it with the new version. Then copy what they agree to, refresh `.original/`, keep settings.txt as it is, run `bash ~/.work-hours/install.sh` so the jobs pick up the new files, tell them it's updated and their settings are unchanged, and stop here.
 
 Otherwise, check they don't already have something similar running: look in `launchctl list` for a label that mentions stop work, bedtime or work hours and doesn't start with `com.claude-toolkit.`. If you find one, tell them and ask before going on, so they don't end up with two warnings.
 
@@ -122,11 +122,11 @@ In a few lines:
 - To skip a day, they click **Skip today** or **Not tonight** in the warning, typing a reason first if they chose that.
 - To pause, change or remove it, they ask Claude Code and mention work-hours: "pause my work-hours bedtime", "move my work-hours stop time to 17:30", "remove work-hours".
 - "Show my work-hours log" lists each run and skip. The log is `~/.work-hours/log.txt`.
-- To update it later, they paste the same setup line again. Their settings are kept, and if they've changed the scripts, Claude asks before replacing them.
+- To get the latest version later, they say "update Aidan's toolkit". Their settings are kept, and if they've changed the scripts, Claude asks before replacing them.
 
 ## 9. Add it to their automations page, if they have one
 
-If they've set up the toolkit's automations page (there's a `~/.claude/skills/automations-page/` folder, or their CLAUDE.md mentions their automations page), add an entry for each job that's on, following that skill's instructions, and tell them you did. Use:
+If they've set up the toolkit's automations page (there's a `~/.claude/toolkit/automations-page/settings.md`, or their CLAUDE.md mentions their automations page), add an entry for each job that's on, following that skill's instructions, and tell them you did. Use:
 - `name`: "Stop work" or "Bedtime"
 - `place`: `elsewhere`, with `where`: "Your Mac"
 - `schedule`, in plain words, such as "Weekdays: warning at 17:55, Shortcut at 18:01"

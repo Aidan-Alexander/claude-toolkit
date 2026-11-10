@@ -7,7 +7,7 @@ description: Turns a Granola call, or a call transcript someone shares with you 
 
 Reads a call's transcript from Granola, writes a summary that lets the user re-live the call, and saves it as a Google Doc. It uses only connectors: Granola and Google Drive, plus Google Docs for the optional 1:1 doc links.
 
-**Start by reading `settings.md` in this skill's folder.** Its "My own rules" section overrides the defaults in this file. If it doesn't exist, the skill hasn't been set up yet: follow `SETUP.md` in the same folder first, then carry on.
+**Start by reading the person's settings, in `~/.claude/toolkit/summarise-granola/settings.md`** (on Windows, `%USERPROFILE%\.claude\toolkit\summarise-granola\settings.md`). Its "My own rules" section overrides the defaults in this file. If it doesn't exist, the skill hasn't been set up yet: run its setup first (the toolkit's `setup-summarise-granola` skill), then carry on. That folder is also where `summarised.json` lives. When the person asks to change how summaries work, record it in settings.md, never in this file: an update replaces this file.
 
 Connector tools are often deferred: load them with tool search before calling them. If a connector is missing, or its calls fail because of sign-in, tell the user to reconnect it in Claude under Settings → Connectors and then start a new session, and stop.
 
@@ -100,7 +100,7 @@ If settings.md lists 1:1 docs and this call was essentially a 1:1 with one of th
 
 ## 8. Report back
 
-Add the call to `summarised.json` in this skill's folder (a JSON list; create it if it's missing), as `{"id": "<meeting id>", "title": "...", "date": "YYYY-MM-DD", "doc": "<summary doc link>"}`, so automatic mode never summarises it twice.
+Add the call to `summarised.json` in `~/.claude/toolkit/summarise-granola/` (a JSON list; create it if it's missing), as `{"id": "<meeting id>", "title": "...", "date": "YYYY-MM-DD", "doc": "<summary doc link>"}`, so automatic mode never summarises it twice.
 
 Reply with the doc link, where it was saved, whether a 1:1 doc link was added, and one line on how sure you are about who said what. Never send the summary to anyone or change who can see it: the user decides who to share it with.
 
@@ -108,7 +108,7 @@ Reply with the doc link, where it was saved, whether a 1:1 doc link was added, a
 
 Only when settings.md says "Automatic: on". The skill's scheduled task starts it with `automatic`, about once an hour on weekdays. Nobody is watching: never ask questions.
 
-1. Read `summarised.json` in this skill's folder (an empty list if it doesn't exist yet).
+1. Read `summarised.json` in `~/.claude/toolkit/summarise-granola/` (an empty list if it doesn't exist yet).
 2. Granola `search_meetings` with no keywords, `from_date` set to 7 days ago, `include_shared: false` (only calls the user recorded themselves) and `limit: 100`; follow `next_cursor` if there is one. Keep the calls that started after "Automatic since" in settings.md and aren't in summarised.json, oldest first.
 3. Check each one is over. Call `get_meeting_transcript` with `max_chars: 1000` and `include_timestamps: true`.
    - No transcript yet: leave it for the next run.

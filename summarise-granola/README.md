@@ -23,7 +23,7 @@ That's a made-up call. [Read the whole example summary](example-summary.md).
 1. **Picks the call:** if you like, it checks for new calls every hour on weekdays and summarises each one by itself. Or it does the one you name when you ask, or the one that just ended.
 2. **Reads the whole transcript** from Granola, however long.
 3. **Works out who said what.** Granola's speaker labels are often wrong, especially when a room shares one laptop, so it checks them against what was said and marks anything it's unsure of with "(?)".
-4. **Writes the summary** and saves it as a Google Doc in a folder on your Drive ("Call summaries", unless you choose another). The doc opens with a one-line AI disclaimer: Claude wrote it, and you haven't reviewed it yet.
+4. **Writes the summary** and saves it as a Google Doc in a folder on your Drive ("Call summaries", unless you choose another). Under its title, a one-line AI disclaimer says Claude wrote it and you haven't reviewed it yet.
 5. **Optionally** adds a tidied transcript to the end of the doc, and a dated link to the summary at the top of your 1:1 doc with that person.
 6. **Gives you the link.** It never sends or shares anything: the doc is private until you share it.
 
@@ -80,7 +80,7 @@ This grew out of [HartreeWorks' summarise-call skill](https://github.com/Hartree
 
 ## Changes
 
-- 2026-11-11: Every summary doc opens with a one-line AI disclaimer, saying Claude wrote it and you haven't reviewed it yet, so anyone you share it with knows. Change or delete the line once you have.
+- 2026-11-11: Every summary doc has a one-line AI disclaimer under its title, saying Claude wrote it and you haven't reviewed it yet, so anyone you share it with knows. Change or delete the line once you have.
 - 2026-11-10: The toolkit is now a Claude Code plugin, so setup no longer downloads anything with curl, which auto mode and some organisations' settings blocked. The setup line installs the plugin if you don't have it yet. Your settings now live in `~/.claude/toolkit/`; setting up or updating again moves an older install's settings there for you. To update, say "update Aidan's toolkit".
 - 2026-11-06: Lists recent calls with Granola's `search_meetings`: the connector no longer has `list_meetings`.
 - 2026-11-04: Spells out that it summarises calls other people recorded: a Granola note they share with you, or a transcript you paste in.

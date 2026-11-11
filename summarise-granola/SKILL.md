@@ -80,7 +80,7 @@ Google Drive `create_file` with:
   - avoid nested lists (they get flattened), `<hr>` (it merges into the heading after it) and bold inside table cells (it's dropped; header rows won't be bold either).
 - `parentId`: the folder ID from settings.md, if there is one.
 
-Start the HTML with an AI disclaimer as its first paragraph, so whoever opens the doc knows straight away that Claude wrote it and how far the user has checked it: `<p><i>AI disclaimer: summarised by Claude (AI) from the call's transcript. <first name> hasn't reviewed it yet.</i></p>`. If the user shaped the summary (say, they told you what to focus on), say that instead of "hasn't reviewed it yet", but never claim a review that hasn't happened. A separate tidied-transcript doc starts the same way: "AI disclaimer: tidied by Claude (AI) from the call's transcript. …"
+Put an AI disclaimer paragraph straight after the summary's title heading (never above it), so whoever opens the doc knows straight away that Claude wrote it and how far the user has checked it: `<p><i>AI disclaimer: summarised by Claude (AI) from the call's transcript. <first name> hasn't reviewed it yet.</i></p>`. If the user shaped the summary (say, they told you what to focus on), say that instead of "hasn't reviewed it yet", but never claim a review that hasn't happened. A separate tidied-transcript doc gets the same kind of line under its title: "AI disclaimer: tidied by Claude (AI) from the call's transcript. …"
 
 Note the new doc's link in its plain form, `https://docs.google.com/document/d/<id>/edit`, without the `?usp=…` tail the tool returns.
 

@@ -52,6 +52,10 @@ I want to change the words Claude Code shows while it's working ("Thinking…", 
 - **Charity newsletters:** saves the newsletter updates we receive from our charities into our database so our repository of knowledge about our charities' journeys is more complete, posts a weekly roundup in Slack so AIM staff get all the updates in one place, and every quarter lists charities we haven't heard from last quarter so we can make sure we're subscribed to their newsletter.
 - **Charity call notes:** when we have a Q&A session with one of our charities in the team meeting, it copies the summary and transcript into our MEL database so our repository of knowledge about our charities' journeys is more complete.
 
+### Research
+
+- **Agentic shopping watch:** every Monday, a sweep that tracks whether a research thesis is coming true, crux by crux, and publishes a newsletter with people worth talking to.
+
 ### My Claude setup
 
 - **open-source:** whenever Claude builds or changes a skill or automation for me, it checks whether colleagues could use it too, packages it with a plain-English write-up and a one-line setup, and keeps the write-ups here current (it's the skill that keeps this resource up to date!).

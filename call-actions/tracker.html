@@ -511,6 +511,10 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     try { const x = new URL(u); return x.protocol === "https:" || x.protocol === "http:" ? x.href : null; }
     catch { return null; }
   }
+  // A call's link: its summary doc, or failing that its Granola note (the recording), so every call opens something.
+  function callUrl(summaryUrl, callId) {
+    return safeUrl(summaryUrl) || (/^[0-9a-f-]{36}$/i.test(callId || "") ? "https://notes.granola.ai/d/" + callId : null);
+  }
   function linkEls(links) {
     return (Array.isArray(links) ? links : [])
       .map((l) => { const u = safeUrl(l && l.url); return u ? h("a", { href: u, target: "_blank", rel: "noopener" }, String(l.label || "Link")) : null; })
@@ -562,7 +566,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
              : h("span", { class: "chip" }, label);
   }
   function callChip(a) {
-    const u = safeUrl(a.summaryUrl);
+    const u = callUrl(a.summaryUrl, a.callId);
     return u ? h("a", { class: "chip", href: u, target: "_blank", rel: "noopener" }, a.callTitle)
              : h("span", { class: "chip" }, a.callTitle);
   }
@@ -942,7 +946,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     for (const a of items) {
       const key = a.callId || (isFollowup(a) ? "_followups" : isAsana(a) ? "_asana" : "_mine");
       const titles = { _followups: "Waiting on a reply", _asana: "From Asana", _mine: "Added by you" };
-      if (!map.has(key)) map.set(key, { key, title: a.callTitle || titles[key], date: a.callDate || "", url: safeUrl(a.summaryUrl), items: [] });
+      if (!map.has(key)) map.set(key, { key, title: a.callTitle || titles[key], date: a.callDate || "", url: callUrl(a.summaryUrl, a.callId), items: [] });
       map.get(key).items.push(a);
     }
     const groups = [...map.values()];
@@ -1081,7 +1085,7 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
     const calls = S.calls.filter((c) => c.addedAt).slice(0, 12);
     $("empty-calls").hidden = !S.got.has("calls") || calls.length > 0;
     $("list-calls").replaceChildren(...calls.map((c) => {
-      const u = safeUrl(c.summaryUrl);
+      const u = callUrl(c.summaryUrl, c.id);
       const count = c.error ? "Couldn't work out the actions" : c.actionCount ? c.actionCount + " action" + (c.actionCount === 1 ? "" : "s") : "No clear actions for you";
       return h("li", null,
         h("span", { class: "date" }, fmtDay(c.date)),

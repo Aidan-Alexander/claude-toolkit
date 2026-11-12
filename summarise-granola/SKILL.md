@@ -28,7 +28,7 @@ Connector tools are often deferred: load them with tool search before calling th
 
 - `get_meetings` with the meeting ID gives the title, the date (`meeting_at`), the attendees (`known_participants`) and the note's link. Ignore Granola's own AI notes: the transcript is the source.
 - `get_meeting_transcript` with `max_chars: 80000`. While `truncated` is true, call it again with `offset` set to `next_offset`. A long reply may be saved to a file: read all of it. Don't start writing until what you've read adds up to `total_chars`.
-- If there's no transcript (`transcript_unavailable`), say why and stop. "transcript_pending" means try again in a few minutes.
+- If there's no transcript (`transcript_unavailable`), say why and stop. "transcript_pending" means try again in a few minutes, and so does "no_transcript" on a call that's still going or has only just started: Granola hasn't stored any of it yet.
 
 ## A pasted transcript
 

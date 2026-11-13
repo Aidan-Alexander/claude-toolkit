@@ -1,6 +1,6 @@
 # Automatic actions from calls
 
-**Runs in:** Claude Code (the Code tab of the Claude desktop app), on a schedule · **Needs:** Gmail, plus Granola and Google Drive for calls · **Optional:** Slack, Google Calendar, Google Docs, Asana · **Setup:** about 15 minutes
+**Runs in:** Claude Code (the Code tab of the Claude desktop app), on a schedule · **Needs:** Gmail, plus Granola and Google Drive for calls · **Optional:** Slack, Google Calendar, Google Docs, Google Sheets, Google Slides, Asana · **Setup:** about 15 minutes
 
 One page for everything you've said you'll do. After each call you record in Granola, Claude works out what you took on, does the parts it usefully can (drafting the email you promised, digging out the doc you said you'd send) and puts it all on a private tracker page. Once a week it also adds emails and Slack messages you sent that never got a reply, with a follow-up already drafted. You tick things off, snooze them or dismiss them, and you can hand things to Claude from the page.
 
@@ -58,7 +58,7 @@ You can change any of these later in the settings gear, or anything else about h
 ## Set it up
 
 1. If you haven't used Claude Code before, follow [Getting started](../GETTING-STARTED.md) first (about 10 minutes, once).
-2. In Claude, open **Settings → Connectors** and connect **Gmail**, plus **Granola** and **Google Drive** if you want it to cover calls. Slack, Google Calendar, Google Docs and Asana are optional.
+2. In Claude, open **Settings → Connectors** and connect **Gmail**, plus **Granola** and **Google Drive** if you want it to cover calls. Slack, Google Calendar, Google Docs, Google Sheets, Google Slides and Asana are optional.
 3. Start a new session in Claude Code and paste this in:
 
 ```
@@ -117,3 +117,4 @@ Claude installs the toolkit plugin if you don't have it yet, checks your connect
 - 2026-11-12: A call checked in its first minutes, before Granola had stored any transcript, is no longer dropped as "no transcript": later checks look again for up to 12 hours.
 - 2026-11-12: Every call on the page opens something: its summary doc, or its Granola note when the summary's link is missing.
 - 2026-11-13: Claude can make a new Google Sheet instead of a doc when a sheet suits the job better, such as a tracker. Like a doc, it carries an AI disclaimer under its title.
+- 2026-11-13: With the Google Slides connector, Claude can make a deck too, with the AI disclaimer under its title on the first slide. Forms are drafted as a doc, ready to paste into Google Forms, because there's no Google Forms connector yet. With the Google Sheets connector, sheets can have several tabs and formulas.

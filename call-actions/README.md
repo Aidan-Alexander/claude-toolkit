@@ -116,3 +116,4 @@ Claude installs the toolkit plugin if you don't have it yet, checks your connect
 - 2026-11-11: Docs Claude drafts for you have a one-line AI disclaimer under their title: what Claude drafted it from, and how involved you've been so far (by default, that you haven't reviewed it). Claude brings the line up to date when it revises one of its own docs.
 - 2026-11-12: A call checked in its first minutes, before Granola had stored any transcript, is no longer dropped as "no transcript": later checks look again for up to 12 hours.
 - 2026-11-12: Every call on the page opens something: its summary doc, or its Granola note when the summary's link is missing.
+- 2026-11-13: Claude can make a new Google Sheet instead of a doc when a sheet suits the job better, such as a tracker. Like a doc, it carries an AI disclaimer under its title.

@@ -1270,11 +1270,12 @@ details.done > div:not(:empty) { background: var(--surface); border: 1px solid v
             h("label", { class: "set-inline", for: "set-hoursUntil" }, "and", hourSelect("hoursUntil", s.hoursUntil, 1, 24)))),
         h("p", { class: "hint" }, "It only runs while the Claude app is open on your computer."))),
       later(group("Claude model and effort",
+        h("p", { class: "hint" }, "Picks who does each whole check, so it's the main way to make this use less of your Claude allowance."),
         h("p", { class: "set-label" }, "Model"),
         radios("model", s.model, [
           ["app", "Same as my Claude app"],
           ["opus", "Opus (recommended for Claude Max)", "The most careful. Uses your Claude allowance fastest."],
-          ["sonnet", "Sonnet (recommended for Claude Pro)", "Nearly as good, at about half the usage."]]),
+          ["sonnet", "Sonnet (recommended for Claude Pro)", "About half the usage. Nearly as good, but likelier to miss the odd action or step."]]),
         h("p", { class: "set-label" }, "Effort: how much Claude thinks before each step"),
         radios("effort", s.effort, [
           ["app", "Same as my Claude app"],

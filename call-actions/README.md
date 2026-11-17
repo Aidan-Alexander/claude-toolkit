@@ -118,3 +118,4 @@ Claude installs the toolkit plugin if you don't have it yet, checks your connect
 - 2026-11-12: Every call on the page opens something: its summary doc, or its Granola note when the summary's link is missing.
 - 2026-11-13: Claude can make a new Google Sheet instead of a doc when a sheet suits the job better, such as a tracker. Like a doc, it carries an AI disclaimer under its title.
 - 2026-11-13: With the Google Slides connector, Claude can make a deck too, with the AI disclaimer under its title on the first slide. Forms are drafted as a doc, ready to paste into Google Forms, because there's no Google Forms connector yet. With the Google Sheets connector, sheets can have several tabs and formulas.
+- 2026-11-17: The model choice under the gear now says what it's for: it picks who does each whole check, so it's the main way to use less of your Claude allowance, and Sonnet is likelier to miss the odd action.
